@@ -10,15 +10,17 @@
  * halo underneath the glyphs rather than from an opaque plate, which is what
  * lets the chip sit on a bright shop shelf and a dim kitchen alike without
  * turning into a black rectangle in either.
+ *
+ * The outline is the same traced box every other button in the product uses, so
+ * a chip over live video and a chip on paper are the same drawing in different
+ * ink — right down to the corner it carries past.
  */
 
-import { useMemo } from 'react';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
 
-import { MIN_TOUCH_SIZE, radius, space } from '../../design/tokens';
-import { HandFrame } from '../../drawing/HandFrame';
-import { seedFromString } from '../../drawing/seededRandom';
-import { Touch, type TouchProps } from '../../ui/Touch';
+import { MIN_TOUCH_SIZE, space } from '../../design/tokens';
+import { SketchButton, SketchSurface } from '../../ui/SketchButton';
+import type { TouchProps } from '../../ui/Touch';
 import { overlayInk } from './overlay';
 
 /** Height of a chip on the viewfinder. Past the 48dp floor on its own. */
@@ -34,32 +36,27 @@ export type HandChipProps = {
   style?: ViewStyle | ViewStyle[];
 } & Omit<TouchProps, 'style' | 'children'>;
 
-/** The drawn shell, shared by the pressable and static forms. */
-function Shell({ seed, children }: { seed: string; children: React.ReactNode }) {
-  const seedValue = useMemo(() => seedFromString(seed), [seed]);
-
-  return (
-    <HandFrame
-      seed={seedValue}
-      color={overlayInk.outline}
-      variant="pencil"
-      radius={CHIP_HEIGHT / 2}
-      strokeScale={0.72}
-      style={styles.frame}
-      contentStyle={styles.content}
-    >
-      <View style={styles.wash} pointerEvents="none" />
-      {children}
-    </HandFrame>
-  );
-}
+/** Shared between the pressable and static forms. */
+const shell = {
+  radius: CHIP_HEIGHT / 2,
+  outlineColor: overlayInk.outline,
+  washColor: overlayInk.tint,
+  scale: 0.74,
+  filled: true,
+} as const;
 
 /** A pressable chip on the viewfinder. */
 export function HandChip({ children, seed, style, ...rest }: HandChipProps) {
   return (
-    <Touch style={style} {...rest}>
-      <Shell seed={seed}>{children}</Shell>
-    </Touch>
+    <SketchButton
+      {...rest}
+      {...shell}
+      seed={`capture/chip/${seed}`}
+      style={StyleSheet.flatten([styles.chip, style])}
+      contentStyle={styles.content}
+    >
+      {children}
+    </SketchButton>
   );
 }
 
@@ -71,30 +68,25 @@ export function HandChipStatic({
 }: Pick<HandChipProps, 'children' | 'seed' | 'style'>) {
   return (
     <View style={style} pointerEvents="none">
-      <Shell seed={seed}>{children}</Shell>
+      <SketchSurface
+        {...shell}
+        seed={`capture/chip/${seed}`}
+        style={styles.chip}
+        contentStyle={styles.content}
+      >
+        {children}
+      </SketchSurface>
     </View>
   );
 }
 
-/** Inset matching HandFrame's own, so the wash stops under the drawn line. */
-const INSET = 4;
-
 const styles = StyleSheet.create({
-  frame: { minHeight: CHIP_HEIGHT, justifyContent: 'center' },
+  chip: { minHeight: CHIP_HEIGHT, justifyContent: 'center' },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
     paddingHorizontal: space.lg,
     minHeight: CHIP_HEIGHT,
-  },
-  wash: {
-    position: 'absolute',
-    top: INSET,
-    left: INSET,
-    right: INSET,
-    bottom: INSET,
-    borderRadius: radius.pill,
-    backgroundColor: overlayInk.tint,
   },
 });

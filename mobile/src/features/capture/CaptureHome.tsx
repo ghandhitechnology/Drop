@@ -9,8 +9,9 @@ import { useTheme } from '../../design/theme';
 import { radius, space } from '../../design/tokens';
 import { copy } from '../../lib/copy';
 import { ResultStage } from '../result/ResultStage';
+import { SketchButton } from '../../ui/SketchButton';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import { CameraStage, useTakePhoto, type StageSize } from './CameraStage';
 import { FramingNote } from './FramingNote';
 import { CHIP_HEIGHT, HandChip, HandChipStatic } from './HandChip';
@@ -160,20 +161,28 @@ export function CaptureHome() {
               <Text variant="body" tone="inkSoft">
                 {copy.unresolved.body}
               </Text>
-              <Touch
+              <SketchButton
                 onPress={openSearch}
-                style={[styles.action, { backgroundColor: colors.accentSoft, borderColor: colors.accent }]}
+                seed="capture/unresolved/search"
+                filled
+                radius={radius.pill}
+                style={styles.action}
+                contentStyle={styles.actionContent}
                 accessibilityLabel={copy.unresolved.action}
               >
                 <Text variant="label" tone="accent">
                   {copy.unresolved.action}
                 </Text>
-              </Touch>
-              <Touch onPress={retake} style={styles.retake} accessibilityLabel={copy.capture.retake}>
-                <Text variant="label" tone="inkSoft">
-                  {copy.capture.retake}
-                </Text>
-              </Touch>
+              </SketchButton>
+              <SketchLink
+                onPress={retake}
+                seed="capture/unresolved/retake"
+                tone="inkSoft"
+                style={styles.retake}
+                accessibilityLabel={copy.capture.retake}
+              >
+                {copy.capture.retake}
+              </SketchLink>
             </View>
           </View>
         )}
@@ -237,12 +246,7 @@ const styles = StyleSheet.create({
     padding: space.xl,
     gap: space.md,
   },
-  action: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  retake: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  action: { minHeight: 56 },
+  actionContent: { minHeight: 56 },
+  retake: { minHeight: 48, alignItems: 'center' },
 });

@@ -11,7 +11,7 @@
 
 import { Canvas, Skia } from '@shopify/react-native-skia';
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { StyleSheet, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -26,8 +26,8 @@ import { HandFrame } from '../../drawing/HandFrame';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import { UNDO_WINDOW_MS } from './store';
 
 const ENTER_MS = 200;
@@ -91,17 +91,26 @@ export function UndoBar({ label, onRestore }: UndoBarProps) {
         <Text variant="label" tone="ink" style={styles.label} numberOfLines={2}>
           {copy.history.removed(label)}
         </Text>
-        <Touch
+        {/*
+          Outline only. The bar it sits in is already a drawn box, and colouring
+          this one in would make the offer to undo louder than the removal it is
+          apologising for.
+        */}
+        <SketchButton
           onPress={onRestore}
           haptic="removing"
+          seed="history/undo/restore"
+          radius={radius.pill}
+          scale={0.86}
           accessibilityLabel={copy.history.restore}
           accessibilityHint={copy.history.restoreHint}
-          style={[styles.action, { borderColor: colors.accent }]}
+          style={styles.action}
+          contentStyle={styles.actionContent}
         >
           <Text variant="label" tone="accent">
             {copy.history.restore}
           </Text>
-        </Touch>
+        </SketchButton>
       </HandFrame>
 
       {!motion.reduceMotion && track && (
@@ -138,15 +147,8 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   label: { flex: 1 },
-  action: {
-    minHeight: 44,
-    minWidth: 88,
-    borderWidth: 1,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: space.md,
-  },
+  action: { minHeight: 46, minWidth: 96 },
+  actionContent: { minHeight: 46, paddingHorizontal: space.md },
   // Sits just inside the drawn frame's foot, so the stroke reads as underlining
   // the offer rather than as a bar attached to the bottom of a box.
   track: { position: 'absolute', left: 0, bottom: 3, height: TRACK_HEIGHT },

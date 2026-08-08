@@ -25,13 +25,11 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { useTheme } from '../../design/theme';
 import { radius, space } from '../../design/tokens';
-import { HandFrame } from '../../drawing/HandFrame';
-import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import type { PlateItem } from '../capture/types';
 import { ResultCard } from './ResultCard';
 import { StackPeek } from './StackPeek';
@@ -44,7 +42,6 @@ import {
 } from './useStackOrder';
 
 const CARD_PADDING = 20;
-const SAVE_FRAME_SEED = seedFromString('result/save-the-plate');
 
 export type ResultStackProps = {
   /** Every card of the plate, in photo order. Kept and gone alike. */
@@ -247,7 +244,6 @@ function StackFooter({
   onSave: () => void;
   onClose: () => void;
 }) {
-  const { colors } = useTheme();
   const closeLabel =
     queuedCount > 0 ? copy.result.closeWithQueue(queuedCount) : copy.result.close;
 
@@ -265,66 +261,48 @@ function StackFooter({
       )}
 
       {savableCount > 0 && (
-        <Touch
+        <SketchButton
           onPress={onSave}
           disabled={confirmed}
+          seed="result/save-the-plate"
+          filled
+          radius={radius.lg}
+          scale={0.94}
           style={[styles.save, confirmed ? styles.spent : styles.intact]}
+          contentStyle={styles.saveContent}
           accessibilityLabel={
             savableCount === 1 ? copy.result.confirm : copy.result.confirmMany(savableCount)
           }
           accessibilityHint={copy.result.confirmHint}
           accessibilityState={{ disabled: confirmed }}
         >
-          <HandFrame
-            seed={SAVE_FRAME_SEED}
-            variant="crayon"
-            color={colors.accent}
-            radius={radius.lg}
-            strokeScale={0.9}
-            style={styles.saveFrame}
-            contentStyle={styles.saveContent}
-          >
-            <View
-              pointerEvents="none"
-              style={[styles.saveWash, { backgroundColor: colors.accentSoft }]}
-            />
-            <Text variant="note" tone="accent">
-              {savableCount === 1
-                ? copy.result.confirm
-                : copy.result.confirmMany(savableCount)}
-            </Text>
-          </HandFrame>
-        </Touch>
+          <Text variant="note" tone="accent">
+            {savableCount === 1
+              ? copy.result.confirm
+              : copy.result.confirmMany(savableCount)}
+          </Text>
+        </SketchButton>
       )}
 
-      <Touch onPress={onClose} style={styles.tail} accessibilityLabel={closeLabel}>
-        <Text variant="label" tone="inkSoft">
-          {closeLabel}
-        </Text>
-      </Touch>
+      <SketchLink
+        onPress={onClose}
+        seed="result/stack/close"
+        tone="inkSoft"
+        style={styles.tail}
+        accessibilityLabel={closeLabel}
+      >
+        {closeLabel}
+      </SketchLink>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   cardZone: { padding: CARD_PADDING, gap: space.md },
-  save: { minHeight: 56, alignSelf: 'stretch' },
-  saveFrame: { minHeight: 56 },
-  saveContent: {
-    minHeight: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveWash: {
-    position: 'absolute',
-    top: 7,
-    left: 7,
-    right: 7,
-    bottom: 7,
-    borderRadius: radius.md,
-  },
+  save: { minHeight: 58, alignSelf: 'stretch' },
+  saveContent: { minHeight: 58 },
   hint: { textAlign: 'center' },
   spent: { opacity: 0.45 },
   intact: { opacity: 1 },
-  tail: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  tail: { minHeight: 48, alignItems: 'center' },
 });

@@ -39,6 +39,7 @@ import Animated, {
   Extrapolation,
   interpolate,
   runOnJS,
+  useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
@@ -58,7 +59,7 @@ import { seedFromString } from '../../drawing/seededRandom';
 import { insertConfirmed, insertPlate, newEntryId } from '../../data/entries';
 import { discardCapturedPhoto, persistCapturedPhoto } from '../../data/photos';
 import { copy, formatQuantity } from '../../lib/copy';
-import { tapConfirmed, tapSelection } from '../../lib/haptics';
+import { tapConfirmed, tapPull, tapSelection, tapStamp } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import {
@@ -86,6 +87,7 @@ import { QueueTray } from './QueueTray';
 import { ResultCard } from './ResultCard';
 import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
+import { crossedStamp, STAMP_BOTTOM, STAMP_PRESS } from './stamp';
 import { beat, useExpansion } from './useExpansion';
 import {
   exitOpacity,
@@ -136,8 +138,6 @@ const PRINT_OPEN_WIDTH_SHARE = 0.82;
 /** Bounds on how far the print may grow or shrink to suit that window. */
 const PRINT_OPEN_MIN = 0.62;
 const PRINT_OPEN_MAX = 1.4;
-/** A quick press-and-release makes the arriving print feel physically stamped. */
-const STAMP_PRESS = 5;
 
 const BEAT_STATES = new Set([
   'captured',
@@ -384,14 +384,32 @@ export function ResultStage({ stage }: ResultStageProps) {
   const backdropDismissible =
     BACKDROP_DISMISS_STATES.has(state.name) && !(multi && open);
 
-  const handleOpen = useCallback(
-    () => (multi ? setPlateOpen(true) : expand()),
-    [multi, expand],
-  );
-  const handleClose = useCallback(
-    () => (multi ? setPlateOpen(false) : collapse()),
-    [multi, collapse],
-  );
+  /*
+   * Opening and closing carry the note, rather than any of the controls that
+   * ask for it.
+   *
+   * There are five ways to ask: the chevron, a tap anywhere on Drop, the
+   * backdrop, dragging the sheet, and a flick. Hanging the feedback off each
+   * one would mean five places to keep in step and a tap on the character —
+   * which is a gesture, not a button — silently missing out. Putting it on the
+   * action instead means the card feels the same however it was asked for, and
+   * controls that route here pass `haptic="none"` so the house press tick does
+   * not stack on top.
+   *
+   * The close is quieter than the open on purpose. The reveal is the beat the
+   * whole capture was for; putting it away is not, and matching them would
+   * make the result feel like it cost the same to dismiss as to see.
+   */
+  const handleOpen = useCallback(() => {
+    tapPull();
+    if (multi) setPlateOpen(true);
+    else expand();
+  }, [multi, expand]);
+  const handleClose = useCallback(() => {
+    tapSelection();
+    if (multi) setPlateOpen(false);
+    else collapse();
+  }, [multi, collapse]);
 
   const { expansion, gesture } = useExpansion({
     open,
@@ -443,6 +461,29 @@ export function ResultStage({ stage }: ResultStageProps) {
     dissolve,
     tick,
   ]);
+
+  /*
+   * The thump, taken off the fold rather than off a timer.
+   *
+   * Reading the animation itself is what keeps the vibration on the frame the
+   * print actually compresses on: a `setTimeout` started beside the fold drifts
+   * against it under load, and the one thing this haptic cannot do is arrive
+   * separately from the thing it belongs to.
+   *
+   * The crossing test fires once per capture. Resetting the fold to 0 for the
+   * next frame moves the value the wrong way through the threshold, so it does
+   * not re-trigger on the way back down.
+   *
+   * It fires under reduced motion too. That setting is about what the eye is
+   * put through, not about withholding the event — the print still lands, it
+   * just lands immediately, and the fold jumps the threshold in one frame.
+   */
+  useAnimatedReaction(
+    () => captureFold.value,
+    (fold, previous) => {
+      if (crossedStamp(fold, previous)) runOnJS(tapStamp)();
+    },
+  );
 
   /* ------------------------------------ beat 2: the name lands, felt */
 
@@ -1006,7 +1047,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     );
     const stampPress = interpolate(
       fold,
-      [0, 0.8, 0.9, 1],
+      [0, 0.8, STAMP_BOTTOM, 1],
       [0, 0, STAMP_PRESS, 0],
       Extrapolation.CLAMP,
     );
@@ -1366,6 +1407,14 @@ export function ResultStage({ stage }: ResultStageProps) {
                 ]}
                 pointerEvents="none"
               />
+              {/*
+                Drop is the way in as well as the mascot: the tap gesture on the
+                detector above already opens the card from anywhere on the
+                character, and shuts it again once it is up. Nothing is layered
+                over the canvas to catch that — a `Pressable` here would race
+                the gesture for the same touch. What the tap was missing was a
+                note, and that belongs to the open and the close themselves.
+              */}
               <DropCharacter state={character} size={heroSize} seed={seed} announce />
               {backdropDismissible &&
                 state.name !== 'presenting' &&
@@ -1400,6 +1449,7 @@ export function ResultStage({ stage }: ResultStageProps) {
                 {anyFigure && (
                   <Touch
                     onPress={handleOpen}
+                    haptic="none"
                     style={styles.pull}
                     accessibilityLabel={copy.result.pull}
                     accessibilityHint={copy.result.pullHint}

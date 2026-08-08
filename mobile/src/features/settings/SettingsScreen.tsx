@@ -34,6 +34,7 @@ import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
 import { tapSelection } from '../../lib/haptics';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import { catalogSize, datasetCredits } from './datasets';
@@ -94,16 +95,15 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
           <Text variant="title" tone="ink">
             {copy.settings.title}
           </Text>
-          <Touch
+          <SketchLink
             onPress={onDone}
+            seed="settings/done"
             style={styles.done}
             accessibilityLabel={copy.settings.done}
             accessibilityHint={copy.settings.doneHint}
           >
-            <Text variant="label" tone="accent">
-              {copy.settings.done}
-            </Text>
-          </Touch>
+            {copy.settings.done}
+          </SketchLink>
         </View>
 
         <ScrollView
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     paddingTop: space.md,
     paddingBottom: space.sm,
   },
-  done: { minHeight: MIN_TOUCH_SIZE, justifyContent: 'center', paddingLeft: space.lg },
+  done: { minHeight: MIN_TOUCH_SIZE, paddingLeft: space.lg },
 
   scroll: { flex: 1 },
   content: { paddingHorizontal: space.xl, paddingBottom: space.xxxl },

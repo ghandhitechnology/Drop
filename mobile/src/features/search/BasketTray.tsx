@@ -5,12 +5,11 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { useTheme } from '../../design/theme';
-import { HandFrame } from '../../drawing/HandFrame';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { copy, formatQuantity } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import type { Estimate } from '../capture/types';
 import type { SearchPick } from './pick';
 
@@ -92,39 +91,33 @@ function BasketPill({
   );
 
   return (
-    <Touch
+    <SketchButton
       onPress={() => onRemove(index)}
+      seed={`search/basket/${item.catalogId}/${index}`}
+      filled
+      radius={24}
+      scale={0.74}
       style={styles.pill}
+      contentStyle={styles.pillContent}
       accessibilityLabel={copy.search.removePick(item.displayName)}
       accessibilityHint={copy.search.removePickHint}
     >
-      <HandFrame
-        seed={seed}
-        variant="crayon"
-        color={colors.accent}
-        radius={24}
-        strokeScale={0.72}
-        style={styles.pillFrame}
-        contentStyle={styles.pillContent}
-      >
-        <View style={[styles.pillWash, { backgroundColor: colors.accentSoft }]} />
-        <Text variant="label" tone="accent" numberOfLines={1} style={styles.name}>
-          {item.displayName}
-        </Text>
-        <Text variant="chip" tone="accent">
-          {amount}
-        </Text>
-        <Canvas style={styles.removeMark} pointerEvents="none">
-          <HandPath
-            path={removeMark}
-            color={colors.accent}
-            variant="pencil"
-            seed={seed + 7}
-            strokeScale={0.75}
-          />
-        </Canvas>
-      </HandFrame>
-    </Touch>
+      <Text variant="label" tone="accent" numberOfLines={1} style={styles.name}>
+        {item.displayName}
+      </Text>
+      <Text variant="chip" tone="accent">
+        {amount}
+      </Text>
+      <Canvas style={styles.removeMark} pointerEvents="none">
+        <HandPath
+          path={removeMark}
+          color={colors.accent}
+          variant="pencil"
+          seed={seed + 7}
+          strokeScale={0.75}
+        />
+      </Canvas>
+    </SketchButton>
   );
 }
 
@@ -136,23 +129,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     paddingVertical: space.xs,
   },
-  pill: { minHeight: 48, maxWidth: 248 },
-  pillFrame: { minHeight: 48 },
+  pill: { minHeight: 50, maxWidth: 248 },
   pillContent: {
-    minHeight: 48,
+    minHeight: 50,
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
     paddingLeft: space.lg,
     paddingRight: space.md,
-  },
-  pillWash: {
-    position: 'absolute',
-    top: 6,
-    left: 6,
-    right: 6,
-    bottom: 6,
-    borderRadius: 18,
   },
   name: { flexShrink: 1 },
   removeMark: { width: 18, height: 18 },
