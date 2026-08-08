@@ -2,7 +2,7 @@
  * The photo, kept.
  *
  * A capture stops being a step in a pipeline the moment it can be seen: the
- * square that was framed becomes a small print on a paper mat, traced round by
+ * square that was framed becomes a print on a paper mat, traced round by
  * hand and pinned at whatever angle it landed at. The same print stands above
  * the result and inside the record it turns into, so a saved entry still looks
  * like the moment it came from.
@@ -12,27 +12,33 @@
  * of the photo has to be written to get it.
  */
 
-import { Canvas, Skia, rect, rrect } from '@shopify/react-native-skia';
-import { useMemo } from 'react';
 import { Image, StyleSheet, View, type ViewStyle } from 'react-native';
 
-import { useTheme } from '../../design/theme';
-import { radius } from '../../design/tokens';
-import { HandPath } from '../../drawing/HandPath';
 import { seedFromString, seededRange } from '../../drawing/seededRandom';
 
-/** The paper border around the print. */
-const MAT = 8;
+/**
+ * The supplied pencil frame, cut out so the camera remains visible through its
+ * window and the paper keeps its shape in either colour scheme.
+ */
+const FRAME = require('../../../assets/images/capture/captured-photo-frame.png');
 
-/** How far a print may lean, in degrees. Enough to read as placed by hand. */
-const TILT = 2.6;
+/**
+ * The hand-drawn opening measured from the frame's square source canvas.
+ * A little overlap hides compression seams underneath the pencil stroke.
+ */
+const WINDOW = {
+  left: 0.192,
+  top: 0.127,
+  width: 0.622,
+  height: 0.613,
+} as const;
 
-/** How far the traced line straddles the window's edge. */
-const TRACE = 2.5;
+/** Each shot lands like a hand-stamped print, with its own emphatic angle. */
+const TILT = 20;
 
 export type SnapshotProps = {
   uri: string;
-  /** Outer side, mat included. */
+  /** Outer source-canvas side, frame and transparent breathing room included. */
   size: number;
   /** Stable id. The trace and the lean are drawn from it and never change. */
   seed: string;
@@ -49,35 +55,15 @@ export function snapshotTilt(seed: string): number {
 }
 
 export function Snapshot({ uri, size, seed, label, tilt, style }: SnapshotProps) {
-  const { colors } = useTheme();
-  const seedValue = useMemo(() => seedFromString(`snapshot/${seed}`), [seed]);
-  const inner = Math.max(0, size - MAT * 2);
   const lean = tilt ?? snapshotTilt(seed);
-
-  // Traced on the mat rather than on the photo. Ink on paper holds against any
-  // frame the lens happened to catch, where a line laid on the image itself
-  // would disappear into every dark corner of it.
-  const trace = useMemo(() => {
-    if (inner <= TRACE * 2) return null;
-    const r = radius.sm + 2;
-    return Skia.Path.RRect(
-      rrect(
-        rect(MAT - TRACE, MAT - TRACE, inner + TRACE * 2, inner + TRACE * 2),
-        r,
-        r,
-      ),
-    );
-  }, [inner]);
 
   return (
     <View
       style={[
-        styles.mat,
+        styles.print,
         {
           width: size,
           height: size,
-          padding: MAT,
-          backgroundColor: colors.paper,
           transform: [{ rotate: `${lean}deg` }],
         },
         style,
@@ -87,7 +73,17 @@ export function Snapshot({ uri, size, seed, label, tilt, style }: SnapshotProps)
       accessibilityLabel={label}
       importantForAccessibility={label ? 'yes' : 'no-hide-descendants'}
     >
-      <View style={[styles.window, { width: inner, height: inner }]}>
+      <View
+        style={[
+          styles.window,
+          {
+            left: size * WINDOW.left,
+            top: size * WINDOW.top,
+            width: size * WINDOW.width,
+            height: size * WINDOW.height,
+          },
+        ]}
+      >
         <Image
           source={{ uri }}
           style={StyleSheet.absoluteFill}
@@ -96,34 +92,21 @@ export function Snapshot({ uri, size, seed, label, tilt, style }: SnapshotProps)
         />
       </View>
 
-      {trace && (
-        <Canvas
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-          accessible={false}
-          importantForAccessibility="no-hide-descendants"
-        >
-          <HandPath
-            path={trace}
-            color={colors.ink}
-            variant="crayon"
-            seed={seedValue}
-            strokeScale={0.9}
-          />
-        </Canvas>
-      )}
+      <Image
+        source={FRAME}
+        style={StyleSheet.absoluteFill}
+        resizeMode="contain"
+        accessible={false}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  mat: {
-    borderRadius: radius.md,
-    shadowColor: '#000000',
-    shadowOpacity: 0.22,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 5,
+  print: { position: 'relative' },
+  window: {
+    position: 'absolute',
+    overflow: 'hidden',
+    backgroundColor: '#000000',
   },
-  window: { borderRadius: radius.sm, overflow: 'hidden' },
 });

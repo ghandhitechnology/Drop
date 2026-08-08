@@ -96,9 +96,13 @@ const HISTORY_CHIP_HALF_WIDTH = 54;
 const EXIT_SCALE = 0.08;
 /** Share of the window above the open card the print is allowed to fill. */
 const PRINT_OPEN_FILL = 0.84;
+/** Width cap for the taller Polaroid frame's square source canvas. */
+const PRINT_OPEN_WIDTH_SHARE = 0.82;
 /** Bounds on how far the print may grow or shrink to suit that window. */
 const PRINT_OPEN_MIN = 0.62;
 const PRINT_OPEN_MAX = 1.4;
+/** A quick press-and-release makes the arriving print feel physically stamped. */
+const STAMP_PRESS = 5;
 
 const BEAT_STATES = new Set([
   'captured',
@@ -266,7 +270,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     const bottom = cardBox.y - space.lg;
     const side = Math.min(
       Math.max(0, bottom - top) * PRINT_OPEN_FILL,
-      stage.width * 0.56,
+      stage.width * PRINT_OPEN_WIDTH_SHARE,
     );
     return {
       y: (top + bottom) / 2,
@@ -568,8 +572,21 @@ export function ResultStage({ stage }: ResultStageProps) {
     const foldedY = framed.y + (restY - framed.y) * fold;
 
     const held = framed.side / Math.max(1, side);
+    const stampScale = interpolate(
+      fold,
+      [0, 0.74, 0.84, 0.92, 1],
+      [1, 1, 1.045, 0.975, 1],
+      Extrapolation.CLAMP,
+    );
+    const stampPress = interpolate(
+      fold,
+      [0, 0.8, 0.9, 1],
+      [0, 0, STAMP_PRESS, 0],
+      Extrapolation.CLAMP,
+    );
     const scale =
       (held + (1 - held) * fold) *
+      stampScale *
       (1 + (printOpen.scale - 1) * t) *
       (1 - exit * (1 - EXIT_SCALE));
 
@@ -579,11 +596,17 @@ export function ResultStage({ stage }: ResultStageProps) {
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
       transform: [
         { translateX: foldedX + (exitTargetX.value - foldedX) * exit - side / 2 },
-        { translateY: foldedY + (exitTargetY.value - foldedY) * exit - side / 2 },
+        {
+          translateY:
+            foldedY +
+            (exitTargetY.value - foldedY) * exit -
+            side / 2 +
+            stampPress * (1 - t) * (1 - exit),
+        },
         { scale },
         {
           rotate: `${
-            printTilt * interpolate(fold, [0.25, 1], [0, 1], Extrapolation.CLAMP)
+            printTilt * interpolate(fold, [0.25, 0.84], [0, 1], Extrapolation.CLAMP)
           }deg`,
         },
       ],
