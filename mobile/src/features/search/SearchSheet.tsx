@@ -152,6 +152,9 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
           <FlatList
             data={results}
             keyExtractor={(item) => item.id}
+            nestedScrollEnabled
+            scrollEnabled
+            showsVerticalScrollIndicator
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
             style={styles.list}

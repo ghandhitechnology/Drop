@@ -66,16 +66,17 @@ function Navigator() {
       {/*
         The catalogue is a detour, not a destination: it rides up as a sheet
         so the viewfinder stays visible behind it and dismissing puts the
-        person back exactly where they were. Two detents — a comfortable
-        two-thirds for scanning results, and near-full once the keyboard is
-        up — with the grabber left visible so the swipe down is discoverable.
+        person back exactly where they were. It opens at the screen's midpoint
+        and can expand near-full for scanning results, with the grabber visible
+        so swiping down remains discoverable.
       */}
       <Stack.Screen
         name="search"
         options={{
           presentation: 'formSheet',
-          sheetAllowedDetents: [0.68, 0.96],
-          sheetInitialDetentIndex: 1,
+          sheetAllowedDetents: [0.5, 0.96],
+          sheetInitialDetentIndex: 0,
+          sheetExpandsWhenScrolledToEdge: false,
           sheetGrabberVisible: true,
           sheetCornerRadius: 24,
           contentStyle: { backgroundColor: colors.bg },
