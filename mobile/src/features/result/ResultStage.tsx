@@ -87,6 +87,7 @@ import { QueueTray } from './QueueTray';
 import { ResultCard } from './ResultCard';
 import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
+import { SwipeVerdict } from './SwipeVerdict';
 import { crossedStamp, STAMP_BOTTOM, STAMP_PRESS } from './stamp';
 import { beat, useExpansion } from './useExpansion';
 import {
@@ -828,6 +829,17 @@ export function ResultStage({ stage }: ResultStageProps) {
     [cardBox],
   );
 
+  /**
+   * Whether the right swipe has anything to add.
+   *
+   * A card whose figure arrives in a later release rides along on the plate but
+   * writes nothing, so it gets no plus — the mark only ever promises a save that
+   * the release can actually make.
+   */
+  const canAddFront = multi
+    ? Boolean(plateItems[stack.front]?.estimate.headline)
+    : Boolean(estimate?.headline);
+
   /* -------------------------------------------------------- the one card */
 
   /**
@@ -1362,6 +1374,33 @@ export function ResultStage({ stage }: ResultStageProps) {
                 </GestureDetector>
               </Animated.View>
             )
+          )}
+
+          {/*
+            The verdict, struck across the card the thumb is holding. It is the
+            last thing painted over the sheet and rides the same carry as the
+            paper, so a card caught mid-throw wears its own decision out of
+            frame. Nothing here takes a finger.
+          */}
+          {open && !receding && (
+            <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
+              <Canvas
+                style={StyleSheet.absoluteFill}
+                accessible={false}
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Group transform={paperCarry} origin={cardCenter} opacity={paperOpacity}>
+                  <SwipeVerdict
+                    box={cardBox}
+                    swipeX={multi ? stack.swipeX : singleSwipeX}
+                    addColor={colors.accent}
+                    dropColor={colors.negative}
+                    seed={seed}
+                    canAdd={canAddFront}
+                  />
+                </Group>
+              </Canvas>
+            </Animated.View>
           )}
 
           {/*

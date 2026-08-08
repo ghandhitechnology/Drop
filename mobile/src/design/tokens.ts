@@ -23,6 +23,8 @@ export type ColorTokens = {
   accentSoft: string;
   /** Favourable / low-footprint signal. */
   positive: string;
+  /** Discarding signal — the swipe that puts a card back in the photo. */
+  negative: string;
 };
 
 export const palette: Record<'light' | 'dark', ColorTokens> = {
@@ -35,6 +37,7 @@ export const palette: Record<'light' | 'dark', ColorTokens> = {
     accent: '#1E6FD9',
     accentSoft: '#DCE9FA',
     positive: '#2E7D5B',
+    negative: '#C0392B',
   },
   dark: {
     bg: '#000000',
@@ -45,6 +48,7 @@ export const palette: Record<'light' | 'dark', ColorTokens> = {
     accent: '#7FB4FF',
     accentSoft: '#122236',
     positive: '#6FD3A4',
+    negative: '#FF8B72',
   },
 };
 
@@ -58,6 +62,7 @@ export const colorTokenNames = [
   'accent',
   'accentSoft',
   'positive',
+  'negative',
 ] as const satisfies readonly (keyof ColorTokens)[];
 
 /** 4pt base spacing scale. */
