@@ -111,11 +111,6 @@ export const copy = {
     otherMatches: 'Also looks like',
     switchTo: (label: string) => `Switch to ${label}`,
 
-    confirmed: (label: string) => `${label} is in your history`,
-    undo: 'Undo',
-    undoHint: 'Takes this back out of your history',
-    undone: 'Taken back out',
-
     /* ------------------------------------------------------------ the pile */
 
     /** The save line on a pile of cards — the count is the copy. */
@@ -131,7 +126,6 @@ export const copy = {
       collapsed: 'Result closed.',
       amount: (quantity: string, litres: string) => `${quantity}. ${litres}.`,
       confirmed: (label: string) => `${label} added to your history.`,
-      undone: 'Taken back out of your history.',
       dismissed: (label: string, left: number) => `${label} set aside. ${left} left.`,
       presentingMany: (count: number, label: string, litres: string) =>
         `${count} things in this frame. ${label}. ${litres}.`,
@@ -222,6 +216,9 @@ export const copy = {
     /** The way in, from the camera. */
     open: 'History',
     openHint: 'Opens your water record',
+    /** The badge and announcement when a saved card lands on the door. */
+    plusOne: '+1',
+    landed: 'Saved. Open History to review or remove it.',
     back: 'Back to the camera',
 
     title: 'Your water',

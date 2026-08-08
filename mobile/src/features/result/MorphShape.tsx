@@ -122,8 +122,13 @@ export function MorphShape({
   // describe the resolved value rather than the carrier.
   const animated = (path: unknown) => path as SkPath;
 
+  // When the shape can't travel it holds the card frame, so the expansion has
+  // to arrive as opacity — otherwise the full-size card sits over the stage
+  // while the result is still only presenting itself.
+  const groupOpacity = useDerivedValue(() => (still ? expansion.value : 1));
+
   return (
-    <Group>
+    <Group opacity={groupOpacity}>
       <Path path={animated(fillPath)} color={paper} style="fill" opacity={fillOpacity} />
       <HandPath
         path={animated(topPath)}

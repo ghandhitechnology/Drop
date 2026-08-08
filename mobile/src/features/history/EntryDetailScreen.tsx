@@ -29,8 +29,11 @@ import { DetailSection, HeadlineNotes } from '../result/DetailSection';
 import { quantityText, recordedAt } from './format';
 import { useHistoryStore } from './store';
 
-/** The print, at the size it reads as a keepsake rather than a thumbnail. */
-const PRINT = 184;
+/**
+ * The source has transparent breathing room; this keeps its visible frame at
+ * keepsake size.
+ */
+const PRINT = 264;
 
 export function EntryDetailScreen() {
   const { colors } = useTheme();
@@ -181,7 +184,7 @@ export function EntryDetailScreen() {
           <Snapshot
             uri={entry.photo_uri}
             size={PRINT}
-            seed={entry.id}
+            seed={entry.photo_uri}
             label={copy.history.detail.photo}
             style={styles.print}
           />

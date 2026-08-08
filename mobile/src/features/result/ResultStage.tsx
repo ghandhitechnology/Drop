@@ -51,9 +51,9 @@ import { useTheme } from '../../design/theme';
 import { radius as radii, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { seedFromString } from '../../drawing/seededRandom';
-import { insertConfirmed, insertPlate, softDelete } from '../../data/entries';
+import { insertConfirmed, insertPlate } from '../../data/entries';
 import { copy, formatQuantity } from '../../lib/copy';
-import { tapConfirmed, tapRemoving, tapSelection } from '../../lib/haptics';
+import { tapConfirmed, tapSelection } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import { estimatesOf, keptItemsOf, plateItemsOf, type Estimate, type Rect } from '../capture/types';
@@ -65,13 +65,12 @@ import { ExpansionRays } from './ExpansionRays';
 import { FindMarks } from './FindMarks';
 import { localEstimate, servingOf, toEngineEstimate } from './localPipeline';
 import { ConfirmMark, PullChevron } from './Marks';
+import { pulseHistory } from '../history/pulse';
 import { MorphShape } from './MorphShape';
-import { setResultNoticeVisible } from './notice';
 import { PileEdges } from './PileEdges';
 import { ResultCard } from './ResultCard';
 import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
-import { UndoSnackbar } from './UndoSnackbar';
 import { beat, useExpansion } from './useExpansion';
 import { MAX_PEEKS, savableEstimates, useStackOrder } from './useStackOrder';
 
@@ -101,9 +100,13 @@ const HISTORY_CHIP_HALF_WIDTH = 54;
 const EXIT_SCALE = 0.08;
 /** Share of the window above the open card the print is allowed to fill. */
 const PRINT_OPEN_FILL = 0.84;
+/** Width cap for the taller Polaroid frame's square source canvas. */
+const PRINT_OPEN_WIDTH_SHARE = 0.82;
 /** Bounds on how far the print may grow or shrink to suit that window. */
 const PRINT_OPEN_MIN = 0.62;
 const PRINT_OPEN_MAX = 1.4;
+/** A quick press-and-release makes the arriving print feel physically stamped. */
+const STAMP_PRESS = 5;
 
 const BEAT_STATES = new Set([
   'captured',
@@ -218,7 +221,6 @@ export function ResultStage({ stage }: ResultStageProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [cardHeight, setCardHeight] = useState(0);
   const [receding, setReceding] = useState(false);
-  const [snack, setSnack] = useState<{ id: string; label: string } | null>(null);
   /** A pile has no `expanded` machine state; whether it is open lives here. */
   const [plateOpen, setPlateOpen] = useState(false);
 
@@ -451,12 +453,6 @@ export function ResultStage({ stage }: ResultStageProps) {
   useEffect(() => {
     if (state.name !== 'confirmed' && state.name !== 'plateConfirmed') return;
 
-    const label =
-      state.name === 'confirmed'
-        ? state.estimate.display_name
-        : state.saved.display_name;
-    const id = state.entryId;
-
     tick.value = withTiming(1, { duration: motion.reduceMotion ? 0 : beat.tick });
 
     const hold = setTimeout(
@@ -473,10 +469,8 @@ export function ResultStage({ stage }: ResultStageProps) {
 
     const home = setTimeout(
       () => {
-        // Hide the camera doors before returning to the live frame, so they
-        // cannot flash above the notice for a single render.
-        setResultNoticeVisible(true);
-        setSnack({ id, label });
+        // The card has landed on the History door; let the door say so.
+        pulseHistory();
         setReceding(false);
         setDetailOpen(false);
         retake();
@@ -499,34 +493,6 @@ export function ResultStage({ stage }: ResultStageProps) {
     insets.top,
     retake,
   ]);
-
-  /* ------------------------------------------------------- the way back */
-
-  useEffect(() => {
-    if (!snack) return;
-    setResultNoticeVisible(true);
-    const timer = setTimeout(() => {
-      setSnack(null);
-      setResultNoticeVisible(false);
-    }, beat.undo);
-    return () => clearTimeout(timer);
-  }, [snack]);
-
-  useEffect(
-    () => () => {
-      setResultNoticeVisible(false);
-    },
-    [],
-  );
-
-  const handleUndo = useCallback(async () => {
-    if (!snack) return;
-    setSnack(null);
-    setResultNoticeVisible(false);
-    await softDelete(snack.id);
-    tapRemoving();
-    AccessibilityInfo.announceForAccessibility(copy.result.announce.undone);
-  }, [snack]);
 
   /* -------------------------------------------------------- the amount */
 
@@ -667,7 +633,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     const bottom = cardBox.y - pileZone - space.lg;
     const side = Math.min(
       Math.max(0, bottom - top) * PRINT_OPEN_FILL,
-      stage.width * 0.56,
+      stage.width * PRINT_OPEN_WIDTH_SHARE,
     );
     return {
       y: (top + bottom) / 2,
@@ -746,8 +712,21 @@ export function ResultStage({ stage }: ResultStageProps) {
     const foldedY = framed.y + (restY - framed.y) * fold;
 
     const held = framed.side / Math.max(1, side);
+    const stampScale = interpolate(
+      fold,
+      [0, 0.74, 0.84, 0.92, 1],
+      [1, 1, 1.045, 0.975, 1],
+      Extrapolation.CLAMP,
+    );
+    const stampPress = interpolate(
+      fold,
+      [0, 0.8, 0.9, 1],
+      [0, 0, STAMP_PRESS, 0],
+      Extrapolation.CLAMP,
+    );
     const scale =
       (held + (1 - held) * fold) *
+      stampScale *
       (1 + (printOpen.scale - 1) * t) *
       (1 - exit * (1 - EXIT_SCALE)) *
       printPulse.value;
@@ -758,11 +737,17 @@ export function ResultStage({ stage }: ResultStageProps) {
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
       transform: [
         { translateX: foldedX + (exitTargetX.value - foldedX) * exit - side / 2 },
-        { translateY: foldedY + (exitTargetY.value - foldedY) * exit - side / 2 },
+        {
+          translateY:
+            foldedY +
+            (exitTargetY.value - foldedY) * exit -
+            side / 2 +
+            stampPress * (1 - t) * (1 - exit),
+        },
         { scale },
         {
           rotate: `${
-            printTilt * interpolate(fold, [0.25, 1], [0, 1], Extrapolation.CLAMP)
+            printTilt * interpolate(fold, [0.25, 0.84], [0, 1], Extrapolation.CLAMP)
           }deg`,
         },
       ],
@@ -836,7 +821,15 @@ export function ResultStage({ stage }: ResultStageProps) {
           {backdropDismissible && (
             <Pressable
               style={StyleSheet.absoluteFill}
-              onPress={retake}
+              // While the result is still presenting itself, every tap is a
+              // request to see it — the number is the whole point of the beat.
+              // Only an open card treats the backdrop as the way out. A pile
+              // still waiting on its pull is the same moment wearing more cards.
+              onPress={
+                state.name === 'presenting' || state.name === 'plating'
+                  ? handleOpen
+                  : retake
+              }
               accessible={false}
               testID="result-backdrop-dismiss"
             />
@@ -1055,14 +1048,16 @@ export function ResultStage({ stage }: ResultStageProps) {
                 pointerEvents="none"
               />
               <DropCharacter state={character} size={heroSize} seed={seed} announce />
-              {backdropDismissible && state.name !== 'presenting' && (
-                <Pressable
-                  style={StyleSheet.absoluteFill}
-                  onPress={(event) => event.stopPropagation()}
-                  accessible={false}
-                  testID="result-character-touch-guard"
-                />
-              )}
+              {backdropDismissible &&
+                state.name !== 'presenting' &&
+                state.name !== 'plating' && (
+                  <Pressable
+                    style={StyleSheet.absoluteFill}
+                    onPress={(event) => event.stopPropagation()}
+                    accessible={false}
+                    testID="result-character-touch-guard"
+                  />
+                )}
             </Animated.View>
           </GestureDetector>
 
@@ -1103,8 +1098,6 @@ export function ResultStage({ stage }: ResultStageProps) {
           )}
         </>
       )}
-
-      {snack && <UndoSnackbar label={snack.label} onUndo={handleUndo} />}
     </View>
   );
 }

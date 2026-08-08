@@ -23,10 +23,10 @@ export const TEASER_HEIGHT = 38;
 /** The pull target stacked above that line, and the chevron drawn inside it. */
 export const PULL_ROW = MIN_TOUCH_SIZE;
 
-/** The snapshot's side, as a share of the stage's shorter edge. */
-const SNAPSHOT_FRACTION = 0.42;
-const SNAPSHOT_MIN = 124;
-const SNAPSHOT_MAX = 196;
+/** The supplied frame includes transparent canvas around its pencil outline. */
+const SNAPSHOT_FRACTION = 0.76;
+const SNAPSHOT_MIN = 232;
+const SNAPSHOT_MAX = 348;
 
 /**
  * How much of a short frame the character may take.
@@ -51,10 +51,17 @@ export type CaptureLayout = {
   slot: Rect;
 };
 
-/** The print's side. Big enough to recognise, small enough to be a keepsake. */
-function snapshotSide(stage: StageSize): number {
+/** The print's side. Large enough to inspect, while still clearing its line. */
+function snapshotSide(stage: StageSize, teaserTop: number): number {
   const shorter = Math.min(stage.width, stage.height);
-  return Math.max(SNAPSHOT_MIN, Math.min(SNAPSHOT_MAX, shorter * SNAPSHOT_FRACTION));
+  const preferred = Math.max(
+    SNAPSHOT_MIN,
+    Math.min(SNAPSHOT_MAX, shorter * SNAPSHOT_FRACTION),
+  );
+
+  // Short phones give up frame size before letting it disappear under the top
+  // edge. On ordinary phones this cap is inactive.
+  return Math.min(preferred, Math.max(0, teaserTop - space.lg));
 }
 
 /**
@@ -66,7 +73,6 @@ export function captureLayout(
   bottomInset: number,
   heroSide: number,
 ): CaptureLayout {
-  const side = snapshotSide(stage);
   const hero = Math.max(
     HERO_MIN,
     Math.min(heroSide, stage.height * HERO_STAGE_SHARE),
@@ -79,6 +85,7 @@ export function captureLayout(
 
   const lineTop = y - hero / 2 - space.sm - TEASER_HEIGHT;
   const teaserTop = lineTop - PULL_ROW;
+  const side = snapshotSide(stage, teaserTop);
 
   return {
     hero,

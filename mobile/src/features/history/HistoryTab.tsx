@@ -11,16 +11,20 @@
 
 import { Canvas, Skia } from '@shopify/react-native-skia';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
+  withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { space } from '../../design/tokens';
+import { spring } from '../../design/motion';
+import { radius, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
@@ -30,17 +34,19 @@ import { isResultVisible } from '../capture/types';
 import { HandChip } from '../capture/HandChip';
 import { overlayInk } from '../capture/overlay';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
-import { useResultNotice } from '../result/notice';
+import { useHistoryPulse } from './pulse';
 
 const GLYPH = 16;
 const SEED = seedFromString('history/tab');
+
+/** How long the "+1" stays on the door after a save lands. */
+const BADGE_HOLD_MS = 2200;
 
 export function HistoryTab() {
   const router = useRouter();
   const motion = useMotion();
   const state = useCaptureMachine((s) => s.state);
-  const noticeVisible = useResultNotice((s) => s.visible);
-  const hidden = isResultVisible(state) || state.name === 'unresolved' || noticeVisible;
+  const hidden = isResultVisible(state) || state.name === 'unresolved';
   const visibility = useSharedValue(hidden ? 0 : 1);
 
   useEffect(() => {
@@ -64,6 +70,39 @@ export function HistoryTab() {
     transform: [{ translateY: (1 - visibility.value) * -4 }],
   }));
 
+  // A saved card lands on this door: the chip answers with a squeeze and a
+  // "+1" that stays just long enough to say where the entry went.
+  const pulseCount = useHistoryPulse((s) => s.count);
+  const seenPulse = useRef(pulseCount);
+  const pulseScale = useSharedValue(1);
+  const badge = useSharedValue(0);
+
+  useEffect(() => {
+    if (pulseCount === seenPulse.current) return;
+    seenPulse.current = pulseCount;
+
+    if (!motion.reduceMotion) {
+      pulseScale.value = withSequence(
+        withTiming(1.12, { duration: 120 }),
+        withSpring(1, spring.drop),
+      );
+    }
+    badge.value = withSequence(
+      withTiming(1, { duration: motion.reduceMotion ? 0 : 140 }),
+      withDelay(BADGE_HOLD_MS, withTiming(0, { duration: motion.reduceMotion ? 0 : 220 })),
+    );
+    AccessibilityInfo.announceForAccessibility(copy.history.landed);
+  }, [pulseCount, motion.reduceMotion, pulseScale, badge]);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
+
+  const badgeStyle = useAnimatedStyle(() => ({
+    opacity: badge.value,
+    transform: [{ scale: 0.8 + badge.value * 0.2 }],
+  }));
+
   const stack = useMemo(() => {
     const builder = Skia.PathBuilder.Make();
     const lengths = [14, 10, 6];
@@ -83,6 +122,7 @@ export function HistoryTab() {
     >
       <SafeAreaView pointerEvents="box-none" edges={['top']}>
         <View style={styles.align} pointerEvents="box-none">
+          <Animated.View style={pulseStyle}>
           <HandChip
             seed="history/tab"
             onPress={() => router.push('/history')}
@@ -107,6 +147,12 @@ export function HistoryTab() {
               {copy.history.open}
             </Text>
           </HandChip>
+          <Animated.View style={[styles.badge, badgeStyle]} pointerEvents="none">
+            <Text variant="chip" tone={overlayInk.mark}>
+              {copy.history.plusOne}
+            </Text>
+          </Animated.View>
+          </Animated.View>
         </View>
       </SafeAreaView>
     </Animated.View>
@@ -117,4 +163,15 @@ const styles = StyleSheet.create({
   root: { position: 'absolute', top: 0, left: 0, right: 0 },
   align: { alignItems: 'flex-end', paddingHorizontal: space.lg, paddingTop: space.md },
   glyph: { width: GLYPH, height: GLYPH },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: overlayInk.scrim,
+    borderWidth: 1,
+    borderColor: overlayInk.outline,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+  },
 });
