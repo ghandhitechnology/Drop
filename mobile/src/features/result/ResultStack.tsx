@@ -38,19 +38,13 @@ import { StackPeek } from './StackPeek';
 import {
   contentOpacity,
   exitOpacity,
-  exitScale,
-  exitTilt,
+  frontSheetOffset,
   MAX_PEEKS,
-  SWIPE_SAG,
-  SWIPE_TRAVEL,
   type StackOrder,
 } from './useStackOrder';
 
 const CARD_PADDING = 20;
 const SAVE_FRAME_SEED = seedFromString('result/save-the-plate');
-
-/** How much of the thrown lean a sheet shows while it is still under the thumb. */
-const TILT_UNDER_THUMB = 0.35;
 
 export type ResultStackProps = {
   /** Every card of the plate, in photo order. Kept and gone alike. */
@@ -130,26 +124,23 @@ export function ResultStack({
    */
   const frontStyle = useAnimatedStyle(() => {
     const away = exit.value;
-    // Under the thumb the lean follows the drag; once the sheet has been let
-    // go it follows the exit, which is the direction the drag committed to.
-    const heading = away > 0 ? exitDirection.value : Math.sign(swipeX.value) || 1;
-    const toward = heading > 0 ? trayCenter : printCenter;
-    // Held, the sheet sags a little as it is dragged aside — paper, not a tile.
-    const sag = SWIPE_SAG * Math.min(1, Math.abs(swipeX.value) / SWIPE_TRAVEL);
-    const held = swipeX.value;
+    const at = frontSheetOffset(
+      swipeX.value,
+      away,
+      exitDirection.value,
+      lift.value,
+      cardCenter,
+      printCenter,
+      trayCenter,
+      frontTilt,
+    );
     return {
       opacity: contentOpacity(Math.max(0, frontDepth.value)) * exitOpacity(away),
       transform: [
-        { translateX: held + (toward.x - cardCenter.x - held) * away },
-        { translateY: sag + (toward.y - cardCenter.y - sag) * away },
-        { scale: exitScale(away) },
-        {
-          rotate: `${exitTilt(
-            Math.max(away, lift.value * TILT_UNDER_THUMB),
-            frontTilt,
-            heading,
-          )}deg`,
-        },
+        { translateX: at.x },
+        { translateY: at.y },
+        { scale: at.scale },
+        { rotate: `${at.rotate}deg` },
       ],
     };
   });

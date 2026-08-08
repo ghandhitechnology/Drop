@@ -67,6 +67,9 @@ export const FLICK_VELOCITY = 700;
 /** How far a sheet sags as it is dragged across, in dp at full travel. */
 export const SWIPE_SAG = 10;
 
+/** How much of the thrown lean a sheet shows while it is still under the thumb. */
+export const TILT_UNDER_THUMB = 0.35;
+
 /** How far a sheet is allowed to lean at rest, in degrees. */
 export const TILT_RANGE = 1.6;
 
@@ -169,6 +172,52 @@ export function exitTilt(
   'worklet';
   const lean = clamp(Math.abs(seedTilt) * 3, 0, EXIT_TILT_MAX);
   return clamp(progress, 0, 1) * lean * (direction < 0 ? -1 : 1);
+}
+
+/**
+ * Where the front sheet is, as one displacement.
+ *
+ * A sheet is paper and ink, and they are drawn by two different engines: the
+ * words are React views, the card under them is Skia inside the stage's canvas.
+ * Nothing but this function keeps them together — so it is the one place the
+ * motion is described, and both sides read it rather than each doing the sum.
+ *
+ * `rotate` comes back in degrees, which is what a React transform wants; the
+ * Skia side converts. Everything is relative to the front card's resting
+ * rectangle, so all-zero input is the sheet sitting exactly where it lives.
+ */
+export type SheetOffset = { x: number; y: number; scale: number; rotate: number };
+
+export function frontSheetOffset(
+  /** Travel under the thumb, in dp. Negative is left. */
+  swipeX: number,
+  /** 0 → 1 once the sheet has been let go and is on its way out. */
+  away: number,
+  /** Which way the exit committed: -1 left, 1 right. */
+  direction: number,
+  /** 0 → 1 as the thumb carries the sheet toward its trigger. */
+  lift: number,
+  cardCenter: { x: number; y: number },
+  /** Where a swipe left lands. */
+  printCenter: { x: number; y: number },
+  /** Where a swipe right lands. */
+  trayCenter: { x: number; y: number },
+  /** The sheet's seeded resting lean, in degrees. */
+  tilt: number,
+): SheetOffset {
+  'worklet';
+  // Under the thumb the lean follows the drag; once the sheet has been let go
+  // it follows the exit, which is the direction the drag committed to.
+  const heading = away > 0 ? direction : Math.sign(swipeX) || 1;
+  const toward = heading > 0 ? trayCenter : printCenter;
+  // Held, the sheet sags a little as it is dragged aside — paper, not a tile.
+  const sag = SWIPE_SAG * Math.min(1, Math.abs(swipeX) / SWIPE_TRAVEL);
+  return {
+    x: swipeX + (toward.x - cardCenter.x - swipeX) * away,
+    y: sag + (toward.y - cardCenter.y - sag) * away,
+    scale: exitScale(away),
+    rotate: exitTilt(Math.max(away, lift * TILT_UNDER_THUMB), tilt, heading),
+  };
 }
 
 /**

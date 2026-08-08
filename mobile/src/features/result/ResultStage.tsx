@@ -23,7 +23,7 @@
  * the tree beside it.
  */
 
-import { Canvas } from '@shopify/react-native-skia';
+import { Canvas, Group } from '@shopify/react-native-skia';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -40,6 +40,7 @@ import Animated, {
   interpolate,
   runOnJS,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withDelay,
   withSequence,
@@ -87,7 +88,9 @@ import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
 import { beat, useExpansion } from './useExpansion';
 import {
+  exitOpacity,
   FLICK_VELOCITY,
+  frontSheetOffset,
   MAX_PEEKS,
   savableEstimates,
   SWIPE_SAG,
@@ -857,6 +860,77 @@ export function ResultStage({ stage }: ResultStageProps) {
     ],
   }));
 
+  /* ------------------------------------------------ the paper it sits on */
+
+  /**
+   * The card's paper, carried by the same swipe as its words.
+   *
+   * The words are React views; the paper under them is Skia, drawn in the
+   * stage's own canvas. Nothing makes the two move together except being handed
+   * the same offset, so both sides call `frontSheetOffset` and this is the Skia
+   * half of it — pivoting on the card's own centre, which is what a React
+   * transform does implicitly, so the two stay exactly on top of each other.
+   *
+   * Only the front sheet travels. The buried paper is `PileEdges`, outside this
+   * group, and it stays put and rises as the pile closes up.
+   */
+  const frontTilt = stack.tiltOf(stack.front);
+
+  /*
+   * Pulled out one by one on purpose. A worklet closes over whole identifiers,
+   * so reaching through `stack` inside one would drag the entire object across
+   * to the UI thread — gesture handlers included, and a PanGesture cannot be
+   * serialised. Only the shared values may make the trip.
+   */
+  const { swipeX: sheetX, exit: sheetExit, exitDirection: sheetHeading, lift: sheetLift } = stack;
+
+  const paperCarry = useDerivedValue(() => {
+    const at = multi
+      ? frontSheetOffset(
+          sheetX.value,
+          sheetExit.value,
+          sheetHeading.value,
+          sheetLift.value,
+          cardCenter,
+          printCenter,
+          trayCenter,
+          frontTilt,
+        )
+      : frontSheetOffset(
+          singleSwipeX.value,
+          0,
+          1,
+          0,
+          cardCenter,
+          printCenter,
+          trayCenter,
+          0,
+        );
+    return [
+      { translateX: at.x },
+      { translateY: at.y },
+      { scale: at.scale },
+      { rotate: (at.rotate * Math.PI) / 180 },
+    ];
+  }, [
+    multi,
+    cardCenter,
+    printCenter,
+    trayCenter,
+    frontTilt,
+    sheetX,
+    sheetExit,
+    sheetHeading,
+    sheetLift,
+    singleSwipeX,
+  ]);
+
+  /** The paper thins out on its way off the pile exactly as its words do. */
+  const paperOpacity = useDerivedValue(
+    () => (multi ? exitOpacity(sheetExit.value) : 1),
+    [multi, sheetExit],
+  );
+
   /* --------------------------------------------------------- the looks */
 
   const avatarStyle = useAnimatedStyle(() => {
@@ -1112,16 +1186,23 @@ export function ResultStage({ stage }: ResultStageProps) {
                 />
               )}
 
-              <MorphShape
-                expansion={expansion}
-                from={silhouetteBox}
-                to={cardBox}
-                radius={CARD_RADIUS}
-                color={colors.ink}
-                paper={colors.paper}
-                seed={seed}
-                reduceMotion={motion.reduceMotion}
-              />
+              {/*
+                The front sheet's paper. It rides the swipe with the words
+                printed on it — a card is one object, and the moment the ink
+                slides off its own frame the illusion is over.
+              */}
+              <Group transform={paperCarry} origin={cardCenter} opacity={paperOpacity}>
+                <MorphShape
+                  expansion={expansion}
+                  from={silhouetteBox}
+                  to={cardBox}
+                  radius={CARD_RADIUS}
+                  color={colors.ink}
+                  paper={colors.paper}
+                  seed={seed}
+                  reduceMotion={motion.reduceMotion}
+                />
+              </Group>
 
               {/*
                 The rays sit above the paper. They leave from inside Drop, so
