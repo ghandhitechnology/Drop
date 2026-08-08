@@ -20,7 +20,7 @@ import { anchorFor, characterSideForAnchor } from './anchor';
 import { normalizeBarcode, SCANNED_TYPES } from './barcode';
 import { FrozenFrame } from './FrozenFrame';
 import { captureLayout } from './layout';
-import { overlayInk } from './overlay';
+import { overlayInk, RETICLE_HANDOFF, RETICLE_RELEASE } from './overlay';
 import { isBusy, isResultVisible, photoUriOf, type Rect } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 
@@ -59,7 +59,12 @@ export function CameraStage({
 }: CameraStageProps) {
   const motion = useMotion();
   const insets = useSafeAreaInsets();
-  const foldMs = motion.ms('draw');
+  // Two legs, because the shutter and the photo are two different moments.
+  // The close is what the press buys; the landing runs on the print's clock —
+  // the same `draw` the result stage folds its print in over — so the corners
+  // and the print cover the last of the distance as one thing.
+  const closeMs = motion.ms('settle');
+  const landMs = motion.ms('draw');
   const unfoldMs = motion.ms('quick');
   const lingerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fold = useSharedValue(0);
@@ -115,10 +120,14 @@ export function CameraStage({
   }
 
   useEffect(() => {
-    fold.value = withTiming(shutterActive ? 1 : 0, {
-      duration: shutterActive ? foldMs : unfoldMs,
-    });
-  }, [shutterActive, fold, foldMs, unfoldMs]);
+    if (photoUri) {
+      fold.value = withTiming(1, { duration: landMs });
+    } else if (shutterActive) {
+      fold.value = withTiming(RETICLE_HANDOFF, { duration: closeMs });
+    } else {
+      fold.value = withTiming(0, { duration: unfoldMs });
+    }
+  }, [shutterActive, photoUri, fold, closeMs, landMs, unfoldMs]);
 
   const foldingRect = shutterActive ? heldReticle.current : reticle;
   const foldingKey = shutterActive ? heldReticleKey.current : reticleKey;
@@ -172,8 +181,10 @@ export function CameraStage({
  * Four hand-drawn corner marks around whatever the anchor currently is.
  *
  * On the shutter they do not simply vanish: they carry the square they were
- * holding down to where the print lands, shrinking and travelling together, and
- * let go only once the print is under them. They carry no meaning of their own
+ * holding towards where the print lands, shrinking and travelling together, and
+ * then wait there while the photo is written. The print comes up out of exactly
+ * that square, and the corners dissolve off it as it inks in — they let go only
+ * once the print is under them. They carry no meaning of their own
  * — the framing sentence beneath the frame is what a screen reader hears — so
  * the canvas is hidden from accessibility.
  */
@@ -220,8 +231,17 @@ function Reticle({
     ];
   });
 
+  // Full ink for the whole close, and through the hold — the corners are still
+  // holding a real square while the camera writes the file. They only give it up
+  // once the print is coming up underneath them, over the first part of the
+  // landing, so what is seen is a handover rather than a gap.
   const opacity = useDerivedValue(() =>
-    interpolate(fold.value, [0, 0.6, 1], [0.85, 0.7, 0], Extrapolation.CLAMP),
+    interpolate(
+      fold.value,
+      [0, RETICLE_HANDOFF, RETICLE_HANDOFF + (1 - RETICLE_HANDOFF) * RETICLE_RELEASE],
+      [0.85, 0.82, 0],
+      Extrapolation.CLAMP,
+    ),
   );
 
   return (
