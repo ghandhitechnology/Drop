@@ -8,7 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../design/theme';
 import { radius, space } from '../../design/tokens';
 import { copy } from '../../lib/copy';
-import { setResultNoticeVisible } from '../result/notice';
 import { ResultStage } from '../result/ResultStage';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
@@ -77,12 +76,7 @@ export function CaptureHome() {
     );
   }, []);
 
-  const openSearch = useCallback(() => {
-    // Search is a fresh detour from the camera. A stale confirmation notice
-    // must never keep the camera doors suppressed when the sheet returns.
-    setResultNoticeVisible(false);
-    router.push('/search');
-  }, [router]);
+  const openSearch = useCallback(() => router.push('/search'), [router]);
 
   if (!permission) {
     return (

@@ -5,7 +5,6 @@ export { ResultCard, type ResultCardProps } from './ResultCard';
 export { ConfidenceChip } from './ConfidenceChip';
 export { QuantityStepper } from './QuantityStepper';
 export { DetailSection, HeadlineNotes } from './DetailSection';
-export { UndoSnackbar } from './UndoSnackbar';
 export { MorphShape } from './MorphShape';
 export { ExpansionRays } from './ExpansionRays';
 export { ConfirmMark, PullChevron } from './Marks';

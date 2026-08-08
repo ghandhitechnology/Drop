@@ -31,7 +31,6 @@ import { HandChip } from '../capture/HandChip';
 import { overlayInk } from '../capture/overlay';
 import { isResultVisible } from '../capture/types';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
-import { useResultNotice } from '../result/notice';
 
 const GLYPH = 16;
 const SEED = seedFromString('settings/tab');
@@ -40,8 +39,7 @@ export function SettingsTab() {
   const router = useRouter();
   const motion = useMotion();
   const state = useCaptureMachine((s) => s.state);
-  const noticeVisible = useResultNotice((s) => s.visible);
-  const hidden = isResultVisible(state) || state.name === 'unresolved' || noticeVisible;
+  const hidden = isResultVisible(state) || state.name === 'unresolved';
   const visibility = useSharedValue(hidden ? 0 : 1);
 
   useEffect(() => {

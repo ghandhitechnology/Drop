@@ -51,9 +51,9 @@ import { useTheme } from '../../design/theme';
 import { radius as radii, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { seedFromString } from '../../drawing/seededRandom';
-import { insertConfirmed, softDelete } from '../../data/entries';
+import { insertConfirmed } from '../../data/entries';
 import { copy, formatQuantity } from '../../lib/copy';
-import { tapConfirmed, tapRemoving, tapSelection } from '../../lib/haptics';
+import { tapConfirmed, tapSelection } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import type { Estimate, Rect } from '../capture/types';
@@ -64,11 +64,10 @@ import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { ExpansionRays } from './ExpansionRays';
 import { localEstimate, servingOf, toEngineEstimate } from './localPipeline';
 import { ConfirmMark, PullChevron } from './Marks';
+import { pulseHistory } from '../history/pulse';
 import { MorphShape } from './MorphShape';
-import { setResultNoticeVisible } from './notice';
 import { ResultCard } from './ResultCard';
 import { buildRays, type Box } from './silhouette';
-import { UndoSnackbar } from './UndoSnackbar';
 import { beat, useExpansion } from './useExpansion';
 
 export type ResultStageProps = {
@@ -182,7 +181,6 @@ export function ResultStage({ stage }: ResultStageProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [cardHeight, setCardHeight] = useState(0);
   const [receding, setReceding] = useState(false);
-  const [snack, setSnack] = useState<{ id: string; label: string } | null>(null);
 
   /* --------------------------------------------------------- geometry */
 
@@ -416,9 +414,6 @@ export function ResultStage({ stage }: ResultStageProps) {
   useEffect(() => {
     if (state.name !== 'confirmed') return;
 
-    const label = state.estimate.display_name;
-    const id = state.entryId;
-
     tick.value = withTiming(1, { duration: motion.reduceMotion ? 0 : beat.tick });
 
     const hold = setTimeout(
@@ -435,10 +430,8 @@ export function ResultStage({ stage }: ResultStageProps) {
 
     const home = setTimeout(
       () => {
-        // Hide the camera doors before returning to the live frame, so they
-        // cannot flash above the notice for a single render.
-        setResultNoticeVisible(true);
-        setSnack({ id, label });
+        // The card has landed on the History door; let the door say so.
+        pulseHistory();
         setReceding(false);
         setDetailOpen(false);
         retake();
@@ -461,34 +454,6 @@ export function ResultStage({ stage }: ResultStageProps) {
     insets.top,
     retake,
   ]);
-
-  /* ------------------------------------------------------- the way back */
-
-  useEffect(() => {
-    if (!snack) return;
-    setResultNoticeVisible(true);
-    const timer = setTimeout(() => {
-      setSnack(null);
-      setResultNoticeVisible(false);
-    }, beat.undo);
-    return () => clearTimeout(timer);
-  }, [snack]);
-
-  useEffect(
-    () => () => {
-      setResultNoticeVisible(false);
-    },
-    [],
-  );
-
-  const handleUndo = useCallback(async () => {
-    if (!snack) return;
-    setSnack(null);
-    setResultNoticeVisible(false);
-    await softDelete(snack.id);
-    tapRemoving();
-    AccessibilityInfo.announceForAccessibility(copy.result.announce.undone);
-  }, [snack]);
 
   /* -------------------------------------------------------- the amount */
 
@@ -690,7 +655,10 @@ export function ResultStage({ stage }: ResultStageProps) {
           {backdropDismissible && (
             <Pressable
               style={StyleSheet.absoluteFill}
-              onPress={retake}
+              // While the result is still presenting itself, every tap is a
+              // request to see it — the number is the whole point of the beat.
+              // Only an open card treats the backdrop as the way out.
+              onPress={state.name === 'presenting' ? handleOpen : retake}
               accessible={false}
               testID="result-backdrop-dismiss"
             />
@@ -887,8 +855,6 @@ export function ResultStage({ stage }: ResultStageProps) {
           )}
         </>
       )}
-
-      {snack && <UndoSnackbar label={snack.label} onUndo={handleUndo} />}
     </View>
   );
 }
