@@ -35,6 +35,7 @@ export const copy = {
   capture: {
     /** Standing hint under the frame while the camera is live. */
     framing: 'Fill the frame with one thing',
+    /** What the note says instead, while fast mode is on. */
     framingFast: 'fast',
     shutter: 'Capture',
     shutterHint: 'Takes a photo. Long press toggles fast mode.',

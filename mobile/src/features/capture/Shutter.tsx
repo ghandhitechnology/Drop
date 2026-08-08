@@ -56,6 +56,11 @@ export function Shutter({
     [],
   );
 
+  const fastRing = useMemo(
+    () => Skia.PathBuilder.Make().addCircle(CENTER, CENTER, RING_RADIUS - 5).detach(),
+    [],
+  );
+
   const discStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 - press.value * 0.12 }],
   }));
@@ -127,6 +132,18 @@ export function Shutter({
             seed={seedFromString('capture/shutter')}
             strokeScale={1.15}
           />
+          {/* Fast mode is a second ring pulled just inside the first — the way
+              a hand rings something it means twice. Nothing moves position, so
+              the shutter stays exactly where the thumb learned it was. */}
+          {fast && (
+            <HandPath
+              path={fastRing}
+              color={overlayInk.mark}
+              variant="crayon"
+              seed={seedFromString('capture/shutter-fast')}
+              strokeScale={0.9}
+            />
+          )}
         </Canvas>
       </Animated.View>
     </Touch>
