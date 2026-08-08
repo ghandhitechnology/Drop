@@ -8,7 +8,7 @@
  */
 import { estimate as runEstimate } from '@drop/water-engine';
 import type { Confidence, Estimate, MetricType, QuantityUnit } from '@drop/water-engine';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useFirstRun } from '../src/features/onboarding';
 import { useTheme } from '../src/design/theme';
 import { space } from '../src/design/tokens';
 import { HandFrame } from '../src/drawing/HandFrame';
@@ -360,6 +361,19 @@ export default function DataLab() {
     }
   }, [refresh, say]);
 
+  /**
+   * Offers the first run again, leaving history alone.
+   *
+   * The gate reads the store rather than the database, so clearing the flag
+   * moves the app to the welcome on the next render — no relaunch needed.
+   */
+  const router = useRouter();
+  const replayFirstRun = useFirstRun((s) => s.replay);
+  const showOnboarding = useCallback(async () => {
+    await replayFirstRun();
+    router.replace('/');
+  }, [replayFirstRun, router]);
+
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onQuery = useCallback(
@@ -429,6 +443,7 @@ export default function DataLab() {
                 <Button label="Undo last removal" onPress={undo} tone="ink" />
               ) : null}
               <Button label="Empty the database" onPress={reset} tone="ink" busy={busy} />
+              <Button label="Show the first run again" onPress={showOnboarding} tone="ink" />
             </View>
             <Text variant="body" tone="inkSoft" accessibilityLiveRegion="polite">
               {status}

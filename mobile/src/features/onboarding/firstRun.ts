@@ -29,6 +29,14 @@ type FirstRunState = {
   load: () => Promise<void>;
   /** Marks the flow as seen and lets the camera through. */
   complete: () => Promise<void>;
+  /**
+   * Clears the flag and offers the flow again, without touching history.
+   *
+   * For the data lab. Emptying the database also clears this key, but it takes
+   * every entry with it, and wanting to see the welcome again is a poor reason
+   * to lose a month of logging.
+   */
+  replay: () => Promise<void>;
 };
 
 export const useFirstRun = create<FirstRunState>((set, get) => ({
@@ -55,5 +63,13 @@ export const useFirstRun = create<FirstRunState>((set, get) => ({
     } catch {
       // Worst case the welcome is offered once more next launch.
     }
+  },
+
+  replay: async () => {
+    // Written before the status moves: `load` short-circuits once the status
+    // has left 'unknown', so a failed write here would leave the flow offered
+    // on this launch and gone on the next one.
+    await kvSet(FIRST_RUN_KEY, '');
+    set({ status: 'pending' });
   },
 }));
