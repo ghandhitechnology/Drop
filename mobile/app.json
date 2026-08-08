@@ -12,6 +12,7 @@
       "bundleIdentifier": "rocks.ourplanet.drop",
       "supportsTablet": true,
       "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Drop connects to the development server and local recognition service while you test on your iPhone.",
         "UIViewControllerBasedStatusBarAppearance": true
       }
     },
