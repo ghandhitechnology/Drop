@@ -22,8 +22,6 @@ import { AccessibilityInfo, StyleSheet, View, findNodeHandle } from 'react-nativ
 
 import { useTheme } from '../../design/theme';
 import { radius, space } from '../../design/tokens';
-import { HandFrame } from '../../drawing/HandFrame';
-import { seedFromString } from '../../drawing/seededRandom';
 import {
   copy,
   formatQuantity,
@@ -33,15 +31,14 @@ import {
   litresSentence,
   unsupportedLine,
 } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import type { Estimate } from '../capture/types';
 import { CandidateChips } from '../search/CandidateChips';
 import { ConfidenceChip } from './ConfidenceChip';
 import { DetailSection, HeadlineNotes } from './DetailSection';
 import { QuantityStepper } from './QuantityStepper';
-
-const CONFIRM_FRAME_SEED = seedFromString('result/add-to-history');
 
 /** What the reading needs, whichever variant draws it. */
 type ResultCardCommon = {
@@ -217,8 +214,6 @@ function Controls({
   onConfirm,
   onClose,
 }: ResultCardFullProps) {
-  const { colors } = useTheme();
-
   return (
     <>
       {adjusting ? (
@@ -230,9 +225,14 @@ function Controls({
           onChange={onQuantity}
         />
       ) : (
-        <Touch
+        <SketchButton
           onPress={onAdjust}
-          style={[styles.amountRow, { borderColor: colors.inkFaint }]}
+          seed="result/amount-row"
+          tone="quiet"
+          radius={radius.md}
+          scale={0.66}
+          style={styles.amountRow}
+          contentStyle={styles.amountContent}
           accessibilityLabel={copy.result.adjust}
           accessibilityValue={{
             text: formatQuantity(estimate.quantity.value, estimate.quantity.unit),
@@ -244,57 +244,48 @@ function Controls({
           <Text variant="label" tone="ink" style={styles.amountValue}>
             {formatQuantity(estimate.quantity.value, estimate.quantity.unit)}
           </Text>
-        </Touch>
+        </SketchButton>
       )}
 
-      <Touch
+      <SketchLink
         onPress={onToggleDetail}
+        seed={detailOpen ? 'result/collapse' : 'result/expand'}
         style={styles.detailToggle}
         accessibilityLabel={detailOpen ? copy.result.collapse : copy.result.expand}
         accessibilityState={{ expanded: detailOpen }}
       >
-        <Text variant="label" tone="accent">
-          {detailOpen ? copy.result.collapse : copy.result.expand}
-        </Text>
-      </Touch>
+        {detailOpen ? copy.result.collapse : copy.result.expand}
+      </SketchLink>
 
       {detailOpen && <DetailSection estimate={estimate} />}
 
-      <Touch
+      <SketchButton
         onPress={onConfirm}
         disabled={confirmed}
-        style={[
-          styles.confirm,
-          confirmed ? styles.spent : styles.intact,
-        ]}
+        seed="result/add-to-history"
+        filled
+        radius={radius.lg}
+        scale={0.94}
+        style={[styles.confirm, confirmed ? styles.spent : styles.intact]}
+        contentStyle={styles.confirmContent}
         accessibilityLabel={copy.result.confirm}
         accessibilityHint={copy.result.confirmHint}
         accessibilityState={{ disabled: confirmed }}
       >
-        <HandFrame
-          seed={CONFIRM_FRAME_SEED}
-          variant="crayon"
-          color={colors.accent}
-          radius={radius.lg}
-          strokeScale={0.9}
-          style={styles.confirmFrame}
-          contentStyle={styles.confirmContent}
-        >
-          <View
-            pointerEvents="none"
-            style={[styles.confirmWash, { backgroundColor: colors.accentSoft }]}
-          />
-          <Text variant="note" tone="accent">
-            {copy.result.confirm}
-          </Text>
-        </HandFrame>
-      </Touch>
-
-      <Touch onPress={onClose} style={styles.tail} accessibilityLabel={copy.result.close}>
-        <Text variant="label" tone="inkSoft">
-          {copy.result.close}
+        <Text variant="note" tone="accent">
+          {copy.result.confirm}
         </Text>
-      </Touch>
+      </SketchButton>
+
+      <SketchLink
+        onPress={onClose}
+        seed="result/close"
+        tone="inkSoft"
+        style={styles.tail}
+        accessibilityLabel={copy.result.close}
+      >
+        {copy.result.close}
+      </SketchLink>
     </>
   );
 }
@@ -312,7 +303,6 @@ function Controls({
  */
 function ArrivingLater(props: ResultCardProps) {
   const { estimate, open, isFront = true } = props;
-  const { colors } = useTheme();
   const lineRef = useRef<View>(null);
 
   useEffect(() => {
@@ -335,28 +325,29 @@ function ArrivingLater(props: ResultCardProps) {
 
       {props.variant === 'stacked' ? null : (
         <>
-          <Touch
+          <SketchButton
             onPress={props.onSearch}
-            style={[
-              styles.confirm,
-              { backgroundColor: colors.accentSoft, borderColor: colors.accent },
-            ]}
+            seed="result/unsupported/search"
+            filled
+            radius={radius.lg}
+            style={styles.confirm}
+            contentStyle={styles.confirmContent}
             accessibilityLabel={copy.unsupported.action}
           >
             <Text variant="label" tone="accent">
               {copy.unsupported.action}
             </Text>
-          </Touch>
+          </SketchButton>
 
-          <Touch
+          <SketchLink
             onPress={props.onRetake}
+            seed="result/unsupported/keep"
+            tone="inkSoft"
             style={styles.tail}
             accessibilityLabel={copy.unsupported.keep}
           >
-            <Text variant="label" tone="inkSoft">
-              {copy.unsupported.keep}
-            </Text>
-          </Touch>
+            {copy.unsupported.keep}
+          </SketchLink>
         </>
       )}
     </>
@@ -379,38 +370,20 @@ const styles = StyleSheet.create({
     minHeight: 34,
     justifyContent: 'center',
   },
-  amountRow: {
+  amountRow: { minHeight: 54 },
+  amountContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 52,
-    borderWidth: 1,
-    borderRadius: 14,
+    alignSelf: 'stretch',
+    minHeight: 54,
     paddingHorizontal: space.lg,
   },
   amountValue: { fontVariant: ['tabular-nums'] },
-  detailToggle: { minHeight: 48, justifyContent: 'center' },
-  confirm: {
-    minHeight: 56,
-    alignSelf: 'stretch',
-  },
-  confirmFrame: {
-    minHeight: 56,
-  },
-  confirmContent: {
-    minHeight: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmWash: {
-    position: 'absolute',
-    top: 7,
-    left: 7,
-    right: 7,
-    bottom: 7,
-    borderRadius: radius.md,
-  },
+  detailToggle: { minHeight: 48 },
+  confirm: { minHeight: 58, alignSelf: 'stretch' },
+  confirmContent: { minHeight: 58 },
   spent: { opacity: 0.45 },
   intact: { opacity: 1 },
-  tail: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  tail: { minHeight: 48, alignItems: 'center' },
 });

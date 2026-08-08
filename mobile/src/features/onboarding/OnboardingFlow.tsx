@@ -44,8 +44,9 @@ import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
 import { tapSelection } from '../../lib/haptics';
+import { SketchButton } from '../../ui/SketchButton';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import { useFirstRun } from './firstRun';
 import { RisingWater, Viewfinder } from './OnboardingScene';
 
@@ -174,16 +175,16 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
             and it is next to the decision being made.
           */}
           {step === 0 && (
-            <Touch
+            <SketchLink
               onPress={leave}
+              seed="onboarding/skip"
+              tone="inkSoft"
               style={styles.skip}
               accessibilityLabel={copy.onboarding.skip}
               accessibilityHint={copy.onboarding.skipHint}
             >
-              <Text variant="label" tone="inkSoft">
-                {copy.onboarding.skip}
-              </Text>
-            </Touch>
+              {copy.onboarding.skip}
+            </SketchLink>
           )}
         </View>
 
@@ -210,31 +211,37 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
         </View>
 
         <Animated.View style={[styles.actions, wordsStyle]}>
-          <Touch
+          {/*
+            One seed per step, so the promise and the ask are drawn as two
+            different boxes rather than the same box twice — which is what the
+            page turn would otherwise look like with the label swapped.
+          */}
+          <SketchButton
             onPress={step === 0 ? next : askForCamera}
-            style={[
-              styles.primary,
-              { backgroundColor: colors.accentSoft, borderColor: colors.accent },
-            ]}
+            seed={`onboarding/primary/${step}`}
+            filled
+            radius={radius.pill}
+            style={styles.primary}
+            contentStyle={styles.primaryContent}
             accessibilityLabel={page.action}
             accessibilityHint={page.actionHint}
           >
             <Text variant="label" tone="accent">
               {page.action}
             </Text>
-          </Touch>
+          </SketchButton>
 
           {step === 1 && (
-            <Touch
+            <SketchLink
               onPress={leave}
+              seed="onboarding/later"
+              tone="inkSoft"
               style={styles.secondary}
               accessibilityLabel={copy.onboarding.camera.later}
               accessibilityHint={copy.onboarding.camera.laterHint}
             >
-              <Text variant="label" tone="inkSoft">
-                {copy.onboarding.camera.later}
-              </Text>
-            </Touch>
+              {copy.onboarding.camera.later}
+            </SketchLink>
           )}
         </Animated.View>
       </SafeAreaView>
@@ -343,16 +350,7 @@ const styles = StyleSheet.create({
     paddingBottom: space.lg,
     gap: space.sm,
   },
-  primary: {
-    minHeight: 56,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondary: {
-    minHeight: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  primary: { minHeight: 58 },
+  primaryContent: { minHeight: 58 },
+  secondary: { minHeight: 48, alignItems: 'center' },
 });

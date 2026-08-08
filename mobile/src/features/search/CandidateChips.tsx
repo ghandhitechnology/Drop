@@ -17,13 +17,10 @@
 import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '../../design/theme';
 import { space } from '../../design/tokens';
-import { HandFrame } from '../../drawing/HandFrame';
-import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { useCandidates } from './candidates';
 import { estimateFor } from './estimate';
@@ -59,7 +56,6 @@ function swapEstimate(catalogId: string): boolean {
 }
 
 export function CandidateChips() {
-  const { colors } = useTheme();
   const list = useCandidates((s) => s.list);
   const picked = useCandidates((s) => s.picked);
   const pick = useCandidates((s) => s.pick);
@@ -84,24 +80,21 @@ export function CandidateChips() {
         {list.map((candidate) => {
           const active = candidate.catalogId === picked;
           return (
-            <Touch
+            <SketchButton
               key={candidate.catalogId}
               onPress={() => choose(candidate.catalogId)}
+              seed={`result/candidate/${candidate.catalogId}`}
+              tone={active ? 'accent' : 'quiet'}
+              radius={18}
+              scale={active ? 0.92 : 0.66}
+              contentStyle={styles.chip}
               accessibilityLabel={copy.result.switchTo(candidate.label)}
               accessibilityState={{ selected: active }}
             >
-              <HandFrame
-                seed={seedFromString(`result/candidate/${candidate.catalogId}`)}
-                color={active ? colors.accent : colors.inkFaint}
-                radius={18}
-                strokeScale={active ? 1 : 0.75}
-                contentStyle={styles.chip}
-              >
-                <Text variant="chip" tone={active ? 'accent' : 'inkSoft'} numberOfLines={1}>
-                  {candidate.label}
-                </Text>
-              </HandFrame>
-            </Touch>
+              <Text variant="chip" tone={active ? 'accent' : 'inkSoft'} numberOfLines={1}>
+                {candidate.label}
+              </Text>
+            </SketchButton>
           );
         })}
       </View>
@@ -113,7 +106,7 @@ const styles = StyleSheet.create({
   root: { gap: space.sm },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   chip: {
-    minHeight: 36,
+    minHeight: 38,
     justifyContent: 'center',
     paddingHorizontal: space.md,
     paddingVertical: space.xs,

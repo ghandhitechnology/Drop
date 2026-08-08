@@ -23,12 +23,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../design/theme';
-import { space } from '../../design/tokens';
+import { radius, space } from '../../design/tokens';
 import { copy } from '../../lib/copy';
 import { tapRemoving } from '../../lib/haptics';
 import { localDay } from '../../lib/time';
+import { SketchButton } from '../../ui/SketchButton';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import type { Entry } from '../../data/types';
 import { DayHeader } from './DayHeader';
 import { seedHistory } from './devSeed';
@@ -152,15 +153,14 @@ export function HistoryScreen() {
       edges={['top', 'bottom']}
     >
       <View style={styles.bar}>
-        <Touch
+        <SketchLink
           onPress={goCamera}
+          seed="history/back-to-camera"
           accessibilityLabel={copy.history.back}
           style={styles.back}
         >
-          <Text variant="label" tone="accent">
-            {copy.history.back}
-          </Text>
-        </Touch>
+          {copy.history.back}
+        </SketchLink>
       </View>
 
       {empty ? (
@@ -210,20 +210,24 @@ export function HistoryScreen() {
 
 /** Developer affordance. It ships out of the bundle in a release build. */
 function DevSeed({ seeding, onSeed }: { seeding: boolean; onSeed: () => void }) {
-  const { colors } = useTheme();
   if (!__DEV__) return null;
   return (
-    <Touch
+    <SketchButton
       onPress={onSeed}
       disabled={seeding}
+      seed="history/dev-seed"
+      tone="quiet"
+      radius={radius.pill}
+      scale={0.8}
       accessibilityLabel={seeding ? copy.history.seeding : copy.history.seed}
       accessibilityState={{ disabled: seeding }}
-      style={[styles.seed, { borderColor: colors.inkFaint, opacity: seeding ? 0.5 : 1 }]}
+      style={[styles.seed, { opacity: seeding ? 0.5 : 1 }]}
+      contentStyle={styles.seedContent}
     >
       <Text variant="chip" tone="inkSoft">
         {seeding ? copy.history.seeding : copy.history.seed}
       </Text>
-    </Touch>
+    </SketchButton>
   );
 }
 
@@ -240,13 +244,6 @@ const styles = StyleSheet.create({
   },
   content: { paddingBottom: space.xxxl * 2 },
   emptyWrap: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.xl },
-  seed: {
-    alignSelf: 'center',
-    marginTop: space.xl,
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: space.lg,
-    borderWidth: 1,
-    borderRadius: 999,
-  },
+  seed: { alignSelf: 'center', marginTop: space.xl, minHeight: 46 },
+  seedContent: { minHeight: 46, paddingHorizontal: space.lg },
 });

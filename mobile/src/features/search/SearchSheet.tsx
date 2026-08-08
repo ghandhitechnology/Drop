@@ -30,7 +30,7 @@ import type { CatalogItem } from '../../data/types';
 import { Grain } from '../../drawing/grain';
 import { copy } from '../../lib/copy';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
+import { SketchLink } from '../../ui/SketchLink';
 import { MAX_PLATE_ITEMS } from '../capture/pipeline';
 import { AmountStep } from './AmountStep';
 import { BasketTray } from './BasketTray';
@@ -253,15 +253,15 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
                 {copy.search.goMany(basket.length)}
               </CrayonAction>
             )}
-            <Touch
+            <SketchLink
               onPress={onDismiss}
+              seed="search/dismiss"
+              tone="inkSoft"
               style={styles.back}
               accessibilityLabel={copy.search.back}
             >
-              <Text variant="label" tone="inkSoft">
-                {copy.search.back}
-              </Text>
-            </Touch>
+              {copy.search.back}
+            </SketchLink>
           </View>
         </>
       )}
@@ -282,5 +282,5 @@ const styles = StyleSheet.create({
   // overlap keeps the action visually attached to the edge without consuming
   // the full inset or shrinking its touch target.
   footer: { paddingHorizontal: space.lg, gap: space.xs },
-  back: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  back: { minHeight: 48, alignItems: 'center' },
 });

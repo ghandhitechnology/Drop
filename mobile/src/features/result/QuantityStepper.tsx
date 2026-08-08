@@ -14,11 +14,10 @@
 import { useCallback } from 'react';
 import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 
-import { useTheme } from '../../design/theme';
 import { space } from '../../design/tokens';
 import { copy, formatMultiple, formatQuantity } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import type { Estimate } from '../capture/types';
 
 /** Servings move in halves. */
@@ -44,8 +43,6 @@ export function QuantityStepper({
   value,
   onChange,
 }: QuantityStepperProps) {
-  const { colors } = useTheme();
-
   const multiple = base > 0 ? value / base : 1;
   const amount = formatQuantity(value, unit);
 
@@ -71,21 +68,27 @@ export function QuantityStepper({
       </Text>
 
       <View style={styles.row}>
-        <Touch
+        {/*
+          Two circles drawn one after the other, never the same circle twice —
+          a radius equal to half the box turns the seeded corners into a loop
+          that is slightly out of round, which is what a hand does.
+        */}
+        <SketchButton
           onPress={() => move(-1)}
           disabled={atFloor}
-          style={[
-            styles.step,
-            { borderColor: colors.inkFaint, backgroundColor: colors.bg },
-            atFloor ? styles.spent : styles.intact,
-          ]}
+          seed="result/stepper/less"
+          tone="quiet"
+          radius={STEP_SIZE / 2}
+          scale={0.82}
+          style={[styles.step, atFloor ? styles.spent : styles.intact]}
+          contentStyle={styles.stepContent}
           accessibilityLabel={copy.result.less}
           accessibilityState={{ disabled: atFloor }}
         >
           <Text variant="title" tone="ink">
             –
           </Text>
-        </Touch>
+        </SketchButton>
 
         <View style={styles.readout} accessible accessibilityRole="text" accessibilityLabel={amount}>
           <Text variant="title" tone="ink" style={styles.amount}>
@@ -98,37 +101,35 @@ export function QuantityStepper({
           </Text>
         </View>
 
-        <Touch
+        <SketchButton
           onPress={() => move(1)}
           disabled={atCeiling}
-          style={[
-            styles.step,
-            { borderColor: colors.inkFaint, backgroundColor: colors.bg },
-            atCeiling ? styles.spent : styles.intact,
-          ]}
+          seed="result/stepper/more"
+          tone="quiet"
+          radius={STEP_SIZE / 2}
+          scale={0.82}
+          style={[styles.step, atCeiling ? styles.spent : styles.intact]}
+          contentStyle={styles.stepContent}
           accessibilityLabel={copy.result.more}
           accessibilityState={{ disabled: atCeiling }}
         >
           <Text variant="title" tone="ink">
             +
           </Text>
-        </Touch>
+        </SketchButton>
       </View>
     </View>
   );
 }
 
+/** Drawn square so the seeded corners resolve into a circle rather than a bean. */
+const STEP_SIZE = 56;
+
 const styles = StyleSheet.create({
   root: { gap: space.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  step: {
-    width: 52,
-    height: 52,
-    borderWidth: 1,
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  step: { width: STEP_SIZE, height: STEP_SIZE },
+  stepContent: { width: STEP_SIZE, height: STEP_SIZE },
   spent: { opacity: 0.4 },
   intact: { opacity: 1 },
   readout: { flex: 1, alignItems: 'center' },

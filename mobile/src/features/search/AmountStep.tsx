@@ -20,8 +20,8 @@ import { space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import type { CatalogItem } from '../../data/types';
 import { copy } from '../../lib/copy';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import type { Estimate } from '../capture/types';
 import { QuantityStepper } from '../result/QuantityStepper';
 import { CategoryGlyph } from './CategoryGlyph';
@@ -72,11 +72,14 @@ export function AmountStep({ item, basis, onBack, onGo, onAddAnother }: AmountSt
           detailsRef.current?.scrollToEnd({ animated: !motion.reduceMotion })
         }
       >
-        <Touch onPress={onBack} style={styles.back} accessibilityLabel={copy.search.amountBack}>
-          <Text variant="label" tone="accent">
-            {copy.search.amountBack}
-          </Text>
-        </Touch>
+        <SketchLink
+          onPress={onBack}
+          seed="search/amount-back"
+          style={styles.back}
+          accessibilityLabel={copy.search.amountBack}
+        >
+          {copy.search.amountBack}
+        </SketchLink>
 
         <View style={styles.block}>
           <View style={styles.heading}>
@@ -128,7 +131,7 @@ const styles = StyleSheet.create({
   // Extra tail room lets an overflowing stack settle between rows instead of
   // leaving the previous control half-clipped at the top edge.
   detailsContent: { paddingBottom: space.xl },
-  back: { minHeight: 48, justifyContent: 'center' },
+  back: { minHeight: 48 },
   /** A compact continuation of the stable sheet header, not a new centred page. */
   block: { paddingTop: space.xs, gap: space.lg },
   heading: { flexDirection: 'row', alignItems: 'center', gap: space.md },

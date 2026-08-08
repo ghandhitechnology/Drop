@@ -20,8 +20,9 @@ import { isPlate } from '../../data/plate';
 import type { Entry } from '../../data/types';
 import { copy, formatLitres, heroFigure, litresSentence } from '../../lib/copy';
 import { localDay } from '../../lib/time';
+import { SketchButton } from '../../ui/SketchButton';
+import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import { Snapshot } from '../capture/Snapshot';
 import type { Estimate as CaptureEstimate } from '../capture/types';
 import { ConfidenceChip } from '../result/ConfidenceChip';
@@ -75,15 +76,14 @@ export function EntryDetailScreen() {
 
   const back = (
     <View style={styles.bar}>
-      <Touch
+      <SketchLink
         onPress={goBack}
+        seed="history/detail/back"
         accessibilityLabel={copy.history.title}
         style={styles.back}
       >
-        <Text variant="label" tone="accent">
-          {copy.history.title}
-        </Text>
-      </Touch>
+        {copy.history.title}
+      </SketchLink>
     </View>
   );
 
@@ -201,16 +201,25 @@ export function EntryDetailScreen() {
           </Text>
         </View>
 
-        <Touch
+        {/*
+          Squarer and lighter than anything else in the product. Removal is
+          available, not offered — the shape says so before the words do.
+        */}
+        <SketchButton
           onPress={handleRemove}
+          seed="history/detail/remove"
+          tone="quiet"
+          radius={radius.sm}
+          scale={0.7}
           accessibilityLabel={copy.history.detail.remove}
           accessibilityHint={copy.history.removeHint}
-          style={[styles.remove, { borderColor: colors.inkFaint }]}
+          style={styles.remove}
+          contentStyle={styles.removeContent}
         >
           <Text variant="label" tone="inkSoft">
             {copy.history.detail.remove}
           </Text>
-        </Touch>
+        </SketchButton>
       </ScrollView>
     </SafeAreaView>
   );
@@ -259,11 +268,6 @@ const styles = StyleSheet.create({
   print: { alignSelf: 'center', marginVertical: space.sm },
 
   footer: { borderTopWidth: 1, paddingTop: space.md, gap: space.xs },
-  remove: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  remove: { minHeight: 54 },
+  removeContent: { minHeight: 54 },
 });

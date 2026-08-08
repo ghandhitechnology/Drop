@@ -14,15 +14,12 @@
 import { StyleSheet, View } from 'react-native';
 
 import { useSchemePreference } from '../../design/theme';
-import { useColors } from '../../design/theme';
 import { MIN_TOUCH_SIZE, radius, space } from '../../design/tokens';
 import type { SchemePreference } from '../../design/preferences';
-import { HandFrame } from '../../drawing/HandFrame';
-import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
 import { tapSelection } from '../../lib/haptics';
+import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 
 const OPTIONS: { value: SchemePreference; label: string }[] = [
   { value: 'system', label: copy.settings.appearance.system },
@@ -36,7 +33,6 @@ export type ThemeChoiceProps = {
 };
 
 export function ThemeChoice({ onChange }: ThemeChoiceProps) {
-  const colors = useColors();
   const { preference, setScheme } = useSchemePreference();
 
   return (
@@ -48,7 +44,7 @@ export function ThemeChoice({ onChange }: ThemeChoiceProps) {
       {OPTIONS.map((option) => {
         const selected = preference === option.value;
         return (
-          <Touch
+          <SketchButton
             key={option.value}
             onPress={() => {
               if (selected) return;
@@ -56,28 +52,22 @@ export function ThemeChoice({ onChange }: ThemeChoiceProps) {
               setScheme(option.value);
               onChange?.(option.label);
             }}
+            seed={`settings/theme/${option.value}`}
+            tone={selected ? 'accent' : 'quiet'}
+            filled={selected}
+            radius={radius.lg}
+            scale={selected ? 0.9 : 0.7}
             style={styles.cell}
+            contentStyle={styles.chipContent}
             accessibilityRole="radio"
             accessibilityLabel={option.label}
             accessibilityHint={copy.settings.appearance.themeHint}
             accessibilityState={{ selected }}
           >
-            <HandFrame
-              seed={seedFromString(`settings/theme/${option.value}`)}
-              variant={selected ? 'crayon' : 'pencil'}
-              color={selected ? colors.accent : colors.inkFaint}
-              radius={radius.lg}
-              style={[
-                styles.chip,
-                { backgroundColor: selected ? colors.accentSoft : 'transparent' },
-              ]}
-              contentStyle={styles.chipContent}
-            >
-              <Text variant="label" tone={selected ? 'accent' : 'inkSoft'}>
-                {option.label}
-              </Text>
-            </HandFrame>
-          </Touch>
+            <Text variant="label" tone={selected ? 'accent' : 'inkSoft'}>
+              {option.label}
+            </Text>
+          </SketchButton>
         );
       })}
     </View>
@@ -89,8 +79,7 @@ const CHIP_HEIGHT = MIN_TOUCH_SIZE;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space.sm },
-  cell: { flex: 1 },
-  chip: { height: CHIP_HEIGHT, borderRadius: radius.lg, overflow: 'hidden' },
+  cell: { flex: 1, height: CHIP_HEIGHT },
   chipContent: {
     height: CHIP_HEIGHT,
     alignItems: 'center',

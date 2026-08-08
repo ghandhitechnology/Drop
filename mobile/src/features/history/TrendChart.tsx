@@ -23,13 +23,13 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useTheme } from '../../design/theme';
-import { space } from '../../design/tokens';
+import { radius as radii, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { copy, formatLitres } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 import type { DailyTotal } from '../../data/types';
 import { layoutChart, type ChartBar } from './chart';
 import { barDayName, litresSpoken, shortDate, weekdayShort } from './format';
@@ -255,6 +255,10 @@ function guideAt(y: number, width: number) {
 
 /* --------------------------------------------------------------- toggle -- */
 
+/**
+ * The chosen range is coloured in and pressed harder; the other is a thin
+ * outline. Weight carries the selection, so it survives being read in grey.
+ */
 function RangeToggle({
   range,
   onRange,
@@ -262,7 +266,6 @@ function RangeToggle({
   range: ChartRange;
   onRange: (range: ChartRange) => void;
 }) {
-  const { colors } = useTheme();
   const options: { value: ChartRange; label: string }[] = [
     { value: 7, label: copy.history.range.week },
     { value: 30, label: copy.history.range.month },
@@ -273,24 +276,24 @@ function RangeToggle({
       {options.map((option) => {
         const selected = option.value === range;
         return (
-          <Touch
+          <SketchButton
             key={option.value}
             onPress={() => onRange(option.value)}
+            seed={`history/range/${option.value}`}
+            tone={selected ? 'accent' : 'quiet'}
+            filled={selected}
+            radius={radii.pill}
+            scale={selected ? 0.9 : 0.68}
             accessibilityLabel={option.label}
             accessibilityHint={copy.history.rangeHint}
             accessibilityState={{ selected }}
-            style={[
-              styles.toggleOption,
-              {
-                borderColor: selected ? colors.accent : colors.inkFaint,
-                backgroundColor: selected ? colors.accentSoft : 'transparent',
-              },
-            ]}
+            style={styles.toggleOption}
+            contentStyle={styles.toggleContent}
           >
             <Text variant="chip" tone={selected ? 'accent' : 'inkSoft'}>
               {option.label}
             </Text>
-          </Touch>
+          </SketchButton>
         );
       })}
     </View>
@@ -303,13 +306,8 @@ const styles = StyleSheet.create({
   root: { gap: space.md },
 
   toggle: { flexDirection: 'row', gap: space.sm },
-  toggleOption: {
-    minHeight: 36,
-    justifyContent: 'center',
-    paddingHorizontal: space.lg,
-    borderWidth: 1,
-    borderRadius: 999,
-  },
+  toggleOption: { minHeight: 40 },
+  toggleContent: { minHeight: 40, paddingHorizontal: space.lg },
 
   chartRow: { flexDirection: 'row', height: PLOT_HEIGHT },
   gutter: { width: GUTTER },

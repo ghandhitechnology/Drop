@@ -10,8 +10,8 @@ import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { dropPath } from '../onboarding/marks';
 import { copy } from '../../lib/copy';
+import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
-import { Touch } from '../../ui/Touch';
 
 const MARK_WIDTH = 240;
 const MARK_HEIGHT = 120;
@@ -76,15 +76,19 @@ export function PermissionPrompt({ mode, onRequest }: PermissionPromptProps) {
             {words.body}
           </Text>
 
-          <Touch
+          <SketchButton
             onPress={handlePress}
-            style={[styles.action, { backgroundColor: colors.accentSoft, borderColor: colors.accent }]}
+            seed={`capture/permission/${mode}`}
+            filled
+            radius={radius.pill}
+            style={styles.action}
+            contentStyle={styles.actionContent}
             accessibilityLabel={words.action}
           >
             <Text variant="label" tone="accent">
               {words.action}
             </Text>
-          </Touch>
+          </SketchButton>
         </View>
       </SafeAreaView>
     </View>
@@ -104,13 +108,6 @@ const styles = StyleSheet.create({
   canvas: { width: MARK_WIDTH, height: MARK_HEIGHT },
   title: { textAlign: 'center' },
   copy: { textAlign: 'center', maxWidth: 340 },
-  action: {
-    marginTop: space.lg,
-    minHeight: 52,
-    paddingHorizontal: space.xl,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  action: { marginTop: space.lg, minHeight: 56 },
+  actionContent: { minHeight: 56, paddingHorizontal: space.xxl },
 });
