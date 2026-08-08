@@ -35,10 +35,17 @@ import { copy } from '../../lib/copy';
 import { clearCandidates, offerCandidates } from '../search/candidates';
 import { estimateFor, type PickedQuantity } from '../search/estimate';
 import { takeSearchPicks, type SearchPick } from '../search/pick';
-import type { BarcodeHint, Estimate, PlateItem, RecognizedItem } from './types';
+import type {
+  BarcodeHint,
+  CaptureMode,
+  Estimate,
+  PlateItem,
+  RecognizedItem,
+} from './types';
 
 export type PipelineInput = {
   photoUri: string;
+  mode: CaptureMode;
   /** Present when a barcode was in frame at the moment of capture. */
   barcode?: BarcodeHint;
 };
@@ -158,7 +165,7 @@ export const fakePipeline: Pipeline = (input, handlers) => {
     );
   });
 
-  elapsed += FAKE_TIMINGS.presenting;
+  elapsed += input.mode === 'fast' ? 0 : FAKE_TIMINGS.presenting;
   at(elapsed, () => handlers.onPresenting(SAMPLE_ESTIMATE));
 
   return {
@@ -186,11 +193,11 @@ export const fakePipeline: Pipeline = (input, handlers) => {
  *   1. A pick staged by the search sheet short-circuits everything. No photo
  *      was taken, so there is nothing to read: the sequence goes straight to
  *      the name and then the number.
- *   2. A barcode in frame is looked up first. A retail code is an exact
- *      identification and a packet publishes its own net weight, which beats
- *      any amount estimated from a frame. A `coverage_miss` falls through.
- *   3. The photo is read. The top candidate becomes the name; its amount, the
- *      quantity. A shortlist under `MULTI_CANDIDATE_SCORE` is offered on the
+ *   2. A barcode in frame is authoritative. Normal mode looks it up before
+ *      reading the photo; fast mode starts both together but still lets a valid
+ *      code win. A `coverage_miss` falls through to vision already in flight.
+ *   3. The photo's top candidate becomes the name; its amount, the quantity.
+ *      A shortlist under `MULTI_CANDIDATE_SCORE` is offered on the
  *      card so the choice stays with the person.
  *   4. Anything that goes wrong at any step — radio off, service asleep, a
  *      frame that will not read, a photo of a room the catalogue has no word
@@ -217,8 +224,8 @@ const BARCODE_TIMEOUT_MS = 8_000;
  * Timings for the beats the network does not own.
  *
  * `analyzing` is how long the item's name sits on screen before its number
- * arrives — the same beat the seam established, so the rhythm of the sequence
- * is identical whether the answer took four seconds or four milliseconds.
+ * arrives in normal mode. Fast mode deliberately removes this presentation
+ * beat and continues as soon as the local engine has the recognition.
  */
 export const REAL_TIMINGS = { analyzing: 620 } as const;
 
@@ -280,6 +287,11 @@ export const realPipeline: Pipeline = (input, handlers) => {
 
   const alive = () => !cancelled && !settled;
 
+  const holdAnalysisBeat = async () => {
+    if (input.mode !== 'fast') await delay(REAL_TIMINGS.analyzing);
+    return alive();
+  };
+
   /* ------------------------------------------------------ identification */
 
   async function identify(): Promise<Identified | null> {
@@ -317,7 +329,38 @@ export const realPipeline: Pipeline = (input, handlers) => {
      */
     let labelQuantity: PickedQuantity | null = null;
 
-    // 2 — a code in frame.
+    const visionController = input.mode === 'fast' ? new AbortController() : null;
+    if (visionController) {
+      controller.signal.addEventListener(
+        'abort',
+        () => visionController.abort(),
+        { once: true },
+      );
+    }
+
+    const readPhoto = async () => {
+      const photo = await encodePhoto(input.photoUri);
+      console.log('[capture/pipeline] photo', photo.bytes, 'bytes');
+      return recognizePhoto(photo.base64, {
+        mime: photo.mime,
+        timeoutMs: RECOGNIZE_TIMEOUT_MS,
+        signal: visionController?.signal ?? controller.signal,
+        mode: input.mode,
+        ...(input.barcode ? { hint: `retail code ${input.barcode.value}` } : {}),
+      });
+    };
+
+    // Fast mode starts vision immediately. The settled wrapper prevents a
+    // quick vision failure becoming an unhandled rejection while barcode —
+    // which always has precedence — is still in flight.
+    const parallelVision = input.mode === 'fast'
+      ? readPhoto().then(
+          (seen) => ({ ok: true as const, seen }),
+          (error: unknown) => ({ ok: false as const, error }),
+        )
+      : null;
+
+    // 2 — a code in frame. In fast mode the photo is already being read.
     if (input.barcode) {
       try {
         const hit = await lookupBarcode(input.barcode.value, {
@@ -329,6 +372,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
         const catalogId = hit.mapping.catalog_id;
         if (!hit.coverage_miss && catalogId && tables.catalog.has(catalogId)) {
           const entry = tables.catalog.get(catalogId)!;
+          visionController?.abort();
           console.log('[capture/pipeline] barcode', hit.ean, '→', catalogId, hit.mapping.match_level);
           return {
             kind: 'single',
@@ -350,16 +394,19 @@ export const realPipeline: Pipeline = (input, handlers) => {
 
     if (!alive()) return null;
 
-    // 3 — the photo.
-    const photo = await encodePhoto(input.photoUri);
-    console.log('[capture/pipeline] photo', photo.bytes, 'bytes');
-
-    const seen = await recognizePhoto(photo.base64, {
-      mime: photo.mime,
-      timeoutMs: RECOGNIZE_TIMEOUT_MS,
-      signal: controller.signal,
-      ...(input.barcode ? { hint: `retail code ${input.barcode.value}` } : {}),
-    });
+    // 3 — normal mode starts the photo here; fast mode collects the request
+    // that has been running alongside the barcode lookup.
+    const settledVision = parallelVision
+      ? await parallelVision
+      : await readPhoto().then(
+          (seen) => ({ ok: true as const, seen }),
+          (error: unknown) => ({ ok: false as const, error }),
+        );
+    if (!settledVision.ok) {
+      if (visionController?.signal.aborted) return null;
+      throw settledVision.error;
+    }
+    const seen = settledVision.seen;
 
     // A frame holding several things becomes a plate. A packet's label
     // quantity stays on the single arm — one tin's 330 ml says nothing about
@@ -466,8 +513,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
         count: identified.plate.length,
       });
 
-      await delay(REAL_TIMINGS.analyzing);
-      if (!alive()) return;
+      if (!(await holdAnalysisBeat())) return;
 
       finish(() => handlers.onPresentingMany(identified.plate));
       return;
@@ -481,8 +527,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
         count: identified.items.length,
       });
 
-      await delay(REAL_TIMINGS.analyzing);
-      if (!alive()) return;
+      if (!(await holdAnalysisBeat())) return;
 
       const plate = identified.items.map(toPlateItem);
       finish(() => handlers.onPresentingMany(plate));
@@ -496,9 +541,8 @@ export const realPipeline: Pipeline = (input, handlers) => {
       ...(resolved.gtin14 ? { gtin14: resolved.gtin14 } : {}),
     });
 
-    // The name is allowed to land before its number arrives.
-    await delay(REAL_TIMINGS.analyzing);
-    if (!alive()) return;
+    // Normal mode lets the name land before its number; fast mode continues.
+    if (!(await holdAnalysisBeat())) return;
 
     const outcome = estimateFor({
       catalogId: resolved.catalogId,

@@ -35,8 +35,11 @@ export const copy = {
   capture: {
     /** Standing hint under the frame while the camera is live. */
     framing: 'Fill the frame with one thing',
+    /** What the note says instead, while fast mode is on. */
+    framingFast: 'fast',
     shutter: 'Capture',
-    shutterHint: 'Takes a photo and reads the water behind it',
+    shutterHint: 'Takes a photo. Long press toggles fast mode.',
+    toggleFast: 'Toggle fast mode',
     findByName: 'Find by name',
     findByNameHint: 'Search the catalogue instead of using the camera',
     barcodeReady: 'Barcode in frame',
@@ -49,6 +52,8 @@ export const copy = {
     /** Screen-reader announcements on state transitions. */
     announce: {
       framing: 'Camera live. Fill the frame with one thing.',
+      fastOn: 'Fast mode on.',
+      fastOff: 'Fast mode off.',
       captured: 'Frame held.',
       recognizing: 'Reading the photo.',
       analyzing: (label: string) => `Looking up the water behind ${label}.`,
@@ -719,6 +724,9 @@ const ASSUMPTION_REWRITES: { match: RegExp; to: string | null }[] = [
   // Audit-trail notes. The source block carries the provenance instead.
   { match: /technosphere exchange/i, to: null },
   { match: /occupancy already embedded/i, to: null },
+  // The fallback line already says "Matched by food category"; the source
+  // block names the datasets.
+  { match: /supplies the food identity and portion/i, to: null },
 ];
 
 /** How many assumption lines a card shows before it stops being a card. */

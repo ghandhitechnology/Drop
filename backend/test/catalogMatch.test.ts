@@ -22,6 +22,23 @@ describe('validateCatalogId', () => {
     expect(validateCatalogId('', tables)).toBeNull();
   });
 
+  it('repairs common single-word foods through the alias map', () => {
+    expect(validateCatalogId('milk', tables)).toEqual({
+      catalog_id: 'cow_milk', repaired: true,
+    });
+    expect(validateCatalogId('chicken', tables)).toEqual({
+      catalog_id: 'chicken_bone_free_meat', repaired: true,
+    });
+    expect(validateCatalogId('egg', tables)).toEqual({
+      catalog_id: 'eggs', repaired: true,
+    });
+  });
+
+  it('leaves ambiguous single words unrepaired ("fish", "tea")', () => {
+    expect(validateCatalogId('fish', tables)).toBeNull();
+    expect(validateCatalogId('tea', tables)).toBeNull();
+  });
+
   it('still repairs a real near-miss (missing underscore/typo)', () => {
     const v = validateCatalogId('almond shelled', tables);
     expect(v).toEqual({ catalog_id: 'almond_shelled', repaired: true });

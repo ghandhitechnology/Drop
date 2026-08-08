@@ -14,6 +14,9 @@
 import { Canvas, Skia } from '@shopify/react-native-skia';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
+
+import { useMotion } from '../../design/useMotion';
 
 import { space } from '../../design/tokens';
 import { HandPath } from '../../drawing/HandPath';
@@ -29,7 +32,7 @@ const RULE_INSET = 10;
 
 export type FramingNoteProps = { children: string };
 
-export function FramingNote({ children }: FramingNoteProps) {
+function FramingNoteLayer({ children }: FramingNoteProps) {
   const [width, setWidth] = useState(0);
 
   const onLayout = (event: LayoutChangeEvent) => {
@@ -54,7 +57,7 @@ export function FramingNote({ children }: FramingNoteProps) {
   }, [width]);
 
   return (
-    <View style={styles.root} pointerEvents="none">
+    <>
       {/*
         The stroke is measured from the words, and the words alone: measuring
         the container instead would make the stroke's own width part of what
@@ -95,6 +98,37 @@ export function FramingNote({ children }: FramingNoteProps) {
           />
         </Canvas>
       )}
+    </>
+  );
+}
+
+export function FramingNote({ children }: FramingNoteProps) {
+  const motion = useMotion();
+  const transitionMs = Math.max(1, motion.ms('settle'));
+  const [height, setHeight] = useState(0);
+
+  // The outgoing note stays mounted for the length of its exit, so both layers
+  // are on screen at once. They are stacked rather than laid out in sequence,
+  // and the container holds the height it last measured: otherwise the swap
+  // would briefly make the note twice as tall and shove the shutter down.
+  // Grow-only, so a note that wraps to two lines at a large text size reserves
+  // the room it needs rather than being pinned to what the first note measured.
+  const onLayer = (event: LayoutChangeEvent) => {
+    const next = event.nativeEvent.layout.height;
+    setHeight((current) => (next > current ? next : current));
+  };
+
+  return (
+    <View style={[styles.root, height > 0 && { height }]} pointerEvents="none">
+      <Animated.View
+        key={children}
+        style={[styles.layer, height > 0 && styles.stacked]}
+        onLayout={onLayer}
+        entering={FadeInDown.duration(transitionMs)}
+        exiting={FadeOutUp.duration(transitionMs)}
+      >
+        <FramingNoteLayer>{children}</FramingNoteLayer>
+      </Animated.View>
     </View>
   );
 }
@@ -103,6 +137,9 @@ const styles = StyleSheet.create({
   // Stretched rather than content-sized, so the note's own width never depends
   // on what is drawn inside it.
   root: { alignSelf: 'stretch', alignItems: 'center', paddingHorizontal: space.xl },
+  layer: { alignItems: 'center' },
+  // Top-anchored rather than filled, so the layer still measures its own height.
+  stacked: { position: 'absolute', top: 0, left: 0, right: 0 },
   words: {
     textAlign: 'center',
     textShadowColor: overlayInk.halo,

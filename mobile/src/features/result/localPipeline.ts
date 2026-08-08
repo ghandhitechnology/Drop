@@ -164,7 +164,7 @@ export const localPipeline: Pipeline = (input, handlers) => {
     handlers.onAnalyzing(item);
   });
 
-  elapsed += FAKE_TIMINGS.presenting;
+  elapsed += input.mode === 'fast' ? 0 : FAKE_TIMINGS.presenting;
   at(elapsed, () => {
     const result = localEstimate({ catalogId });
     if (result) handlers.onPresenting(result);
