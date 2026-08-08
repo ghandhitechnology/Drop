@@ -12,11 +12,12 @@
  * in a sheet that is about to close.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../../design/theme';
 import { space } from '../../design/tokens';
+import { useMotion } from '../../design/useMotion';
 import type { CatalogItem } from '../../data/types';
 import { copy } from '../../lib/copy';
 import { Text } from '../../ui/Text';
@@ -40,6 +41,8 @@ export type AmountStepProps = {
 
 export function AmountStep({ item, basis, onBack, onGo, onAddAnother }: AmountStepProps) {
   const { colors } = useTheme();
+  const motion = useMotion();
+  const detailsRef = useRef<ScrollView>(null);
   const unit = item.defaultUnit as Estimate['quantity']['unit'];
 
   const [value, setValue] = useState(item.defaultQuantity);
@@ -59,67 +62,76 @@ export function AmountStep({ item, basis, onBack, onGo, onAddAnother }: AmountSt
   );
 
   return (
-    <ScrollView
-      style={styles.scroller}
-      contentContainerStyle={styles.root}
-      showsVerticalScrollIndicator={false}
-    >
-      <Touch onPress={onBack} style={styles.back} accessibilityLabel={copy.search.amountBack}>
-        <Text variant="label" tone="accent">
-          {copy.search.amountBack}
-        </Text>
-      </Touch>
-
-      <View style={styles.block}>
-        <View style={styles.heading}>
-          <CategoryGlyph category={item.category} color={colors.accent} />
-          <Text variant="title" tone="ink" numberOfLines={2} style={styles.name}>
-            {item.label}
+    <View style={styles.root}>
+      <ScrollView
+        ref={detailsRef}
+        style={styles.details}
+        contentContainerStyle={styles.detailsContent}
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={() =>
+          detailsRef.current?.scrollToEnd({ animated: !motion.reduceMotion })
+        }
+      >
+        <Touch onPress={onBack} style={styles.back} accessibilityLabel={copy.search.amountBack}>
+          <Text variant="label" tone="accent">
+            {copy.search.amountBack}
           </Text>
+        </Touch>
+
+        <View style={styles.block}>
+          <View style={styles.heading}>
+            <CategoryGlyph category={item.category} color={colors.accent} />
+            <Text variant="title" tone="ink" numberOfLines={2} style={styles.name}>
+              {item.label}
+            </Text>
+          </View>
+
+          <QuantityStepper
+            base={item.defaultQuantity}
+            unit={unit}
+            basis={basis}
+            value={value}
+            onChange={setValue}
+          />
         </View>
+      </ScrollView>
 
-        <QuantityStepper
-          base={item.defaultQuantity}
-          unit={unit}
-          basis={basis}
-          value={value}
-          onChange={setValue}
-        />
-
-        <View style={styles.actions}>
-          {onAddAnother && (
-            <CrayonAction
-              seed="search/add-another"
-              tone="secondary"
-              onPress={handleAddAnother}
-              accessibilityLabel={copy.search.addAnother}
-              accessibilityHint={copy.search.addAnotherHint}
-            >
-              {copy.search.addAnother}
-            </CrayonAction>
-          )}
-
+      <View style={styles.actions}>
+        {onAddAnother && (
           <CrayonAction
-            seed="search/show-water"
-            onPress={handleGo}
-            accessibilityLabel={copy.search.go}
-            accessibilityHint={copy.search.goHint}
+            seed="search/add-another"
+            tone="secondary"
+            onPress={handleAddAnother}
+            accessibilityLabel={copy.search.addAnother}
+            accessibilityHint={copy.search.addAnotherHint}
           >
-            {copy.search.go}
+            {copy.search.addAnother}
           </CrayonAction>
-        </View>
+        )}
+
+        <CrayonAction
+          seed="search/show-water"
+          onPress={handleGo}
+          accessibilityLabel={copy.search.go}
+          accessibilityHint={copy.search.goHint}
+        >
+          {copy.search.go}
+        </CrayonAction>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroller: { flex: 1 },
-  root: { paddingBottom: space.lg },
+  root: { flex: 1, minHeight: 0, paddingBottom: space.sm },
+  details: { flex: 1, minHeight: 0 },
+  // Extra tail room lets an overflowing stack settle between rows instead of
+  // leaving the previous control half-clipped at the top edge.
+  detailsContent: { paddingBottom: space.xl },
   back: { minHeight: 48, justifyContent: 'center' },
   /** A compact continuation of the stable sheet header, not a new centred page. */
   block: { paddingTop: space.xs, gap: space.lg },
   heading: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   name: { flex: 1 },
-  actions: { gap: space.sm },
+  actions: { flexShrink: 0, gap: space.sm, paddingTop: space.sm },
 });
