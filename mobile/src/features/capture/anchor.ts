@@ -9,8 +9,23 @@
 
 import type { BarcodeHint, Rect } from './types';
 
-/** Side of the centre square, as a fraction of the stage's shorter edge. */
-const CENTER_FRACTION = 0.58;
+/**
+ * Side of the centre square, as a fraction of the stage's shorter edge.
+ *
+ * Nearly the whole frame. "Fill the frame with one thing" is only an honest
+ * instruction if the drawn square is the frame — a small box in the middle asks
+ * people to hold the camera further back than the photo wants them to.
+ */
+const CENTER_FRACTION = 0.9;
+
+/**
+ * …and never more than this share of the height.
+ *
+ * On a stage wider than it is tall the shorter edge stops being the binding
+ * constraint, and a square measured off it alone would run under the door row
+ * above and the controls below.
+ */
+const CENTER_HEIGHT_SHARE = 0.72;
 
 /** Smallest anchor the expansion reads as a shape rather than a dot. */
 const MIN_SIDE = 56;
@@ -22,7 +37,13 @@ const CHARACTER_MAX_SIDE = 176;
 export type StageSize = { width: number; height: number };
 
 export function centerSquare(stage: StageSize): Rect {
-  const side = Math.max(MIN_SIDE, Math.min(stage.width, stage.height) * CENTER_FRACTION);
+  const side = Math.max(
+    MIN_SIDE,
+    Math.min(
+      Math.min(stage.width, stage.height) * CENTER_FRACTION,
+      stage.height * CENTER_HEIGHT_SHARE,
+    ),
+  );
   return {
     x: (stage.width - side) / 2,
     y: (stage.height - side) / 2,
@@ -61,9 +82,9 @@ export function anchorFor(stage: StageSize, hint?: BarcodeHint): Rect {
 /**
  * Size of the paper circle around Drop for a captured anchor.
  *
- * Shared by the viewfinder fold and the result stage so the shrinking corners
- * land on the exact geometry the character occupies instead of approximating
- * it in two different components.
+ * A tight barcode gives a small character and a full frame gives a large one,
+ * so the thing that was pointed at is still legible in how big Drop arrives —
+ * within bounds, because the character also has to fit where it stands.
  */
 export function characterSideForAnchor(anchor: Rect): number {
   const side = Math.min(anchor.width, anchor.height) * 0.92;

@@ -1,16 +1,19 @@
 /**
  * The signature moment, in five beats.
  *
- *   1. The frame freezes and Drop draws itself in at the anchor — the spot the
- *      photo was actually pointed at.
- *   2. Drop thinks. The item's name fades in the instant recognition lands.
+ *   1. The frame freezes. The reticle carries the square it was holding down to
+ *      the spot the shutter had, where it settles as a small print, and Drop
+ *      draws itself in underneath — standing exactly where the thumb just was.
+ *   2. Drop thinks, and says so under the print. The item's name replaces the
+ *      working line the instant recognition lands.
  *   3. Drop pops, says what it found in one line, and a chevron offers the pull.
  *   4. The pull. Nine rays leave Drop for the card's edge and erase themselves
  *      behind; Drop's silhouette morphs into the card's frame; Drop shrinks and
- *      docks at the corner of the thing it became.
+ *      docks at the corner of the thing it became, while the print rises into
+ *      the room the open card leaves above itself.
  *   5. Confirm. A tick draws on, the haptic lands, Drop celebrates, and the
- *      saved card travels into History. Closing without saving takes the same
- *      material back into the shutter instead.
+ *      saved card travels into History with the print alongside it. Closing
+ *      without saving takes the same material back into the shutter instead.
  *
  * One shared value drives beat four end to end, so a thumb can hold the whole
  * transformation anywhere between shut and open. Everything Skia draws here is
@@ -55,7 +58,8 @@ import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import type { Estimate, Rect } from '../capture/types';
 import { characterSideForAnchor } from '../capture/anchor';
-import { SHUTTER_SIZE } from '../capture/Shutter';
+import { captureLayout, PULL_ROW, TEASER_HEIGHT } from '../capture/layout';
+import { Snapshot, snapshotTilt } from '../capture/Snapshot';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { ExpansionRays } from './ExpansionRays';
 import { localEstimate, servingOf, toEngineEstimate } from './localPipeline';
@@ -87,12 +91,15 @@ const DOCK_SIZE = 40;
  * without drawing a shape noticeably bigger than Drop itself.
  */
 const SILHOUETTE_INSET = 0.02;
-/** Height of the teaser pill, for stacking the chevron under it. */
-const TEASER_HEIGHT = 38;
 /** Approximate centre of the measured History chip at the top-right door. */
 const HISTORY_CHIP_HALF_WIDTH = 54;
 /** Keep the result legible for most of its trip, then tuck it away at the end. */
 const EXIT_SCALE = 0.08;
+/** Share of the window above the open card the print is allowed to fill. */
+const PRINT_OPEN_FILL = 0.84;
+/** Bounds on how far the print may grow or shrink to suit that window. */
+const PRINT_OPEN_MIN = 0.62;
+const PRINT_OPEN_MAX = 1.4;
 
 const BEAT_STATES = new Set([
   'captured',
@@ -113,6 +120,25 @@ const BACKDROP_DISMISS_STATES = new Set([
   'analyzing',
   'presenting',
 ]);
+
+/**
+ * What Drop says while it works.
+ *
+ * The wait has a voice as well as a face: the same line the shutter row used to
+ * carry, now spoken from the spot the shutter itself has left. Recognition
+ * replaces it with the item's own name the moment one lands.
+ */
+function workingLine(name: string): string | null {
+  switch (name) {
+    case 'captured':
+    case 'recognizing':
+      return copy.capture.recognizing;
+    case 'analyzing':
+      return copy.capture.analyzing;
+    default:
+      return null;
+  }
+}
 
 function characterFor(name: string, estimate: Estimate | null): CharacterState {
   switch (name) {
@@ -160,17 +186,49 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   /* --------------------------------------------------------- geometry */
 
-  const heroSize = useMemo(() => {
-    if (!anchor) return characterSideForAnchor({ x: 0, y: 0, width: 0, height: 0 });
-    return characterSideForAnchor(anchor);
-  }, [anchor]);
+  /** How big the thing that was pointed at asks the character to be. */
+  const anchorHero = useMemo(
+    () => characterSideForAnchor(anchor ?? { x: 0, y: 0, width: 0, height: 0 }),
+    [anchor],
+  );
 
-  const anchorCenter = useMemo(
+  /**
+   * Everything the held frame stands on: how big the character ends up, where
+   * it lands, where its line goes, and the square the print settles into. The
+   * viewfinder folds its reticle into that same square, which is the whole
+   * trick of beat one.
+   */
+  const layout = useMemo(
+    () =>
+      captureLayout(
+        { width: stage.width, height: stage.height },
+        insets.bottom,
+        anchorHero,
+      ),
+    [stage.width, stage.height, insets.bottom, anchorHero],
+  );
+
+  const heroSize = layout.hero;
+
+  const slotCenter = useMemo(
+    () => ({
+      x: layout.slot.x + layout.slot.width / 2,
+      y: layout.slot.y + layout.slot.height / 2,
+    }),
+    [layout.slot],
+  );
+
+  /** The square the shutter framed — where the print starts its trip down. */
+  const framed = useMemo(
     () =>
       anchor
-        ? { x: anchor.x + anchor.width / 2, y: anchor.y + anchor.height / 2 }
-        : { x: stage.width / 2, y: stage.height / 2 },
-    [anchor, stage.width, stage.height],
+        ? {
+            x: anchor.x + anchor.width / 2,
+            y: anchor.y + anchor.height / 2,
+            side: Math.max(anchor.width, anchor.height),
+          }
+        : { x: stage.width / 2, y: stage.height / 2, side: layout.slot.width },
+    [anchor, stage.width, stage.height, layout.slot.width],
   );
 
   const cardBox = useMemo<Box>(() => {
@@ -188,21 +246,41 @@ export function ResultStage({ stage }: ResultStageProps) {
   const silhouetteBox = useMemo<Box>(() => {
     const inset = heroSize * SILHOUETTE_INSET;
     return {
-      x: anchorCenter.x - heroSize / 2 + inset,
-      y: anchorCenter.y - heroSize / 2 + inset,
+      x: layout.bubble.x - heroSize / 2 + inset,
+      y: layout.bubble.y - heroSize / 2 + inset,
       width: heroSize - inset * 2,
       height: heroSize - inset * 2,
     };
-  }, [anchorCenter, heroSize]);
+  }, [layout.bubble.x, layout.bubble.y, heroSize]);
 
   const dockCenter = useMemo(
     () => ({ x: cardBox.x + 26, y: cardBox.y }),
     [cardBox.x, cardBox.y],
   );
 
-  /** The teaser stacks under Drop, and the chevron under the teaser. */
-  const teaserTop = anchorCenter.y + heroSize / 2 + space.sm;
-  const chevronY = teaserTop + TEASER_HEIGHT + space.xl;
+  /**
+   * Where the print goes once the card is open: the middle of the window the
+   * card leaves above itself, sized to fill it without crowding either edge. A
+   * tall card simply gets a smaller print rather than one behind it.
+   */
+  const printOpen = useMemo(() => {
+    const top = insets.top + space.xxl;
+    const bottom = cardBox.y - space.lg;
+    const side = Math.min(
+      Math.max(0, bottom - top) * PRINT_OPEN_FILL,
+      stage.width * 0.56,
+    );
+    return {
+      y: (top + bottom) / 2,
+      scale: Math.max(
+        PRINT_OPEN_MIN,
+        Math.min(PRINT_OPEN_MAX, side / Math.max(1, layout.slot.width)),
+      ),
+    };
+  }, [insets.top, cardBox.y, stage.width, layout.slot.width]);
+
+  /** The lean the print settles at. Stable per photo, so it never re-shuffles. */
+  const printTilt = useMemo(() => snapshotTilt(photoUri ?? 'drop'), [photoUri]);
 
   const seed = useMemo(
     () => seedFromString(`result/${estimate?.catalog_id ?? photoUri ?? 'drop'}`),
@@ -210,8 +288,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   );
 
   const rays = useMemo(
-    () => buildRays(anchorCenter, cardBox, seed),
-    [anchorCenter, cardBox, seed],
+    () => buildRays(layout.bubble, cardBox, seed),
+    [layout.bubble, cardBox, seed],
   );
 
   const tickBox = useMemo<Box>(() => {
@@ -442,8 +520,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   /** An unsaved result folds into the shutter instead of implying it reached History. */
   const handleDismiss = useCallback(() => {
     if (receding) return;
-    exitTargetX.value = stage.width / 2;
-    exitTargetY.value = stage.height - insets.bottom - space.xl - SHUTTER_SIZE / 2;
+    exitTargetX.value = layout.bubble.x;
+    exitTargetY.value = layout.bubble.y;
     setReceding(true);
     dissolve.value = withTiming(1, {
       duration: motion.reduceMotion ? 120 : beat.recede,
@@ -461,9 +539,8 @@ export function ResultStage({ stage }: ResultStageProps) {
     receding,
     exitTargetX,
     exitTargetY,
-    stage.width,
-    stage.height,
-    insets.bottom,
+    layout.bubble.x,
+    layout.bubble.y,
     dissolve,
     motion.reduceMotion,
     retake,
@@ -474,8 +551,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   const avatarStyle = useAnimatedStyle(() => {
     const t = expansion.value;
     const exit = dissolve.value;
-    const restingX = anchorCenter.x + (dockCenter.x - anchorCenter.x) * t;
-    const restingY = anchorCenter.y + (dockCenter.y - anchorCenter.y) * t;
+    const restingX = layout.bubble.x + (dockCenter.x - layout.bubble.x) * t;
+    const restingY = layout.bubble.y + (dockCenter.y - layout.bubble.y) * t;
     const cx = restingX + (exitTargetX.value - restingX) * exit;
     const cy = restingY + (exitTargetY.value - restingY) * exit;
     const docked = DOCK_SIZE / heroSize;
@@ -505,6 +582,48 @@ export function ResultStage({ stage }: ResultStageProps) {
       interpolate(expansion.value, [0.68, 0.88], [0, 1], Extrapolation.CLAMP) *
       interpolate(dissolve.value, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
   }));
+
+  /**
+   * The print, in one expression.
+   *
+   * Three journeys share the same square, in the order they happen: the fold
+   * carries it from the reticle it was framed with down to its slot, the
+   * expansion lifts it into the window the open card leaves, and the exit takes
+   * it wherever the card is going. Composing them rather than swapping between
+   * them means a thumb holding the expansion half-open holds the print there too.
+   */
+  const printStyle = useAnimatedStyle(() => {
+    const fold = captureFold.value;
+    const t = expansion.value;
+    const exit = dissolve.value;
+    const side = layout.slot.width;
+
+    const restY = slotCenter.y + (printOpen.y - slotCenter.y) * t;
+    const foldedX = framed.x + (slotCenter.x - framed.x) * fold;
+    const foldedY = framed.y + (restY - framed.y) * fold;
+
+    const held = framed.side / Math.max(1, side);
+    const scale =
+      (held + (1 - held) * fold) *
+      (1 + (printOpen.scale - 1) * t) *
+      (1 - exit * (1 - EXIT_SCALE));
+
+    return {
+      opacity:
+        interpolate(fold, [0, 0.34], [0, 1], Extrapolation.CLAMP) *
+        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
+      transform: [
+        { translateX: foldedX + (exitTargetX.value - foldedX) * exit - side / 2 },
+        { translateY: foldedY + (exitTargetY.value - foldedY) * exit - side / 2 },
+        { scale },
+        {
+          rotate: `${
+            printTilt * interpolate(fold, [0.25, 1], [0, 1], Extrapolation.CLAMP)
+          }deg`,
+        },
+      ],
+    };
+  });
 
   const teaserStyle = useAnimatedStyle(() => ({
     opacity:
@@ -562,7 +681,7 @@ export function ResultStage({ stage }: ResultStageProps) {
         estimate.display_name,
         formatQuantity(estimate.quantity.value, estimate.quantity.unit),
       )
-    : item?.display_name ?? null;
+    : item?.display_name ?? workingLine(state.name);
 
   return (
     <View style={styles.root} pointerEvents="box-none">
@@ -575,6 +694,30 @@ export function ResultStage({ stage }: ResultStageProps) {
               accessible={false}
               testID="result-backdrop-dismiss"
             />
+          )}
+
+          {/*
+            Under the card and over the backdrop: the print is the moment the
+            result came from, so the result is allowed to pass in front of it,
+            and a tap anywhere on it still reaches the backdrop underneath.
+          */}
+          {photoUri && (
+            <Animated.View
+              style={[
+                styles.print,
+                { width: layout.slot.width, height: layout.slot.height },
+                printStyle,
+              ]}
+              pointerEvents="none"
+            >
+              <Snapshot
+                uri={photoUri}
+                size={layout.slot.width}
+                seed={photoUri}
+                tilt={0}
+                label={copy.capture.snapshot}
+              />
+            </Animated.View>
           )}
 
           <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
@@ -611,8 +754,8 @@ export function ResultStage({ stage }: ResultStageProps) {
 
               {estimate?.headline && (
                 <PullChevron
-                  cx={anchorCenter.x}
-                  cy={chevronY}
+                  cx={layout.bubble.x}
+                  cy={layout.chevronY}
                   width={28}
                   color={colors.accent}
                   seed={seed + 3}
@@ -711,31 +854,35 @@ export function ResultStage({ stage }: ResultStageProps) {
             <Animated.View
               style={[
                 styles.teaser,
-                { top: teaserTop },
+                { top: layout.teaserTop },
                 teaserStyle,
               ]}
               pointerEvents={open ? 'none' : 'box-none'}
             >
+              {/*
+                The row is reserved whether or not there is anything to pull, so
+                the line under it never shifts when the estimate lands. The
+                chevron is drawn in the canvas above; this is the same
+                affordance with words on it, so the pull is reachable by a
+                screen reader and by a thumb that would rather tap.
+              */}
+              <View style={styles.pullRow} pointerEvents="box-none">
+                {estimate?.headline && (
+                  <Touch
+                    onPress={handleOpen}
+                    style={styles.pull}
+                    accessibilityLabel={copy.result.pull}
+                    accessibilityHint={copy.result.pullHint}
+                    accessibilityState={{ expanded: false }}
+                  />
+                )}
+              </View>
+
               <View style={[styles.teaserPill, { backgroundColor: colors.bg }]}>
                 <Text variant="label" tone="ink" numberOfLines={1}>
                   {teaser}
                 </Text>
               </View>
-
-              {/*
-                The chevron is drawn in the canvas above; this is the same
-                affordance with words on it, so the pull is reachable by a
-                screen reader and by a thumb that would rather tap.
-              */}
-              {estimate?.headline && (
-                <Touch
-                  onPress={handleOpen}
-                  style={styles.pull}
-                  accessibilityLabel={copy.result.pull}
-                  accessibilityHint={copy.result.pullHint}
-                  accessibilityState={{ expanded: false }}
-                />
-              )}
             </Animated.View>
           )}
         </>
@@ -752,12 +899,23 @@ const styles = StyleSheet.create({
   cardContent: { padding: CARD_PADDING },
   avatar: { position: 'absolute', left: 0, top: 0 },
   dockGround: { borderRadius: 999 },
-  teaser: { position: 'absolute', left: 0, right: 0, alignItems: 'center', gap: space.xs },
+  print: { position: 'absolute', left: 0, top: 0 },
+  teaser: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
+  pullRow: {
+    height: PULL_ROW,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // The minimum is what the layout measured the stack against; the padding is
+  // what lets a larger type setting grow the pill instead of clipping it.
   teaserPill: {
+    minHeight: TEASER_HEIGHT,
+    justifyContent: 'center',
     maxWidth: '86%',
     paddingHorizontal: space.lg,
     paddingVertical: space.sm,
     borderRadius: radii.pill,
   },
-  pull: { minHeight: 48, minWidth: 96 },
+  pull: { minHeight: PULL_ROW, minWidth: 120 },
 });

@@ -40,15 +40,22 @@ function trimTrailingSlash(value: string): string {
 /**
  * Where the service lives.
  *
- * `expo.extra.apiBaseUrl` wins when it is set, which is how a physical device
- * on a LAN or a deployed build points somewhere else. Otherwise: the Android
- * emulator reaches its host through 10.0.2.2, and everything else through
- * loopback.
+ * `expo.extra.apiBaseUrl` wins when it is set, which is how a deployed build
+ * points somewhere real. In development the answer is already known: the
+ * machine serving the JS bundle is the machine running the service, so the
+ * bundle's own host is reused with the service's port — which is what lets a
+ * physical phone on the LAN find the laptop without anyone typing an IP.
+ * Failing both: the Android emulator reaches its host through 10.0.2.2, and
+ * everything else through loopback.
  */
 export function apiBaseUrl(): string {
   const extra = Constants.expoConfig?.extra as { apiBaseUrl?: string } | undefined;
   if (typeof extra?.apiBaseUrl === 'string' && extra.apiBaseUrl.length > 0) {
     return trimTrailingSlash(extra.apiBaseUrl);
+  }
+  const bundleHost = Constants.expoConfig?.hostUri?.split(':')[0];
+  if (bundleHost) {
+    return `http://${bundleHost}:${API_PORT}`;
   }
   const host = Platform.OS === 'android' ? EMULATOR_LOOPBACK : 'localhost';
   return `http://${host}:${API_PORT}`;

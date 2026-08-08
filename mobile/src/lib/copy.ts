@@ -44,6 +44,8 @@ export const copy = {
     recognizing: 'Reading the photo',
     analyzing: 'Looking up the water',
     retake: 'Frame something else',
+    /** The print of the frame that was just held. */
+    snapshot: 'The photo you just took',
     /** Screen-reader announcements on state transitions. */
     announce: {
       framing: 'Camera live. Fill the frame with one thing.',

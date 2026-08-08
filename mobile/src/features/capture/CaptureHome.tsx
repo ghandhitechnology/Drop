@@ -5,8 +5,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { DropCharacter } from '../../avatar/DropCharacter';
-import type { CharacterState } from '../../avatar/poses';
 import { useTheme } from '../../design/theme';
 import { radius, space } from '../../design/tokens';
 import { copy } from '../../lib/copy';
@@ -20,7 +18,7 @@ import { CHIP_HEIGHT, HandChip, HandChipStatic } from './HandChip';
 import { overlayInk } from './overlay';
 import { PermissionPrompt } from './PermissionPrompt';
 import { Shutter } from './Shutter';
-import { isBusy, isResultVisible, type CaptureState } from './types';
+import { type CaptureState } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 
 /** At and above this width the camera shares the screen instead of owning it. */
@@ -38,25 +36,6 @@ const CAMERA_SHARE = 0.62;
  * read over. Kept here because this is the only place the three overlap.
  */
 const DOOR_ROW = space.md + CHIP_HEIGHT;
-
-/**
- * What the frame is doing right now — and who is doing it.
- *
- * Waiting has a face rather than a spinner: Drop takes the pose that matches
- * the work, so the wait is the character thinking about the photo instead of a
- * generic ring turning on top of it.
- */
-function working(state: CaptureState): { line: string; pose: CharacterState } | null {
-  switch (state.name) {
-    case 'captured':
-    case 'recognizing':
-      return { line: copy.capture.recognizing, pose: 'thinking' };
-    case 'analyzing':
-      return { line: copy.capture.analyzing, pose: 'analyzing' };
-    default:
-      return null;
-  }
-}
 
 /** True while the camera is live and waiting to be pointed at something. */
 function isFraming(state: CaptureState): boolean {
@@ -125,10 +104,10 @@ export function CaptureHome() {
   }
 
   const isTablet = width >= TABLET_BREAKPOINT;
-  const work = working(state);
-  const framing = isFraming(state);
-  const showControls = !isResultVisible(state) && state.name !== 'unresolved';
-  const busy = isBusy(state);
+  // The controls belong to a live frame only. The moment one is held they hand
+  // the spot over: the character stands where the shutter was and says from
+  // there what it is doing with the photo.
+  const showControls = isFraming(state);
   const barcodeHint = state.name === 'framing' ? state.barcodeHint : undefined;
 
   const cameraColumn = (
@@ -158,21 +137,7 @@ export function CaptureHome() {
 
         {showControls && (
           <View style={styles.controls} pointerEvents="box-none">
-            {framing && <FramingNote>{copy.capture.framing}</FramingNote>}
-
-            {work && (
-              <HandChipStatic seed="capture/working">
-                <DropCharacter
-                  state={work.pose}
-                  size={30}
-                  seed="capture/working"
-                  announce={false}
-                />
-                <Text variant="label" tone={overlayInk.mark}>
-                  {work.line}
-                </Text>
-              </HandChipStatic>
-            )}
+            <FramingNote>{copy.capture.framing}</FramingNote>
 
             <View style={styles.controlRow} pointerEvents="box-none">
               <HandChip
@@ -187,7 +152,7 @@ export function CaptureHome() {
                 </Text>
               </HandChip>
 
-              <Shutter onPress={takePhoto} disabled={busy || shutterActive} />
+              <Shutter onPress={takePhoto} disabled={shutterActive} />
             </View>
           </View>
         )}

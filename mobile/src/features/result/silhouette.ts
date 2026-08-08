@@ -239,9 +239,16 @@ export function buildRays(
   const next = mulberry32(seed);
   const rays: Ray[] = [];
 
-  // The card sits below Drop, so the fan opens downward and outward.
+  // The fan opens toward the card, wherever the card sits relative to Drop —
+  // downward for a character standing over it, upward for one standing at its
+  // edge. Either way the rays travel into the thing being made.
   const spread = Math.PI * 1.34;
-  const base = Math.PI / 2 - spread / 2;
+  const base =
+    Math.atan2(
+      target.y + target.height / 2 - origin.y,
+      target.x + target.width / 2 - origin.x,
+    ) -
+    spread / 2;
 
   for (let i = 0; i < RAY_COUNT; i += 1) {
     const wobbleAngle = (next() - 0.5) * 0.16;

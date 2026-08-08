@@ -11,6 +11,7 @@ import {
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMotion } from '../../design/useMotion';
 import { seedFromString } from '../../drawing/seededRandom';
@@ -18,6 +19,7 @@ import { HandPath } from '../../drawing/HandPath';
 import { anchorFor, characterSideForAnchor } from './anchor';
 import { normalizeBarcode, SCANNED_TYPES } from './barcode';
 import { FrozenFrame } from './FrozenFrame';
+import { captureLayout } from './layout';
 import { overlayInk } from './overlay';
 import { isBusy, isResultVisible, photoUriOf, type Rect } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
@@ -56,6 +58,7 @@ export function CameraStage({
   shutterActive,
 }: CameraStageProps) {
   const motion = useMotion();
+  const insets = useSafeAreaInsets();
   const foldMs = motion.ms('draw');
   const unfoldMs = motion.ms('quick');
   const lingerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -121,6 +124,18 @@ export function CameraStage({
   const foldingKey = shutterActive ? heldReticleKey.current : reticleKey;
   const showReticle = stage.width > 0 && (framing || Boolean(photoUri));
 
+  // The corners travel to the same square the result stage puts the print in,
+  // so what shrinks and what appears are one shape rather than two.
+  const slot = useMemo(
+    () =>
+      captureLayout(
+        { width: stage.width, height: stage.height },
+        insets.bottom,
+        characterSideForAnchor(foldingRect),
+      ).slot,
+    [stage.width, stage.height, insets.bottom, foldingRect],
+  );
+
   return (
     <View style={styles.stage} onLayout={handleLayout} collapsable={false}>
       <CameraView
@@ -145,12 +160,7 @@ export function CameraStage({
       )}
 
       {showReticle && (
-        <Reticle
-          rect={foldingRect}
-          keyed={foldingKey}
-          fold={fold}
-          targetSide={characterSideForAnchor(foldingRect)}
-        />
+        <Reticle rect={foldingRect} keyed={foldingKey} fold={fold} target={slot} />
       )}
     </View>
   );
@@ -159,20 +169,24 @@ export function CameraStage({
 /* ---------------------------------------------------------------- reticle */
 
 /**
- * Four hand-drawn corner marks around whatever the anchor currently is. They
- * carry no meaning of their own — the framing sentence beneath the frame is
- * what a screen reader hears — so the canvas is hidden from accessibility.
+ * Four hand-drawn corner marks around whatever the anchor currently is.
+ *
+ * On the shutter they do not simply vanish: they carry the square they were
+ * holding down to where the print lands, shrinking and travelling together, and
+ * let go only once the print is under them. They carry no meaning of their own
+ * — the framing sentence beneath the frame is what a screen reader hears — so
+ * the canvas is hidden from accessibility.
  */
 function Reticle({
   rect,
   keyed,
   fold,
-  targetSide,
+  target,
 }: {
   rect: Rect;
   keyed: string;
   fold: SharedValue<number>;
-  targetSide: number;
+  target: Rect;
 }) {
   const path = useMemo(() => {
     const arm = Math.min(rect.width, rect.height) * CORNER_FRACTION;
@@ -194,27 +208,20 @@ function Reticle({
     [rect.x, rect.y, rect.width, rect.height],
   );
 
-  const collapse = useDerivedValue(() => [
-    {
-      scaleX: interpolate(
-        fold.value,
-        [0, 1],
-        [1, targetSide / Math.max(1, rect.width)],
-        Extrapolation.CLAMP,
-      ),
-    },
-    {
-      scaleY: interpolate(
-        fold.value,
-        [0, 1],
-        [1, targetSide / Math.max(1, rect.height)],
-        Extrapolation.CLAMP,
-      ),
-    },
-  ]);
+  // Scale and travel at once, about the reticle's own centre — so the square
+  // is carried down to the slot rather than dissolving where it stood.
+  const collapse = useDerivedValue(() => {
+    const t = fold.value;
+    return [
+      { translateX: (target.x + target.width / 2 - centre.x) * t },
+      { translateY: (target.y + target.height / 2 - centre.y) * t },
+      { scaleX: 1 + (target.width / Math.max(1, rect.width) - 1) * t },
+      { scaleY: 1 + (target.height / Math.max(1, rect.height) - 1) * t },
+    ];
+  });
 
   const opacity = useDerivedValue(() =>
-    interpolate(fold.value, [0, 0.7, 1], [0.85, 0.72, 0], Extrapolation.CLAMP),
+    interpolate(fold.value, [0, 0.6, 1], [0.85, 0.7, 0], Extrapolation.CLAMP),
   );
 
   return (

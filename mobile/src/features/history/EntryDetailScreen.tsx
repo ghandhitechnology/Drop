@@ -10,7 +10,7 @@
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../design/theme';
@@ -21,13 +21,15 @@ import { copy, heroFigure, litresSentence } from '../../lib/copy';
 import { localDay } from '../../lib/time';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
+import { Snapshot } from '../capture/Snapshot';
 import type { Estimate as CaptureEstimate } from '../capture/types';
 import { ConfidenceChip } from '../result/ConfidenceChip';
 import { DetailSection, HeadlineNotes } from '../result/DetailSection';
 import { quantityText, recordedAt } from './format';
 import { useHistoryStore } from './store';
 
-const THUMB = 96;
+/** The print, at the size it reads as a keepsake rather than a thumbnail. */
+const PRINT = 184;
 
 export function EntryDetailScreen() {
   const { colors } = useTheme();
@@ -152,13 +154,14 @@ export function EntryDetailScreen() {
           </Text>
         </View>
 
+        {/* The same print that stood over the result, kept with the record. */}
         {entry.photo_uri && (
-          <Image
-            source={{ uri: entry.photo_uri }}
-            style={[styles.thumb, { borderColor: colors.inkFaint }]}
-            accessible
-            accessibilityRole="image"
-            accessibilityLabel={copy.history.detail.photo}
+          <Snapshot
+            uri={entry.photo_uri}
+            size={PRINT}
+            seed={entry.id}
+            label={copy.history.detail.photo}
+            style={styles.print}
           />
         )}
 
@@ -212,12 +215,7 @@ const styles = StyleSheet.create({
   },
   amountValue: { fontVariant: ['tabular-nums'] },
 
-  thumb: {
-    width: THUMB,
-    height: THUMB,
-    borderRadius: radius.md,
-    borderWidth: 1,
-  },
+  print: { alignSelf: 'center', marginVertical: space.sm },
 
   footer: { borderTopWidth: 1, paddingTop: space.md, gap: space.xs },
   remove: {
