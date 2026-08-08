@@ -13,7 +13,7 @@
  */
 
 import Constants from 'expo-constants';
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import { ApiError } from './errors';
 
@@ -37,6 +37,32 @@ function trimTrailingSlash(value: string): string {
   return value.endsWith('/') ? value.slice(0, -1) : value;
 }
 
+/** Read a hostname from either a full bundle URL or Expo's host:port form. */
+export function hostFromUri(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length === 0) return null;
+  try {
+    const url = new URL(value.includes('://') ? value : `http://${value}`);
+    return url.hostname || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The native bundle URL is the most reliable development address. A custom
+ * development build can have no `expoConfig.hostUri`, while React Native still
+ * knows the exact Metro URL it loaded — including the Mac's LAN hostname.
+ */
+function developmentHost(): string | null {
+  const source = NativeModules.SourceCode as {
+    scriptURL?: string;
+    getConstants?: () => { scriptURL?: string };
+  } | undefined;
+  const scriptURL = source?.scriptURL ?? source?.getConstants?.().scriptURL;
+  return hostFromUri(scriptURL)
+    ?? hostFromUri(Constants.expoConfig?.hostUri);
+}
+
 /**
  * Where the service lives.
  *
@@ -53,7 +79,7 @@ export function apiBaseUrl(): string {
   if (typeof extra?.apiBaseUrl === 'string' && extra.apiBaseUrl.length > 0) {
     return trimTrailingSlash(extra.apiBaseUrl);
   }
-  const bundleHost = Constants.expoConfig?.hostUri?.split(':')[0];
+  const bundleHost = developmentHost();
   if (bundleHost) {
     return `http://${bundleHost}:${API_PORT}`;
   }

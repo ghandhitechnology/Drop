@@ -17,6 +17,14 @@ below, estimate the QUANTITY of that one item, and read any package label
 text on it. Footprint numbers are computed by a separate verified system —
 your job is identification only.
 
+Before returning the final JSON, inspect the frame internally in this order:
+1. Inventory distinct consumable or purchasable objects across the whole frame.
+2. Inspect visible packaging and label text.
+3. Separate adjacent items while combining identical repeated items.
+4. Compare plausible interpretations against the controlled catalog.
+5. Check quantities against visible count, package size, and scale.
+6. Return only the final schema; do not include your working.
+
 Rules:
 - Return between 1 and ${MAX_ITEMS} items, most prominent first (largest area
   in frame).
@@ -131,6 +139,9 @@ recognize.post('/', async (c) => {
   const out = await chatJSONRetry({
     schemaName: 'recognition',
     schema: RESPONSE_SCHEMA as unknown as Record<string, unknown>,
+    timeoutMs: 25_000,
+    reasoningEffort: 'high',
+    maxTokens: 12_000,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
