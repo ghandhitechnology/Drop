@@ -53,8 +53,8 @@ const FALLBACK_REASONS = [
 ];
 
 /**
- * The assumption strings the engine emits against factor tables 2026.08.1,
- * captured by walking all 463 catalog entries. The six that speak in negatives
+ * The assumption strings the engine emits against the original 2026.08.1
+ * factor entries. The six that speak in negatives
  * are the reason `assumptionLines` exists.
  */
 const ENGINE_ASSUMPTIONS = [

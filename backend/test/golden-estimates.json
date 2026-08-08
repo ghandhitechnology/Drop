@@ -3,7 +3,7 @@
   "catalog_id": "beef_bone_free_meat",
   "display_name": "Beef (Boneless)",
   "category": "food",
-  "factors_version": "2026.08.1",
+  "factors_version": "2026.08.2",
   "quantity": {
    "value": 1,
    "unit": "kg",
@@ -59,7 +59,7 @@
   "catalog_id": "apple",
   "display_name": "Apple",
   "category": "food",
-  "factors_version": "2026.08.1",
+  "factors_version": "2026.08.2",
   "quantity": {
    "value": 0.15,
    "unit": "kg",
@@ -113,7 +113,7 @@
   "catalog_id": "cow_milk",
   "display_name": "Milk",
   "category": "drink",
-  "factors_version": "2026.08.1",
+  "factors_version": "2026.08.2",
   "quantity": {
    "value": 1,
    "unit": "l",
@@ -169,7 +169,7 @@
   "catalog_id": "coffee_standard",
   "display_name": "Coffee Standard",
   "category": "drink",
-  "factors_version": "2026.08.1",
+  "factors_version": "2026.08.2",
   "quantity": {
    "value": 0.125,
    "unit": "l",
@@ -207,7 +207,7 @@
   "catalog_id": "cheeseburger",
   "display_name": "Cheeseburger",
   "category": "food",
-  "factors_version": "2026.08.1",
+  "factors_version": "2026.08.2",
   "quantity": {
    "value": 0.25,
    "unit": "kg",
@@ -236,7 +236,7 @@
   "catalog_id": "transport_petrol_car",
   "display_name": "Petrol Car",
   "category": "transport",
-  "factors_version": "2026.08.1",
+  "factors_version": "2026.08.2",
   "quantity": {
    "value": 10,
    "unit": "km",
@@ -279,7 +279,7 @@
   "catalog_id": "product_315000",
   "display_name": "Clothing",
   "category": "product",
-  "factors_version": "2026.08.1",
+  "factors_version": "2026.08.2",
   "quantity": {
    "value": 20,
    "unit": "usd",

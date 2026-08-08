@@ -4,7 +4,7 @@ import { describe, it } from 'vitest';
 import { buildTables, estimate } from '../src/index';
 import type { RawTables } from '../src/index';
 
-const dataDir = join(process.cwd(), '..', 'factors', 'data', '2026.08.1');
+const dataDir = join(process.cwd(), '..', 'factors', 'data', '2026.08.2');
 const load = (name: string) => JSON.parse(readFileSync(join(dataDir, name), 'utf-8'));
 const raw: RawTables = {
   manifest: load('manifest.json'),

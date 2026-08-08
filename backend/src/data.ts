@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { buildTables } from '@drop/water-engine';
 import type { RawTables, Tables } from '@drop/water-engine';
 
-export const FACTORS_VERSION = '2026.08.1';
+export const FACTORS_VERSION = '2026.08.2';
 
 const dataDir = join(
   dirname(fileURLToPath(import.meta.url)),

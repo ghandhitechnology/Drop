@@ -296,7 +296,7 @@ export const copy = {
       remove: 'Take this out of history',
       /** The footer under the source block. */
       frozen: 'Saved exactly as it read on the day',
-      factors: (version = '2026.08.1') => `Factor tables ${version}`,
+      factors: (version = '2026.08.2') => `Factor tables ${version}`,
       missing: 'This record lives on another page now',
     },
 
@@ -386,8 +386,8 @@ export const copy = {
     about: {
       title: 'Where the numbers come from',
       body: 'Every litre traces to a published dataset. These are the releases inside this build.',
-      tables: (version = '2026.08.1') => `Factor tables ${version}`,
-      catalog: (count = '463') => `${count} things Drop knows by name`,
+      tables: (version = '2026.08.2') => `Factor tables ${version}`,
+      catalog: (count = '1000') => `${count} things Drop knows by name`,
       /** Reads as "Release · v1.0 (2025-05-01)" under a dataset name. */
       release: (value = 'v1.0') => `Release · ${value}`,
       rights: (value = 'CC BY 4.0') => `Rights · ${value}`,

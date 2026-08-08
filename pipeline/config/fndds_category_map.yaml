@@ -1,0 +1,67 @@
+# USDA FNDDS WWEIA category -> SU-EATABLE typology factor.
+#
+# This is deliberately a narrow, reviewed allowlist. FNDDS contributes the
+# consumer name and measured portion; SU-EATABLE remains the water-factor
+# source. Every generated entry is a category_match, never an exact-item claim.
+# Mixed dishes, infant foods, water, ambiguous meat groups, cooked rice/pasta,
+# tea beverages (SU-EATABLE measures dry tea), and plant milks (the available
+# SU-EATABLE typology is soy-specific) are intentionally absent.
+mappings:
+  Milk, whole: sel:typ:animal_husbandry__milk
+  Milk, reduced fat: sel:typ:animal_husbandry__milk
+  Milk, lowfat: sel:typ:animal_husbandry__milk
+  Milk, nonfat: sel:typ:animal_husbandry__milk
+  Yogurt, regular: sel:typ:animal_husbandry__yogurt
+  Yogurt, Greek: sel:typ:animal_husbandry__yogurt
+  Cheese: sel:typ:animal_husbandry__cheese
+  Cottage/ricotta cheese: sel:typ:animal_husbandry__cheese
+
+  Fish: sel:typ:fishing__fish
+  Shellfish: sel:typ:fishing__shellfish
+  Beef, excludes ground: sel:typ:animal_husbandry__beef_bone_free_meat
+  Ground beef: sel:typ:animal_husbandry__beef_bone_free_meat
+  Pork: sel:typ:animal_husbandry__pork_bone_free_meat
+
+  Dried fruits: sel:typ:crops__dried_fruit
+  Other fruits and fruit salads: sel:typ:crops__fruit
+  Citrus fruits: sel:typ:crops__fruit
+  Apples: sel:typ:crops__fruit
+  Bananas: sel:typ:crops__fruit
+  Grapes: sel:typ:crops__fruit
+  Peaches and nectarines: sel:typ:crops__fruit
+  Blueberries and other berries: sel:typ:crops__fruit
+  Strawberries: sel:typ:crops__fruit
+  Melons: sel:typ:crops__fruit
+  Mango and papaya: sel:typ:crops__fruit
+  Pears: sel:typ:crops__fruit
+  Pineapple: sel:typ:crops__fruit
+
+  Other vegetables and combinations: sel:typ:crops__vegetables
+  Other dark green vegetables: sel:typ:crops__vegetables
+  Carrots: sel:typ:crops__vegetables
+  Other red and orange vegetables: sel:typ:crops__vegetables
+  String beans: sel:typ:crops__vegetables
+  Corn: sel:typ:crops__vegetables
+  Broccoli: sel:typ:crops__vegetables
+  Spinach: sel:typ:crops__vegetables
+  Cabbage: sel:typ:crops__vegetables
+  Tomatoes: sel:typ:crops__vegetables
+  Onions: sel:typ:crops__vegetables
+
+  Yeast breads: sel:typ:agricultural_processed__bread
+  Rolls and buns: sel:typ:agricultural_processed__bread
+  Bagels and English muffins: sel:typ:agricultural_processed__bread
+  Crackers, excludes saltines: sel:typ:agricultural_processed__crackers
+  Saltine crackers: sel:typ:agricultural_processed__crackers
+  "Ready-to-eat cereal, higher sugar (>21.2g/100g)": sel:typ:agricultural_processed__breakfast_cereals
+  "Ready-to-eat cereal, lower sugar (=<21.2g/100g)": sel:typ:agricultural_processed__breakfast_cereals
+  Candy containing chocolate: sel:typ:agricultural_processed__cocoa_derivates
+
+  Coffee: sel:typ:agricultural_processed__coffee_liquid
+  Beer: sel:typ:agricultural_processed__beer
+  Wine: sel:typ:agricultural_processed__wine
+  Apple juice: sel:typ:agricultural_processed__juice
+  Citrus juice: sel:typ:agricultural_processed__juice
+  Other fruit juice: sel:typ:agricultural_processed__juice
+  Vegetable juice: sel:typ:agricultural_processed__juice
+  Margarine: sel:typ:agricultural_processed__margarine

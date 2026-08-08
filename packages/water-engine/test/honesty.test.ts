@@ -13,7 +13,7 @@ import type {
 
 const dataDir = join(
   dirname(fileURLToPath(import.meta.url)),
-  '..', '..', 'factors', 'data', '2026.08.1',
+  '..', '..', 'factors', 'data', '2026.08.2',
 );
 const load = (name: string) =>
   JSON.parse(readFileSync(join(dataDir, name), 'utf-8'));

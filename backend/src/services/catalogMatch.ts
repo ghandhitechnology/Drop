@@ -15,10 +15,14 @@ export function validateCatalogId(
 ): { catalog_id: string; repaired: boolean } | null {
   if (tables.catalog.has(id)) return { catalog_id: id, repaired: false };
 
-  const q = id.replace(/_/g, ' ').toLowerCase().trim();
+  const q = id.replace(/_/g, ' ').toLowerCase().trim()
+    .slice(0, MAX_QUERY_LENGTH);
   if (q.length < MIN_REPAIR_QUERY_LENGTH) return null;
   const queryTokens = q.split(/\s+/).filter(Boolean);
-  if (queryTokens.length === 0) return null;
+  // A one-word near-miss becomes unsafe as the catalog grows: common words
+  // such as "water", "green", or "whole" legitimately occur in many rows.
+  // Exact one-word catalog IDs already returned above.
+  if (queryTokens.length < 2) return null;
 
   let best: { e: CatalogEntry; score: number } | null = null;
   for (const e of tables.catalog.values()) {

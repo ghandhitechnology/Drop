@@ -113,6 +113,7 @@ Use consumed mass for meal tracking and purchased mass for purchase tracking. Do
 
 ## Dataset roles
 
+- **USDA FNDDS 2021–2023:** consumer food names, categories, and measured portions for catalog expansion. It contributes no water factor; reviewed category mappings resolve to SU-EATABLE typologies.
 - **SU-EATABLE LIFE:** primary total volumetric food-water estimates and uncertainty-aware fallbacks.
 - **HESTIA:** country-specific freshwater withdrawal for raw crops; attach as a secondary metric.
 - **OWID / Poore-Nemecek:** physical freshwater-withdrawal fallback and cross-check for broad food categories.

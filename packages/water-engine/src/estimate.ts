@@ -115,13 +115,14 @@ function resolveTypology(
   functionalUnit: 'kg' | 'l',
   fallbackReason: string,
   assumption: string,
+  matchLevel: MatchLevel = 'typology',
 ): Resolved {
   const single = typ.stats.n === 1;
   return {
     perUnit: median,
     rangePerUnit: single ? null : rangeFromStats(typ.stats, median),
     factor: selTypRef(typ, functionalUnit),
-    matchLevel: 'typology',
+    matchLevel,
     confidence: single ? 'low' : 'medium',
     fallbackReason: single ? 'single_source' : fallbackReason,
     assumptions: single
@@ -602,18 +603,26 @@ export function estimate(input: EstimateInput, tables: Tables): Estimate {
     if (!t || t.stats.median == null) {
       throw new Error(`missing typology factor ${link.factor_id}`);
     }
+    const categoryMapped = link.match_level === 'category_match';
     resolved = resolveTypology(
       t,
       t.stats.median,
       functionalUnit,
       'category_match',
       `Matched by food category (${typologyName(t.typology)}).`,
+      categoryMapped ? 'category_match' : 'typology',
     );
   }
   assertMetricType('total_water_footprint', resolved.factor);
 
   let conf = resolved.confidence;
   let fallbackReason = resolved.fallbackReason;
+  if (link.match_level === 'category_match') {
+    conf = minConfidence(conf, 'low');
+    assumptions.push(
+      'USDA FNDDS supplies the food identity and portion; the water factor is a reviewed SU-EATABLE category match.',
+    );
+  }
   if (q.substituted) {
     conf = minConfidence(conf, 'low');
     fallbackReason = 'unit_substitution';
