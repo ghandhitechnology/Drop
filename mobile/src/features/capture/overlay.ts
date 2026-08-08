@@ -33,6 +33,26 @@ export const overlayInk = {
   shutterFill: '#FFFFFF',
 } as const;
 
+/**
+ * How far the reticle closes on the shutter alone.
+ *
+ * Writing the photo is not instant, and the corners used to spend that gap
+ * finishing their whole trip — arriving at an empty slot and dissolving there,
+ * so the print read as a second event that started over from the top. They now
+ * close most of the way and hold. The print picks the square up exactly where
+ * they parked it, which is why this number is shared: it is one square changing
+ * hands, not two shapes doing the same journey one after the other.
+ */
+export const RETICLE_HANDOFF = 0.55;
+
+/**
+ * Share of the print's arrival the corners are still drawn over it for.
+ *
+ * They let go by dissolving off the print rather than before it, so the last
+ * thing the pencil does is hand the frame over.
+ */
+export const RETICLE_RELEASE = 0.42;
+
 /** How far the preview is dimmed once a result is on screen. */
 export const RESULT_DIM = 0.62;
 

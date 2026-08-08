@@ -1,9 +1,11 @@
 /**
  * The signature moment, in five beats.
  *
- *   1. The frame freezes. The reticle carries the square it was holding down to
- *      the spot the shutter had, where it settles as a small print, and Drop
- *      draws itself in underneath — standing exactly where the thumb just was.
+ *   1. The frame freezes. The reticle carries the square it was holding most of
+ *      the way to the spot the shutter had and waits there for the photo; the
+ *      print rises out of that same square, takes the last of the trip with the
+ *      corners dissolving off it, and lands as a small stamped print — with Drop
+ *      drawing itself in underneath, exactly where the thumb just was.
  *   2. Drop thinks, and says so under the print. The item's name replaces the
  *      working line the instant recognition lands.
  *   3. Drop pops, says what it found in one line, and a chevron offers the pull.
@@ -60,6 +62,7 @@ import { Touch } from '../../ui/Touch';
 import { estimatesOf, keptItemsOf, plateItemsOf, type Estimate, type Rect } from '../capture/types';
 import { characterSideForAnchor } from '../capture/anchor';
 import { captureLayout, PULL_ROW, TEASER_HEIGHT } from '../capture/layout';
+import { RETICLE_HANDOFF, RETICLE_RELEASE } from '../capture/overlay';
 import { Snapshot, snapshotTilt } from '../capture/Snapshot';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { ExpansionRays } from './ExpansionRays';
@@ -259,7 +262,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     [layout.slot],
   );
 
-  /** The square the shutter framed — where the print starts its trip down. */
+  /** The square the shutter framed — the trip down is measured from here. */
   const framed = useMemo(
     () =>
       anchor
@@ -717,6 +720,12 @@ export function ResultStage({ stage }: ResultStageProps) {
    * expansion lifts it into the window the open card leaves, and the exit takes
    * it wherever the card is going. Composing them rather than swapping between
    * them means a thumb holding the expansion half-open holds the print there too.
+   *
+   * The fold does not start at the framed square. It starts where the reticle
+   * closed to while the photo was being written, so the print is the same square
+   * continuing rather than a new one setting off from the top. Both sides
+   * interpolate linearly off the same constant over the same duration, which is
+   * what keeps them exactly on top of each other for the shared leg.
    */
   const printStyle = useAnimatedStyle(() => {
     const fold = captureFold.value;
@@ -725,10 +734,14 @@ export function ResultStage({ stage }: ResultStageProps) {
     const side = layout.slot.width;
 
     const restY = slotCenter.y + (printOpen.y - slotCenter.y) * t;
-    const foldedX = framed.x + (slotCenter.x - framed.x) * fold;
-    const foldedY = framed.y + (restY - framed.y) * fold;
+    const heldX = framed.x + (slotCenter.x - framed.x) * RETICLE_HANDOFF;
+    const heldY = framed.y + (restY - framed.y) * RETICLE_HANDOFF;
+    const heldSide = framed.side + (side - framed.side) * RETICLE_HANDOFF;
 
-    const held = framed.side / Math.max(1, side);
+    const foldedX = heldX + (slotCenter.x - heldX) * fold;
+    const foldedY = heldY + (restY - heldY) * fold;
+
+    const held = heldSide / Math.max(1, side);
     const stampScale = interpolate(
       fold,
       [0, 0.74, 0.84, 0.92, 1],
@@ -749,8 +762,11 @@ export function ResultStage({ stage }: ResultStageProps) {
       printPulse.value;
 
     return {
+      // Inked in under the corners while they are still on it — the print is
+      // solid a beat before they have finished dissolving, so the two overlap
+      // instead of handing off across a blank frame.
       opacity:
-        interpolate(fold, [0, 0.34], [0, 1], Extrapolation.CLAMP) *
+        interpolate(fold, [0, RETICLE_RELEASE * 0.72], [0, 1], Extrapolation.CLAMP) *
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
       transform: [
         { translateX: foldedX + (exitTargetX.value - foldedX) * exit - side / 2 },
@@ -763,8 +779,11 @@ export function ResultStage({ stage }: ResultStageProps) {
         },
         { scale },
         {
+          // The lean waits for the corners to be gone. A square still held by
+          // four straight pencil marks has no business tilting inside them.
           rotate: `${
-            printTilt * interpolate(fold, [0.25, 0.84], [0, 1], Extrapolation.CLAMP)
+            printTilt *
+            interpolate(fold, [RETICLE_RELEASE, 0.86], [0, 1], Extrapolation.CLAMP)
           }deg`,
         },
       ],
