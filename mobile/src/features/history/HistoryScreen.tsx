@@ -164,6 +164,7 @@ export function HistoryScreen() {
           onPress={goCamera}
           seed="history/back-to-camera"
           accessibilityLabel={copy.history.back}
+          variant="axis"
           style={styles.back}
         >
           {copy.history.back}

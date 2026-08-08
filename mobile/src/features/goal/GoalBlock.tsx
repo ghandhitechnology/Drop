@@ -87,7 +87,7 @@ export function GoalBlock() {
           .join(' ')}
       >
         <View style={styles.heading}>
-          <Text variant="label" tone="inkSoft">
+          <Text variant="axis" tone="inkSoft">
             {copy.goal.span}
           </Text>
           <Text variant="count" tone="ink" style={styles.count}>

@@ -36,12 +36,12 @@ import { radius as radii, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
-import { copy, formatLitres } from '../../lib/copy';
+import { copy } from '../../lib/copy';
 import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
 import type { DailyTotal } from '../../data/types';
 import { layoutChart, type ChartBar } from './chart';
-import { barDayName, litresSpoken, shortDate, weekdayShort } from './format';
+import { barDayName, litresAxis, litresSpoken, shortDate, weekdayShort } from './format';
 import { scribbleFill } from './scribble';
 import type { ChartRange } from './store';
 
@@ -145,7 +145,7 @@ export function TrendChart({
               style={[styles.tickLabel, { top: tick.y - 10 }]}
               numberOfLines={1}
             >
-              {formatLitres(tick.value)}
+              {litresAxis(tick.value)}
             </Text>
           ))}
         </View>

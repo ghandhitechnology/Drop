@@ -77,7 +77,7 @@ export function TodayHeader({ litres }: TodayHeaderProps) {
 
   return (
     <View style={styles.root}>
-      <Text variant="label" tone="inkSoft">
+      <Text variant="axis" tone="inkSoft">
         {copy.history.today}
       </Text>
 

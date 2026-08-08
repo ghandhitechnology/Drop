@@ -23,6 +23,14 @@ export function litresShort(value: number): string {
   return `${formatLitres(value)} ${copy.result.unitShort}`;
 }
 
+/** "25k" — compact enough to stay inside the chart's narrow axis gutter. */
+export function litresAxis(value: number): string {
+  if (Math.abs(value) < 1000) return formatLitres(value);
+
+  const thousands = Math.round((value / 1000) * 10) / 10;
+  return `${thousands}k`;
+}
+
 /* ------------------------------------------------------------ day keys -- */
 
 /** A `YYYY-MM-DD` key, anchored to UTC midnight so formatting never drifts. */

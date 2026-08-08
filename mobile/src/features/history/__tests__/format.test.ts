@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   dayHeading,
+  litresAxis,
   litresShort,
   litresSpoken,
   longDate,
@@ -80,6 +81,13 @@ describe('litres', () => {
   it('keeps one decimal under a hundred', () => {
     expect(litresShort(93.34)).toBe('93.3 L');
     expect(litresShort(0)).toBe('0 L');
+  });
+
+  it('compacts chart axis values in the thousands', () => {
+    expect(litresAxis(500)).toBe('500');
+    expect(litresAxis(1500)).toBe('1.5k');
+    expect(litresAxis(25000)).toBe('25k');
+    expect(litresAxis(50000)).toBe('50k');
   });
 });
 

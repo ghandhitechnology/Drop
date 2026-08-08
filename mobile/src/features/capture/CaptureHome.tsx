@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../design/theme';
 import { radius, space } from '../../design/tokens';
+import { HandFrame } from '../../drawing/HandFrame';
+import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
 import { ResultStage } from '../result/ResultStage';
 import { SketchButton } from '../../ui/SketchButton';
@@ -36,6 +38,7 @@ const CAMERA_SHARE = 0.62;
  * read over. Kept here because this is the only place the three overlap.
  */
 const DOOR_ROW = space.md + CHIP_HEIGHT;
+const UNRESOLVED_FRAME_SEED = seedFromString('capture/unresolved/frame');
 
 /** True while the camera is live and waiting to be pointed at something. */
 function isFraming(state: CaptureState): boolean {
@@ -163,11 +166,18 @@ export function CaptureHome() {
 
         {state.name === 'unresolved' && (
           <View style={styles.sheet} pointerEvents="box-none">
-            <View style={[styles.card, { backgroundColor: colors.paper, borderColor: colors.inkFaint }]}>
+            <HandFrame
+              seed={UNRESOLVED_FRAME_SEED}
+              color={colors.inkFaint}
+              radius={radius.lg}
+              strokeScale={0.9}
+              style={[styles.card, { backgroundColor: colors.paper }]}
+              contentStyle={styles.cardContent}
+            >
               <Text variant="title" tone="ink">
                 {copy.unresolved.title}
               </Text>
-              <Text variant="body" tone="inkSoft">
+              <Text variant="axis" tone="inkSoft">
                 {copy.unresolved.body}
               </Text>
               <SketchButton
@@ -179,7 +189,7 @@ export function CaptureHome() {
                 contentStyle={styles.actionContent}
                 accessibilityLabel={copy.unresolved.action}
               >
-                <Text variant="label" tone="accent">
+                <Text variant="note" tone="accent">
                   {copy.unresolved.action}
                 </Text>
               </SketchButton>
@@ -187,12 +197,13 @@ export function CaptureHome() {
                 onPress={retake}
                 seed="capture/unresolved/retake"
                 tone="inkSoft"
+                variant="note"
                 style={styles.retake}
                 accessibilityLabel={copy.capture.retake}
               >
                 {copy.capture.retake}
               </SketchLink>
-            </View>
+            </HandFrame>
           </View>
         )}
 
@@ -250,8 +261,9 @@ const styles = StyleSheet.create({
   sheetContent: { padding: space.lg, justifyContent: 'flex-end', flexGrow: 1 },
   card: {
     margin: space.lg,
-    borderWidth: 1,
     borderRadius: radius.lg,
+  },
+  cardContent: {
     padding: space.xl,
     gap: space.md,
   },
