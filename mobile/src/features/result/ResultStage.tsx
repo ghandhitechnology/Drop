@@ -21,13 +21,14 @@
 import { Canvas } from '@shopify/react-native-skia';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withSequence,
   withSpring,
   withTiming,
@@ -46,6 +47,7 @@ import { tapConfirmed, tapRemoving, tapSelection } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import type { Estimate, Rect } from '../capture/types';
+import { characterSideForAnchor } from '../capture/anchor';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { ExpansionRays } from './ExpansionRays';
 import { localEstimate, servingOf, toEngineEstimate } from './localPipeline';
@@ -70,9 +72,6 @@ const CARD_RADIUS = radii.lg;
 const CARD_MAX_SHARE = 0.74;
 /** Drop, docked at the card's corner. */
 const DOCK_SIZE = 40;
-/** Drop, standing at the anchor. Bounded so a huge barcode keeps it sane. */
-const HERO_MIN = 108;
-const HERO_MAX = 176;
 /**
  * The cut-out sits just inside the avatar box. The pose art already leaves a
  * margin for the orbiting marks, so this comfortably contains the character
@@ -94,6 +93,14 @@ const BEAT_STATES = new Set([
 
 const OPEN_STATES = new Set(['expanded', 'adjusting', 'confirmed']);
 
+/** States where the frozen frame can be dismissed by tapping its backdrop. */
+const BACKDROP_DISMISS_STATES = new Set([
+  'captured',
+  'recognizing',
+  'analyzing',
+  'presenting',
+]);
+
 function characterFor(name: string, estimate: Estimate | null): CharacterState {
   switch (name) {
     case 'captured':
@@ -113,6 +120,7 @@ function characterFor(name: string, estimate: Estimate | null): CharacterState {
 export function ResultStage({ stage }: ResultStageProps) {
   const { colors } = useTheme();
   const motion = useMotion();
+  const captureFoldMs = motion.ms('draw');
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -129,6 +137,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const anchor: Rect | null = 'anchor' in state ? state.anchor : null;
   const photoUri = 'photoUri' in state ? state.photoUri : null;
   const live = BEAT_STATES.has(state.name);
+  const backdropDismissible = BACKDROP_DISMISS_STATES.has(state.name);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [cardHeight, setCardHeight] = useState(0);
@@ -138,9 +147,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   /* --------------------------------------------------------- geometry */
 
   const heroSize = useMemo(() => {
-    if (!anchor) return HERO_MIN;
-    const side = Math.min(anchor.width, anchor.height) * 0.92;
-    return Math.max(HERO_MIN, Math.min(HERO_MAX, side));
+    if (!anchor) return characterSideForAnchor({ x: 0, y: 0, width: 0, height: 0 });
+    return characterSideForAnchor(anchor);
   }, [anchor]);
 
   const anchorCenter = useMemo(
@@ -205,6 +213,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   /* ------------------------------------------------------- the values */
 
   const arrival = useSharedValue(0);
+  const captureFold = useSharedValue(0);
   const pop = useSharedValue(1);
   const dissolve = useSharedValue(0);
   const tick = useSharedValue(0);
@@ -237,16 +246,34 @@ export function ResultStage({ stage }: ResultStageProps) {
       // run cut short between the tick and the card's trip home would otherwise
       // leave set, holding every later result shut.
       arrival.value = 0;
+      captureFold.value = 0;
       dissolve.value = 0;
       tick.value = 0;
       setReceding(false);
       setDetailOpen(false);
       return;
     }
-    arrival.value = withTiming(1, {
-      duration: motion.reduceMotion ? 0 : beat.arrival,
-    });
-  }, [live, motion.reduceMotion, arrival, dissolve, tick]);
+
+    captureFold.value = 0;
+    captureFold.value = withTiming(1, { duration: captureFoldMs });
+
+    // Drop arrives into the last half of the fold, so the reticle visibly
+    // becomes its paper ground instead of disappearing before the character
+    // has a chance to inherit the space.
+    arrival.value = 0;
+    arrival.value = withDelay(
+      motion.reduceMotion ? 0 : Math.round(captureFoldMs * 0.42),
+      withTiming(1, { duration: motion.reduceMotion ? 0 : beat.arrival }),
+    );
+  }, [
+    live,
+    motion.reduceMotion,
+    captureFoldMs,
+    arrival,
+    captureFold,
+    dissolve,
+    tick,
+  ]);
 
   /* ------------------------------------ beat 2: the name lands, felt */
 
@@ -385,6 +412,16 @@ export function ResultStage({ stage }: ResultStageProps) {
     };
   });
 
+  // The dock straddles the card edge. Without a paper ground, the transparent
+  // pose puts its black upper outline directly on the darkened camera and the
+  // ears/head appear to vanish. Bring in a small paper tab only at the end of
+  // the morph so the full sprite stays legible without changing the hero beat.
+  const dockGroundStyle = useAnimatedStyle(() => ({
+    opacity:
+      interpolate(expansion.value, [0.68, 0.88], [0, 1], Extrapolation.CLAMP) *
+      (1 - dissolve.value),
+  }));
+
   const teaserStyle = useAnimatedStyle(() => ({
     opacity:
       interpolate(expansion.value, [0, 0.24], [1, 0], Extrapolation.CLAMP) *
@@ -401,7 +438,11 @@ export function ResultStage({ stage }: ResultStageProps) {
     ],
   }));
 
-  const shapeStyle = useAnimatedStyle(() => ({ opacity: 1 - dissolve.value }));
+  const shapeStyle = useAnimatedStyle(() => ({
+    opacity:
+      interpolate(captureFold.value, [0.38, 0.82], [0, 1], Extrapolation.CLAMP) *
+      (1 - dissolve.value),
+  }));
 
   /* ---------------------------------------------------------- the tree */
 
@@ -417,6 +458,15 @@ export function ResultStage({ stage }: ResultStageProps) {
     <View style={styles.root} pointerEvents="box-none">
       {live && (
         <>
+          {backdropDismissible && (
+            <Pressable
+              style={StyleSheet.absoluteFill}
+              onPress={retake}
+              accessible={false}
+              testID="result-backdrop-dismiss"
+            />
+          )}
+
           <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
             <Canvas
               style={StyleSheet.absoluteFill}
@@ -525,7 +575,24 @@ export function ResultStage({ stage }: ResultStageProps) {
                 avatarStyle,
               ]}
             >
+              <Animated.View
+                style={[
+                  StyleSheet.absoluteFill,
+                  styles.dockGround,
+                  { backgroundColor: colors.paper },
+                  dockGroundStyle,
+                ]}
+                pointerEvents="none"
+              />
               <DropCharacter state={character} size={heroSize} seed={seed} announce />
+              {backdropDismissible && state.name !== 'presenting' && (
+                <Pressable
+                  style={StyleSheet.absoluteFill}
+                  onPress={(event) => event.stopPropagation()}
+                  accessible={false}
+                  testID="result-character-touch-guard"
+                />
+              )}
             </Animated.View>
           </GestureDetector>
 
@@ -573,6 +640,7 @@ const styles = StyleSheet.create({
   card: { position: 'absolute' },
   cardContent: { padding: CARD_PADDING },
   avatar: { position: 'absolute', left: 0, top: 0 },
+  dockGround: { borderRadius: 999 },
   teaser: { position: 'absolute', left: 0, right: 0, alignItems: 'center', gap: space.xs },
   teaserPill: {
     maxWidth: '86%',

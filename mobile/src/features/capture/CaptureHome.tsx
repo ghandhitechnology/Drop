@@ -1,7 +1,7 @@
 import type { CameraView } from 'expo-camera';
 import { useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -77,11 +77,19 @@ export function CaptureHome() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const [stage, setStage] = useState<StageSize>({ width: 0, height: 0 });
+  const [shutterActive, setShutterActive] = useState(false);
 
   const state = useCaptureMachine((s) => s.state);
   const retake = useCaptureMachine((s) => s.retake);
 
-  const takePhoto = useTakePhoto(cameraRef, stage);
+  const beginShutter = useCallback(() => setShutterActive(true), []);
+  const resetShutter = useCallback(() => setShutterActive(false), []);
+  const takePhoto = useTakePhoto(cameraRef, stage, beginShutter, resetShutter);
+
+  // A retake starts a fresh framing run, including a fresh reticle.
+  useEffect(() => {
+    if (state.name === 'framing') setShutterActive(false);
+  }, [state.name]);
 
   const handleStageSize = useCallback((size: StageSize) => {
     setStage((current) =>
@@ -119,7 +127,12 @@ export function CaptureHome() {
 
   const cameraColumn = (
     <View style={[styles.column, isTablet && { flex: CAMERA_SHARE }]}>
-      <CameraStage cameraRef={cameraRef} stage={stage} onStageSize={handleStageSize} />
+      <CameraStage
+        cameraRef={cameraRef}
+        stage={stage}
+        onStageSize={handleStageSize}
+        shutterActive={shutterActive}
+      />
 
       <SafeAreaView style={styles.overlay} pointerEvents="box-none" edges={['top', 'bottom']}>
         {barcodeHint && (
@@ -168,7 +181,7 @@ export function CaptureHome() {
                 </Text>
               </HandChip>
 
-              <Shutter onPress={takePhoto} disabled={busy} />
+              <Shutter onPress={takePhoto} disabled={busy || shutterActive} />
             </View>
           </View>
         )}

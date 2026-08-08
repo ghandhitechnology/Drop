@@ -1,12 +1,21 @@
 /* eslint-disable no-console */
-import { Canvas, Skia } from '@shopify/react-native-skia';
+import { Canvas, Group, Skia } from '@shopify/react-native-skia';
 import { CameraView, type BarcodeScanningResult } from 'expo-camera';
 import { useCallback, useEffect, useMemo, useRef, type RefObject } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import {
+  Extrapolation,
+  interpolate,
+  useDerivedValue,
+  useSharedValue,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
 
+import { useMotion } from '../../design/useMotion';
 import { seedFromString } from '../../drawing/seededRandom';
 import { HandPath } from '../../drawing/HandPath';
-import { anchorFor } from './anchor';
+import { anchorFor, characterSideForAnchor } from './anchor';
 import { normalizeBarcode, SCANNED_TYPES } from './barcode';
 import { FrozenFrame } from './FrozenFrame';
 import { overlayInk } from './overlay';
@@ -28,6 +37,8 @@ export type CameraStageProps = {
   cameraRef: RefObject<CameraView | null>;
   stage: StageSize;
   onStageSize: (size: StageSize) => void;
+  /** True from shutter-down until the capture is cancelled or completed. */
+  shutterActive: boolean;
 };
 
 /**
@@ -38,8 +49,17 @@ export type CameraStageProps = {
  * drawn on top, never an unmount, so returning to a live frame costs nothing
  * and the preview never has to warm up twice.
  */
-export function CameraStage({ cameraRef, stage, onStageSize }: CameraStageProps) {
+export function CameraStage({
+  cameraRef,
+  stage,
+  onStageSize,
+  shutterActive,
+}: CameraStageProps) {
+  const motion = useMotion();
+  const foldMs = motion.ms('draw');
+  const unfoldMs = motion.ms('quick');
   const lingerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fold = useSharedValue(0);
 
   const state = useCaptureMachine((s) => s.state);
   const ready = useCaptureMachine((s) => s.ready);
@@ -83,6 +103,23 @@ export function CameraStage({ cameraRef, stage, onStageSize }: CameraStageProps)
   );
 
   const reticle = useMemo(() => anchorFor(stage, hint), [stage, hint]);
+  const heldReticle = useRef(reticle);
+  const reticleKey = hint?.gtin14 ?? 'center';
+  const heldReticleKey = useRef(reticleKey);
+  if (framing && !shutterActive) {
+    heldReticle.current = reticle;
+    heldReticleKey.current = reticleKey;
+  }
+
+  useEffect(() => {
+    fold.value = withTiming(shutterActive ? 1 : 0, {
+      duration: shutterActive ? foldMs : unfoldMs,
+    });
+  }, [shutterActive, fold, foldMs, unfoldMs]);
+
+  const foldingRect = shutterActive ? heldReticle.current : reticle;
+  const foldingKey = shutterActive ? heldReticleKey.current : reticleKey;
+  const showReticle = stage.width > 0 && (framing || Boolean(photoUri));
 
   return (
     <View style={styles.stage} onLayout={handleLayout} collapsable={false}>
@@ -106,8 +143,13 @@ export function CameraStage({ cameraRef, stage, onStageSize }: CameraStageProps)
         />
       )}
 
-      {framing && stage.width > 0 && (
-        <Reticle rect={reticle} keyed={hint?.gtin14 ?? 'center'} />
+      {showReticle && (
+        <Reticle
+          rect={foldingRect}
+          keyed={foldingKey}
+          fold={fold}
+          targetSide={characterSideForAnchor(foldingRect)}
+        />
       )}
     </View>
   );
@@ -120,7 +162,17 @@ export function CameraStage({ cameraRef, stage, onStageSize }: CameraStageProps)
  * carry no meaning of their own — the framing sentence beneath the frame is
  * what a screen reader hears — so the canvas is hidden from accessibility.
  */
-function Reticle({ rect, keyed }: { rect: Rect; keyed: string }) {
+function Reticle({
+  rect,
+  keyed,
+  fold,
+  targetSide,
+}: {
+  rect: Rect;
+  keyed: string;
+  fold: SharedValue<number>;
+  targetSide: number;
+}) {
   const path = useMemo(() => {
     const arm = Math.min(rect.width, rect.height) * CORNER_FRACTION;
     const l = rect.x;
@@ -136,6 +188,34 @@ function Reticle({ rect, keyed }: { rect: Rect; keyed: string }) {
     return builder.detach();
   }, [rect.x, rect.y, rect.width, rect.height]);
 
+  const centre = useMemo(
+    () => ({ x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }),
+    [rect.x, rect.y, rect.width, rect.height],
+  );
+
+  const collapse = useDerivedValue(() => [
+    {
+      scaleX: interpolate(
+        fold.value,
+        [0, 1],
+        [1, targetSide / Math.max(1, rect.width)],
+        Extrapolation.CLAMP,
+      ),
+    },
+    {
+      scaleY: interpolate(
+        fold.value,
+        [0, 1],
+        [1, targetSide / Math.max(1, rect.height)],
+        Extrapolation.CLAMP,
+      ),
+    },
+  ]);
+
+  const opacity = useDerivedValue(() =>
+    interpolate(fold.value, [0, 0.7, 1], [0.85, 0.72, 0], Extrapolation.CLAMP),
+  );
+
   return (
     <Canvas
       style={StyleSheet.absoluteFill}
@@ -143,14 +223,15 @@ function Reticle({ rect, keyed }: { rect: Rect; keyed: string }) {
       accessible={false}
       importantForAccessibility="no-hide-descendants"
     >
-      <HandPath
-        path={path}
-        color={overlayInk.mark}
-        variant="pencil"
-        seed={seedFromString(`capture/reticle/${keyed}`)}
-        strokeScale={1.3}
-        opacity={0.85}
-      />
+      <Group transform={collapse} origin={centre} opacity={opacity}>
+        <HandPath
+          path={path}
+          color={overlayInk.mark}
+          variant="pencil"
+          seed={seedFromString(`capture/reticle/${keyed}`)}
+          strokeScale={1.3}
+        />
+      </Group>
     </Canvas>
   );
 }
@@ -167,6 +248,8 @@ function Reticle({ rect, keyed }: { rect: Rect; keyed: string }) {
 export function useTakePhoto(
   cameraRef: RefObject<CameraView | null>,
   stage: StageSize,
+  onShutterStart?: () => void,
+  onShutterFailure?: () => void,
 ) {
   const capture = useCaptureMachine((s) => s.capture);
   const busy = useRef(false);
@@ -182,15 +265,21 @@ export function useTakePhoto(
     const anchor = anchorFor(stage, hint);
 
     busy.current = true;
+    onShutterStart?.();
     try {
       const photo = await camera.takePictureAsync({ quality: 0.7 });
-      if (photo?.uri) capture(photo.uri, anchor);
+      if (photo?.uri) {
+        capture(photo.uri, anchor);
+      } else {
+        onShutterFailure?.();
+      }
     } catch (error) {
       console.log('[capture] shutter', error);
+      onShutterFailure?.();
     } finally {
       busy.current = false;
     }
-  }, [cameraRef, stage, capture]);
+  }, [cameraRef, stage, capture, onShutterStart, onShutterFailure]);
 }
 
 const styles = StyleSheet.create({

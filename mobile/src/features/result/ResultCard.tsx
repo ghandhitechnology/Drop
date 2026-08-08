@@ -16,7 +16,9 @@ import { useEffect, useRef } from 'react';
 import { AccessibilityInfo, StyleSheet, View, findNodeHandle } from 'react-native';
 
 import { useTheme } from '../../design/theme';
-import { space } from '../../design/tokens';
+import { radius, space } from '../../design/tokens';
+import { HandFrame } from '../../drawing/HandFrame';
+import { seedFromString } from '../../drawing/seededRandom';
 import {
   copy,
   formatQuantity,
@@ -33,6 +35,8 @@ import { CandidateChips } from '../search/CandidateChips';
 import { ConfidenceChip } from './ConfidenceChip';
 import { DetailSection, HeadlineNotes } from './DetailSection';
 import { QuantityStepper } from './QuantityStepper';
+
+const CONFIRM_FRAME_SEED = seedFromString('result/add-to-history');
 
 export type ResultCardProps = {
   estimate: Estimate;
@@ -194,16 +198,29 @@ function Figured({
         disabled={confirmed}
         style={[
           styles.confirm,
-          { backgroundColor: colors.accentSoft, borderColor: colors.accent },
           confirmed ? styles.spent : styles.intact,
         ]}
         accessibilityLabel={copy.result.confirm}
         accessibilityHint={copy.result.confirmHint}
         accessibilityState={{ disabled: confirmed }}
       >
-        <Text variant="label" tone="accent">
-          {copy.result.confirm}
-        </Text>
+        <HandFrame
+          seed={CONFIRM_FRAME_SEED}
+          variant="crayon"
+          color={colors.accent}
+          radius={radius.lg}
+          strokeScale={0.9}
+          style={styles.confirmFrame}
+          contentStyle={styles.confirmContent}
+        >
+          <View
+            pointerEvents="none"
+            style={[styles.confirmWash, { backgroundColor: colors.accentSoft }]}
+          />
+          <Text variant="note" tone="accent">
+            {copy.result.confirm}
+          </Text>
+        </HandFrame>
       </Touch>
 
       <View style={styles.tailRow}>
@@ -317,11 +334,24 @@ const styles = StyleSheet.create({
   amountValue: { fontVariant: ['tabular-nums'] },
   detailToggle: { minHeight: 48, justifyContent: 'center' },
   confirm: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderRadius: 999,
+    minHeight: 56,
+    alignSelf: 'stretch',
+  },
+  confirmFrame: {
+    minHeight: 56,
+  },
+  confirmContent: {
+    minHeight: 56,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  confirmWash: {
+    position: 'absolute',
+    top: 7,
+    left: 7,
+    right: 7,
+    bottom: 7,
+    borderRadius: radius.md,
   },
   spent: { opacity: 0.45 },
   intact: { opacity: 1 },

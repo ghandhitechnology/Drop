@@ -15,6 +15,10 @@ const CENTER_FRACTION = 0.58;
 /** Smallest anchor the expansion reads as a shape rather than a dot. */
 const MIN_SIDE = 56;
 
+/** Bounds for the character ground that the capture frame folds into. */
+const CHARACTER_MIN_SIDE = 108;
+const CHARACTER_MAX_SIDE = 176;
+
 export type StageSize = { width: number; height: number };
 
 export function centerSquare(stage: StageSize): Rect {
@@ -52,4 +56,16 @@ export function anchorFor(stage: StageSize, hint?: BarcodeHint): Rect {
     return clampToStage(bounds, stage);
   }
   return centerSquare(stage);
+}
+
+/**
+ * Size of the paper circle around Drop for a captured anchor.
+ *
+ * Shared by the viewfinder fold and the result stage so the shrinking corners
+ * land on the exact geometry the character occupies instead of approximating
+ * it in two different components.
+ */
+export function characterSideForAnchor(anchor: Rect): number {
+  const side = Math.min(anchor.width, anchor.height) * 0.92;
+  return Math.max(CHARACTER_MIN_SIDE, Math.min(CHARACTER_MAX_SIDE, side));
 }

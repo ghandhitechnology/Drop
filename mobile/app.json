@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "rocks.ourplanet.drop",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true
+      }
     },
     "android": {
       "package": "rocks.ourplanet.drop",
