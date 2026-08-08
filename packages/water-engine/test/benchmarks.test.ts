@@ -9,7 +9,7 @@ import type { RawTables } from '../src/index';
 
 const dataDir = join(
   dirname(fileURLToPath(import.meta.url)),
-  '..', '..', 'factors', 'data', '2026.08.1',
+  '..', '..', 'factors', 'data', '2026.08.2',
 );
 const load = (name: string) =>
   JSON.parse(readFileSync(join(dataDir, name), 'utf-8'));
@@ -108,6 +108,25 @@ describe('food benchmarks', () => {
     expect(e.confidence).toBe('low');
     expect(e.assumptions.join(' ')).toMatch(/typical serving size/);
   });
+
+  it('FNDDS supplies the portion while SU-EATABLE supplies a category factor', () => {
+    const entry = tables.catalog.get('fndds_11111000')!;
+    expect(entry.catalog_source?.dataset).toBe('usda_fndds');
+    expect(entry.default_quantity).toEqual({
+      value: 0.244,
+      unit: 'l',
+      basis: 'FNDDS: 1 cup',
+    });
+
+    const e = estimate({
+      catalog_id: entry.catalog_id,
+      quantity: { value: 1, unit: 'item', source: 'catalog_default' },
+    }, tables);
+    expect(e.match_level).toBe('category_match');
+    expect(e.factor?.dataset).toBe('su_eatable_life');
+    expect(e.quantity).toMatchObject({ value: 0.244, unit: 'l' });
+    expect(e.assumptions.join(' ')).toMatch(/food category/i);
+  });
 });
 
 describe('transport benchmarks', () => {
@@ -182,7 +201,7 @@ describe('estimate integrity', () => {
       catalog_id: 'rice',
       quantity: { value: 100, unit: 'g', source: 'user_entered' },
     }, tables);
-    expect(e.factors_version).toBe('2026.08.1');
+    expect(e.factors_version).toBe('2026.08.2');
     expect(e.factor?.dataset).toBe('su_eatable_life');
     expect(e.factor?.dataset_release).toMatch(/Petersson/);
   });

@@ -53,8 +53,7 @@ const FALLBACK_REASONS = [
 ];
 
 /**
- * The assumption strings the engine emits against factor tables 2026.08.1,
- * captured by walking all 463 catalog entries. The six that speak in negatives
+ * The assumption strings the engine emits. The ones that speak in negatives
  * are the reason `assumptionLines` exists.
  */
 const ENGINE_ASSUMPTIONS = [
@@ -73,6 +72,7 @@ const ENGINE_ASSUMPTIONS = [
   'Freshwater consumption, not withdrawal.',
   'reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again',
   'Matched by food category (starchy tubers).',
+  'FoodData Central FNDDS 2021–2023 (2024-10-31) supplies the food identity and portion; the water factor is a reviewed category match.',
   'Secondary factors are published per kilogram; mass and volume treated 1:1 (the density of water).',
 ];
 

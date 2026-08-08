@@ -81,7 +81,7 @@ describe('datasetCredits', () => {
 
 describe('catalogSize', () => {
   it('counts the things Drop knows by name', () => {
-    expect(catalogSize()).toBe(463);
+    expect(catalogSize()).toBe(1000);
   });
 });
 

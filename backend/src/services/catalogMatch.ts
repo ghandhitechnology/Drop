@@ -10,15 +10,41 @@ const MAX_QUERY_LENGTH = 200;
  * never repair to "watermelon" just because it's a prefix). */
 const REPAIR_SCORE_THRESHOLD = 0.6;
 
+/** Single generic words the model returns constantly that are not catalog ids
+ * themselves. Token scoring can't disambiguate a one-word query (see below),
+ * so the highest-frequency ones map straight to their canonical entry.
+ * Genuinely ambiguous words ("fish", "tea") are deliberately absent. */
+const SINGLE_WORD_ALIASES: Record<string, string> = {
+  milk: 'cow_milk',
+  beef: 'beef_bone_free_meat',
+  chicken: 'chicken_bone_free_meat',
+  egg: 'eggs',
+  yogurt: 'yogurt_white',
+  yoghurt: 'yogurt_white',
+  coffee: 'coffee_standard',
+  lamb: 'lamb_bone_free_meat',
+};
+
 export function validateCatalogId(
   id: string, tables: Tables,
 ): { catalog_id: string; repaired: boolean } | null {
   if (tables.catalog.has(id)) return { catalog_id: id, repaired: false };
 
-  const q = id.replace(/_/g, ' ').toLowerCase().trim();
+  const q = id.replace(/_/g, ' ').toLowerCase().trim()
+    .slice(0, MAX_QUERY_LENGTH);
   if (q.length < MIN_REPAIR_QUERY_LENGTH) return null;
   const queryTokens = q.split(/\s+/).filter(Boolean);
-  if (queryTokens.length === 0) return null;
+  // A one-word near-miss becomes unsafe as the catalog grows: common words
+  // such as "water", "green", or "whole" legitimately occur in many rows.
+  // Exact one-word catalog IDs already returned above; the rest go through
+  // the alias map or not at all.
+  if (queryTokens.length < 2) {
+    const alias = SINGLE_WORD_ALIASES[queryTokens[0]];
+    if (alias && tables.catalog.has(alias)) {
+      return { catalog_id: alias, repaired: true };
+    }
+    return null;
+  }
 
   let best: { e: CatalogEntry; score: number } | null = null;
   for (const e of tables.catalog.values()) {

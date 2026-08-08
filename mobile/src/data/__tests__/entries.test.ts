@@ -406,8 +406,8 @@ describe('newEntryId', () => {
 describe('catalog seeding', () => {
   it('fills catalog_items from the bundled tables and remembers the version', async () => {
     const count = await seedCatalogItems();
-    expect(count).toBe(463);
-    expect(await kvGet('catalog_items.seeded_version')).toBe('2026.08.1');
+    expect(count).toBe(1000);
+    expect(await kvGet('catalog_items.seeded_version')).toBe('2026.08.2');
   });
 
   it('skips the rebuild when the version and the row count both match', async () => {
@@ -426,7 +426,7 @@ describe('catalog seeding', () => {
     await seedCatalogItems();
     const db = await getDb();
     await db.runAsync('DELETE FROM catalog_items WHERE id = ?', 'apple');
-    expect(await seedCatalogItems()).toBe(463);
+    expect(await seedCatalogItems()).toBe(1000);
     expect(
       await db.getFirstAsync('SELECT id FROM catalog_items WHERE id = ?', 'apple'),
     ).toEqual({ id: 'apple' });

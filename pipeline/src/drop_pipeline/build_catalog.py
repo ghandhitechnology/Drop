@@ -9,6 +9,7 @@ model only ever returns catalog_ids from this file.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -47,6 +48,19 @@ TRANSPORT_LABELS = {
 
 # Fallback serving for a liquid typology generic with no member default.
 LIQUID_GENERIC_DEFAULT = (0.25, "l", "typical glass")
+TARGET_CATALOG_SIZE = 1_000
+FNDDS_AMBIGUOUS_NAME = re.compile(
+    r"\bNFS\b|\bNS(?:\s+as\s+to)?\b|not (?:further )?specified",
+    re.IGNORECASE,
+)
+FNDDS_CATEGORY_NAME_EXCLUDES = {
+    # These remain inside WWEIA's Coffee category, but their milk/sugar makes a
+    # single coffee typology factor materially incomplete.
+    "Coffee": re.compile(
+        r"milk|cream|latte|cappuccino|mocha|sweetened|with sugar",
+        re.IGNORECASE,
+    ),
+}
 
 
 def load_json(name):
@@ -59,6 +73,7 @@ def load_yaml(name):
 
 def main():
     sel = load_json("food_sueatable.json")
+    fndds = load_json("food_fndds.json")
     hestia = load_json("food_hestia_country.json")["hestia_factors"]
     owid = load_json("food_owid_proxy.json")["owid_factors"]
     useeio = load_json("sector_useeio.json")["useeio_sectors"]
@@ -68,6 +83,8 @@ def main():
     hestia_map = load_yaml("hestia_to_catalog.yaml")["mappings"]
     owid_map = load_yaml("owid_to_catalog.yaml")["mappings"]
     off_map = load_yaml("off_category_map.yaml")["mappings"]
+    fndds_map = load_yaml("fndds_category_map.yaml")["mappings"]
+    fndds_selection = load_yaml("fndds_selection.yaml")
 
     items = sel["food_items"]
     typologies = sel["food_typologies"]
@@ -309,6 +326,107 @@ def main():
             "recipe": None,
             "off_category_tags": [],
         })
+
+    # ---- USDA FNDDS catalog expansion ------------------------------------
+    # FNDDS is identity + portion evidence, not water-factor evidence. Each
+    # reviewed WWEIA category therefore points at a SU-EATABLE typology and is
+    # emitted as category_match. The balanced selection is locked by food code
+    # so a source refresh cannot silently swap one consumer item for another.
+    fndds_categories = {food["wweia_category"] for food in fndds["foods"]}
+    for category, target in fndds_map.items():
+        if category not in fndds_categories:
+            raise SystemExit(f"fndds_category_map: unknown category {category}")
+        if target not in typ_fids:
+            raise SystemExit(f"fndds_category_map: target is not a typology {target}")
+
+    typ_by_fid = {t["factor_id"]: t for t in typologies}
+    existing_names = {slug(e["display_name"]) for e in entries}
+    eligible = {}
+    for food in fndds["foods"]:
+        category = food["wweia_category"]
+        target = fndds_map.get(category)
+        if not target:
+            continue
+        name = food["display_name"].strip()
+        if FNDDS_AMBIGUOUS_NAME.search(name):
+            continue
+        category_exclude = FNDDS_CATEGORY_NAME_EXCLUDES.get(category)
+        if category_exclude and category_exclude.search(name):
+            continue
+        if slug(name) in existing_names:
+            continue
+        code = food["food_code"]
+        if code in eligible:
+            raise SystemExit(f"duplicate eligible FNDDS food code {code}")
+        eligible[code] = food
+
+    needed = TARGET_CATALOG_SIZE - len(entries)
+    if fndds_selection["source_release"] != fndds["dataset_release"]:
+        raise SystemExit("fndds_selection release does not match extracted data")
+    locked_codes = [str(code) for code in fndds_selection["food_codes"]]
+    if fndds_selection["target_entries"] != len(locked_codes):
+        raise SystemExit("fndds_selection target does not match its code count")
+    if len(set(locked_codes)) != len(locked_codes):
+        raise SystemExit("fndds_selection contains duplicate food codes")
+    if len(locked_codes) != needed:
+        raise SystemExit(
+            f"locked FNDDS selection has {len(locked_codes)} rows for "
+            f"{needed} catalog slots")
+    missing = [code for code in locked_codes if code not in eligible]
+    if missing:
+        raise SystemExit(
+            "locked FNDDS records failed the reviewed mapping gates: " +
+            ", ".join(missing[:20]))
+    selected = [eligible[code] for code in locked_codes]
+
+    for food in selected:
+        target = fndds_map[food["wweia_category"]]
+        typ = typ_by_fid[target]
+        unit = modal(typ_member_units[typ["typology_key"]], "kg")
+        quantity_unit = "l" if unit == "l" else "kg"
+        portion = food["default_portion"]
+        add({
+            "catalog_id": f"fndds_{food['food_code']}",
+            "display_name": food["display_name"],
+            "synonyms": [],
+            "category": "drink" if unit == "l" else "food",
+            "subcategory": "fndds/" + slug(food["wweia_category"]),
+            "state": "liquid" if unit == "l" else "solid",
+            "default_quantity": {
+                "value": portion["gram_weight"] / 1000,
+                "unit": quantity_unit,
+                "basis": f"FNDDS: {portion['description']}",
+            },
+            "factor_links": {
+                "primary": {"factor_id": target,
+                            "match_level": "category_match"},
+                "typology": {"factor_id": target},
+                "secondary": [],
+                "proxy": ({"factor_id": owid_by_target[target],
+                           "metric_type": "freshwater_withdrawal"}
+                          if target in owid_by_target else None),
+                "spend": None,
+            },
+            "recipe": None,
+            "off_category_tags": [],
+            "catalog_source": {
+                "dataset": fndds["dataset"],
+                "dataset_release": fndds["dataset_release"],
+                "record_id": f"fdc:{food['fdc_id']}",
+                "food_code": food["food_code"],
+                "category": food["wweia_category"],
+                "portion_id": portion["portion_id"],
+                "portion_description": portion["description"],
+                "mapping_basis": "reviewed_wweia_category",
+                "mapping_config": "fndds_category_map.yaml",
+                "review_status": "approved",
+                "rights": fndds["rights"],
+            },
+        })
+
+    if len(entries) != TARGET_CATALOG_SIZE:
+        raise SystemExit(
+            f"catalog target missed: {len(entries)} != {TARGET_CATALOG_SIZE}")
 
     # ---- validate OFF map targets all resolved ---------------------------
     resolved_targets = set()

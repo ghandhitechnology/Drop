@@ -17,6 +17,7 @@ export type MatchLevel =
   | 'exact_item'
   | 'sub_typology'
   | 'typology'
+  | 'category_match'
   | 'recipe_sum'
   | 'transport_mode'
   | 'proxy_sector'
@@ -242,6 +243,19 @@ export interface CatalogEntry {
   recipe:
     | { item_catalog_id: string; factor_id: string; fraction: number }[]
     | null;
+  catalog_source?: {
+    dataset: string;
+    dataset_release: string;
+    record_id: string;
+    food_code: string;
+    category: string;
+    portion_id: number;
+    portion_description: string;
+    mapping_basis: string;
+    mapping_config: string;
+    review_status: 'approved';
+    rights: string;
+  };
   unsupported?: { reason: string };
   search_tokens: string;
 }

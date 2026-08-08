@@ -67,7 +67,7 @@ export type Pipeline = (input: PipelineInput, handlers: PipelineHandlers) => Pip
 /**
  * A real engine output, captured from
  * `estimate({ catalog_id: 'banana', quantity: { value: 0.12, unit: 'kg' } })`
- * against factor tables 2026.08.1. Kept verbatim so the placeholder UI is
+ * against factor tables 2026.08.2. Kept verbatim so the placeholder UI is
  * exercised by the same shape the wired pipeline will deliver — range,
  * medium confidence, a fallback reason, and a proxy secondary metric.
  */
@@ -75,7 +75,7 @@ export const SAMPLE_ESTIMATE: Estimate = {
   catalog_id: 'banana',
   display_name: 'Banana',
   category: 'food',
-  factors_version: '2026.08.1',
+  factors_version: '2026.08.2',
   quantity: { value: 0.12, unit: 'kg', source: 'catalog_default' },
   headline: {
     value_l: 89.76,

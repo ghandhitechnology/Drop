@@ -7,7 +7,7 @@ import json
 import subprocess
 from pathlib import Path
 
-FACTORS_VERSION = "2026.08.1"
+FACTORS_VERSION = "2026.08.2"
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = REPO_ROOT / "packages" / "factors" / "data" / FACTORS_VERSION
 DATASETS = REPO_ROOT / "water_logic" / "datasets"

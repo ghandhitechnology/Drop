@@ -67,6 +67,7 @@ Tablet support should preserve the same workflow rather than introduce a separat
 
 - [`Plan.md`](Plan.md) records the original goal, camera input, tracking model, phone/tablet ambition, and grounded-model direction.
 - [`data/agribalyse/agribalyse_v3.2_detail_by_stage.csv`](data/agribalyse/agribalyse_v3.2_detail_by_stage.csv) provides detailed food life-cycle data by stage.
+- [`water_logic/datasets/fndds/FoodData_Central_survey_food_json_2024-10-31.zip`](water_logic/datasets/fndds/FoodData_Central_survey_food_json_2024-10-31.zip) provides USDA consumer food names, categories, ingredient-composition records, and measured portions. It is catalog evidence only, never a water factor.
 - [`data/hestia/hestia_food_water_footprints.csv`](data/hestia/hestia_food_water_footprints.csv) and the related HESTIA source files provide food and agricultural footprint evidence.
 - [`data/owid_poore_nemecek/freshwater_withdrawals_per_kg.csv`](data/owid_poore_nemecek/freshwater_withdrawals_per_kg.csv) provides comparative food freshwater-withdrawal data.
 - [`data/su_eatable_life/SuEatableLife_Food_Footprint_database.xlsx`](data/su_eatable_life/SuEatableLife_Food_Footprint_database.xlsx) provides an additional food-footprint source.
