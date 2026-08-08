@@ -16,7 +16,7 @@ import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
 import { DropCharacter } from '../../avatar';
 import { useColors } from '../../design/theme';
 import { HandPath, type HandVariant } from '../../drawing/HandPath';
-import { ringDrops, viewfinderBrackets } from './marks';
+import { ringDrops, viewfinderBrackets, weekMarks } from './marks';
 
 /** The character's share of the scene's width, per screen.
  *
@@ -183,6 +183,67 @@ export function Viewfinder({ size, progress }: SceneProps) {
   );
 }
 
+/* ------------------------------------------- screen three: the week mark */
+
+const WEEK_STEP = 0.2;
+const WEEK_SPAN = 0.44;
+/** The character stands above the bar rather than in the middle of the scene. */
+const STANDING_SHARE = 0.42;
+
+/**
+ * Drop standing over the bar its record will carry.
+ *
+ * The track draws first, then the week fills into it, then the notch lands on
+ * top — which is the order the marks mean something in, and the order a hand
+ * would make them.
+ *
+ * Drop is presenting here rather than idle. The other two screens are the
+ * product talking about itself; this one is showing a person a thing, and the
+ * character's job on it is to point at the thing.
+ */
+export function WeekMark({ size, progress }: SceneProps) {
+  const colors = useColors();
+  const strokes = useMemo(() => weekMarks(size), [size]);
+  const avatar = Math.round(size * STANDING_SHARE);
+
+  return (
+    <View style={{ width: size, height: size }}>
+      <Canvas
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+        accessible={false}
+        importantForAccessibility="no-hide-descendants"
+      >
+        {strokes.map((stroke, index) => (
+          <Mark
+            key={index}
+            path={stroke.path}
+            // The track is furniture and the notch is the annotation; only the
+            // week itself is ink, exactly as in the record.
+            color={index === 2 ? colors.accent : index === 1 ? colors.ink : colors.inkFaint}
+            seed={stroke.seed}
+            strokeScale={stroke.strokeScale}
+            variant={index === 0 ? 'pencil' : 'crayon'}
+            progress={progress}
+            from={index * WEEK_STEP}
+            span={WEEK_SPAN}
+          />
+        ))}
+      </Canvas>
+
+      <View style={styles.standing} pointerEvents="none">
+        <DropCharacter
+          state="presenting"
+          size={avatar}
+          seed="onboarding/mark"
+          announce={false}
+          label=""
+        />
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   centre: {
     position: 'absolute',
@@ -190,6 +251,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // The bar occupies the lower fifth of the scene, so the character stands in
+  // what is left above it rather than on top of the drawing it is presenting.
+  standing: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: '32%',
     alignItems: 'center',
     justifyContent: 'center',
   },

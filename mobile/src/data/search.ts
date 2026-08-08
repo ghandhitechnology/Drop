@@ -1,9 +1,9 @@
 /**
  * Catalog search.
  *
- * Pure functions over an in-memory array — 463 items is small enough that a
- * full linear scan per keystroke stays comfortably inside a frame, so there is
- * no index to keep in sync and no debounce to tune.
+ * Pure functions over an in-memory array — a thousand items is small enough
+ * that a full linear scan per keystroke stays comfortably inside a frame, so
+ * there is no index to keep in sync and no debounce to tune.
  *
  * Ranking is tiered: the tier decides the ordering and a length factor only
  * breaks ties inside a tier. The factor is clamped to [0.9, 1] precisely so a

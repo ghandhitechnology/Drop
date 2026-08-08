@@ -20,9 +20,12 @@ import {
   listRecent,
   newEntryId,
   softDelete,
+  thisWeekTotal,
   todayTotal,
   trends,
   undoDelete,
+  weekLeaders,
+  weekTotals,
 } from '../entries';
 import { getTables } from '../tables';
 
@@ -392,6 +395,87 @@ describe('trends', () => {
     });
     const series = await trends(7, new Date(MORNING), TZ);
     expect(series.every((d) => d.totalLitres === 0)).toBe(true);
+  });
+});
+
+describe('week reads', () => {
+  // MORNING is 2026-08-08 09:00 in Seoul — a Saturday, in 2026-W32.
+  const THIS_WEEK = '2026-W32';
+
+  it('sums a week off the key the rows were stamped with', async () => {
+    await insertConfirmed(APPLE(), {
+      inputMethod: 'sample',
+      createdAt: MORNING,
+      timeZone: TZ,
+    });
+    // Two days earlier — a Thursday, so the same week.
+    await insertConfirmed(COFFEE(), {
+      inputMethod: 'sample',
+      createdAt: MORNING - 2 * 86_400_000,
+      timeZone: TZ,
+    });
+
+    const week = await thisWeekTotal(new Date(MORNING), TZ);
+    const [apple, coffee] = [await dayTotal('2026-08-08'), await dayTotal('2026-08-06')];
+
+    expect(week.localWeek).toBe(THIS_WEEK);
+    expect(week.entryCount).toBe(2);
+    expect(week.totalLitres).toBeCloseTo(apple.totalLitres + coffee.totalLitres, 6);
+  });
+
+  it('keeps last week out of this one', async () => {
+    await insertConfirmed(APPLE(), {
+      inputMethod: 'sample',
+      createdAt: MORNING - 7 * 86_400_000,
+      timeZone: TZ,
+    });
+
+    const [previous, current] = await weekTotals(2, new Date(MORNING), TZ);
+    expect(previous!.localWeek).toBe('2026-W31');
+    expect(previous!.entryCount).toBe(1);
+    expect(current!.localWeek).toBe(THIS_WEEK);
+    expect(current!.entryCount).toBe(0);
+  });
+
+  it('returns quiet weeks as zeros so a window maps straight over', async () => {
+    const window = await weekTotals(4, new Date(MORNING), TZ);
+    expect(window).toHaveLength(4);
+    expect(window.every((week) => week.totalLitres === 0 && week.entryCount === 0)).toBe(true);
+    expect(window.at(-1)!.localWeek).toBe(THIS_WEEK);
+  });
+
+  it('leaves a removed entry out of its week', async () => {
+    const entry = await insertConfirmed(APPLE(), {
+      inputMethod: 'sample',
+      createdAt: MORNING,
+      timeZone: TZ,
+    });
+    await softDelete(entry.id);
+
+    expect((await thisWeekTotal(new Date(MORNING), TZ)).totalLitres).toBe(0);
+  });
+
+  it('groups the week leaders by item rather than by row', async () => {
+    for (const offset of [0, 1000, 2000]) {
+      await insertConfirmed(COFFEE(), {
+        inputMethod: 'sample',
+        createdAt: MORNING + offset,
+        timeZone: TZ,
+      });
+    }
+    await insertConfirmed(APPLE(), {
+      inputMethod: 'sample',
+      createdAt: MORNING,
+      timeZone: TZ,
+    });
+
+    const leaders = await weekLeaders(THIS_WEEK);
+    const coffee = leaders.find((leader) => leader.itemId === 'coffee_standard');
+
+    expect(coffee?.times).toBe(3);
+    // Heaviest first, and three coffees outweigh one apple.
+    expect(leaders[0]!.itemId).toBe('coffee_standard');
+    expect(leaders[0]!.litres).toBeGreaterThan(leaders[1]!.litres);
   });
 });
 

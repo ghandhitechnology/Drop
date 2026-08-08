@@ -59,7 +59,7 @@ import { seedFromString } from '../../drawing/seededRandom';
 import { insertConfirmed, insertPlate, newEntryId } from '../../data/entries';
 import { discardCapturedPhoto, persistCapturedPhoto } from '../../data/photos';
 import { copy, formatQuantity } from '../../lib/copy';
-import { tapConfirmed, tapPull, tapSelection, tapStamp } from '../../lib/haptics';
+import { tapConfirmed, tapPull, tapRemoving, tapSelection, tapStamp } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import {
@@ -195,6 +195,21 @@ function characterFor(name: string, figured: boolean): CharacterState {
     default:
       return figured ? 'presenting' : 'unresolved';
   }
+}
+
+/**
+ * The write did not land.
+ *
+ * The one rule here is that the machine does not move: a save that failed
+ * leaves the card exactly where it was, still confirmable, rather than sending
+ * it off to a History it never reached. Everything else is telling the person —
+ * the warning note, then the sentence — because a card sitting unchanged after
+ * a press is otherwise indistinguishable from a dead button.
+ */
+function saveDidNotLand(error: unknown): void {
+  tapRemoving();
+  AccessibilityInfo.announceForAccessibility(copy.result.announce.saveFailed);
+  console.log('[result] save failed', error);
 }
 
 /* ------------------------------------------------------------ the stage */
@@ -529,7 +544,7 @@ export function ResultStage({ stage }: ResultStageProps) {
       );
     } catch (error) {
       if (storedPhotoUri) discardCapturedPhoto(storedPhotoUri);
-      throw error;
+      saveDidNotLand(error);
     } finally {
       busy.current = false;
     }
@@ -701,7 +716,7 @@ export function ResultStage({ stage }: ResultStageProps) {
         );
       } catch (error) {
         if (storedPhotoUri) discardCapturedPhoto(storedPhotoUri);
-        throw error;
+        saveDidNotLand(error);
       } finally {
         busy.current = false;
       }

@@ -57,9 +57,9 @@ typologies, and labels every added record `category_match`. Ambiguous NFS/NS
 records are rejected. The reviewed selection in `config/fndds_selection.yaml`
 locks 537 food codes chosen with balanced round-robin sampling, so large source
 groups do not crowd out smaller ones and source changes cannot silently swap
-catalog entries. Names, source IDs, rights, and measured portions
-remain attached as `catalog_source`; the numerical factor provenance remains
-SU-EATABLE.
+catalog entries, taking the built catalog from 463 entries to an exact 1,000.
+Names, source IDs, rights, and measured portions remain attached as
+`catalog_source`; the numerical factor provenance remains SU-EATABLE.
 
 The versioned bulk archive is processed offline. Neither the app nor backend
 depends on live FoodData Central calls.

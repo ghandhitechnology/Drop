@@ -124,6 +124,48 @@ export function stampFor(date: Date = new Date(), timeZone: string = deviceTimeZ
 }
 
 /**
+ * How far into its week `date` is, counting the day itself. Monday is 1 and
+ * Sunday is 7, matching the Monday-to-Sunday week `localWeek` buckets into.
+ *
+ * A goal spread over a week needs this to say where the week ought to be by
+ * now, and it has to agree with `localWeek` exactly or the mark drifts a day
+ * every time one of them is changed.
+ */
+export function dayOfLocalWeek(
+  date: Date = new Date(),
+  timeZone: string = deviceTimeZone(),
+): number {
+  const { year, month, day } = calendarDateIn(date, timeZone);
+  const anchor = new Date(Date.UTC(year, month - 1, day));
+  anchor.setUTCFullYear(year, month - 1, day);
+  return ((anchor.getUTCDay() + 6) % 7) + 1;
+}
+
+/**
+ * The `count` ISO week keys ending at `date`, oldest first.
+ *
+ * Walks back seven calendar days at a time from the date itself rather than
+ * doing arithmetic on the week number, so the turn of the year — where week 1
+ * follows week 52 or 53 depending on the year — needs no special case.
+ */
+export function recentWeeks(
+  count: number,
+  date: Date = new Date(),
+  timeZone: string = deviceTimeZone(),
+): string[] {
+  const { year, month, day } = calendarDateIn(date, timeZone);
+  const out: string[] = [];
+  for (let offset = count - 1; offset >= 0; offset -= 1) {
+    const stepped = new Date(Date.UTC(year, month - 1, day - offset * 7));
+    stepped.setUTCFullYear(year, month - 1, day - offset * 7);
+    // The stepped date is already a calendar date in the person's zone, so it
+    // is keyed in UTC to keep the zone from being applied to it a second time.
+    out.push(localWeek(stepped, 'UTC'));
+  }
+  return out;
+}
+
+/**
  * The `count` day keys ending at `date`, oldest first. Walks the calendar in
  * the given zone, so a DST day still contributes exactly one key.
  */

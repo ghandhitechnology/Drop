@@ -1,10 +1,10 @@
 /**
  * The catalog, held in memory for the life of the process.
  *
- * 463 items is a few hundred kilobytes, and keeping them resident is what lets
- * search answer inside a keystroke with no query round trip. Hydration is
- * idempotent and safe to fire from several screens at once — concurrent callers
- * share the one in-flight promise.
+ * A thousand items is a few hundred kilobytes, and keeping them resident is
+ * what lets search answer inside a keystroke with no query round trip.
+ * Hydration is idempotent and safe to fire from several screens at once —
+ * concurrent callers share the one in-flight promise.
  */
 import { create } from 'zustand';
 

@@ -120,9 +120,10 @@ describe('estimateFor', () => {
   });
 
   /**
-   * The real coverage question: recognition can name *any* of the 463 entries,
-   * so every one of them has to produce something the card can draw — either a
-   * figure or an honest "arriving later" — from nothing but its own serving.
+   * The real coverage question: recognition can name *any* of the thousand
+   * entries, so every one of them has to produce something the card can draw —
+   * either a figure or an honest "arriving later" — from nothing but its own
+   * serving.
    */
   it('produces an answer for every entry in the catalogue', () => {
     const empty: string[] = [];

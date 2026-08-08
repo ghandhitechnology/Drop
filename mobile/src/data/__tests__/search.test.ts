@@ -178,7 +178,7 @@ describe('searchCatalog', () => {
 
   it('stays well inside a frame on a catalog-sized list', () => {
     const many: CatalogItem[] = [];
-    for (let i = 0; i < 463; i += 1) {
+    for (let i = 0; i < 1000; i += 1) {
       many.push(item({ id: `item_${i}`, label: `Sample Item Number ${i}` }));
     }
     const startedAt = performance.now();

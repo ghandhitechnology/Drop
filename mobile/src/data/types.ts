@@ -59,6 +59,26 @@ export interface DailyTotal {
   updatedAt: number;
 }
 
+/**
+ * One Monday-to-Sunday bucket, summed from the `local_week` key the rows were
+ * stamped with. There is no `byCategory` here: a week is read to compare
+ * against a mark, and what is inside it is asked for separately.
+ */
+export interface WeekTotal {
+  localWeek: string;
+  totalLitres: number;
+  entryCount: number;
+}
+
+/** The heaviest catalogue item in a week, grouped across its repeats. */
+export interface WeekLeader {
+  itemId: string;
+  label: string;
+  category: EntryCategory;
+  litres: number;
+  times: number;
+}
+
 export interface CatalogItemRow {
   id: string;
   label: string;

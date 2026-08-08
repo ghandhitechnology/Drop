@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * ============================== THE SEAM ==============================
  * The recognition + analysis pipeline, as a single injectable function.
@@ -531,10 +530,6 @@ export const realPipeline: Pipeline = (input, handlers) => {
       if (!(await holdAnalysisBeat())) return;
 
       const plate = identified.items.map(toPlateItem);
-      if (plate.length < 2) {
-        finish(handlers.onUnresolved);
-        return;
-      }
       finish(() => handlers.onPresentingMany(plate));
       return;
     }

@@ -33,7 +33,7 @@ function typologyOf(entry: SeedEntry): string | null {
   return linked.replace(/^sel:typ:/, '').replace(/__/g, '/');
 }
 
-/** Unique words, so the blob stays short enough to scan 463 of per keystroke. */
+/** Unique words, so the blob stays short enough to scan a thousand per keystroke. */
 function blobOf(entry: SeedEntry): string {
   const parts = [entry.display_name, ...entry.synonyms, entry.search_tokens ?? ''];
   const seen = new Set<string>();

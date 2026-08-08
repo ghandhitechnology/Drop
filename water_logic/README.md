@@ -83,6 +83,8 @@ flowchart TD
 
 The engine ships steps 1, 2, and 4 through 7 of the fallback order above. The regional-median step (step 3) arrives in a later release, once enough origin-tagged observations are in the tables to make a regional median stand on its own. Today a known origin drives the country-specific HESTIA freshwater-withdrawal line shown alongside the headline.
 
+One photo can resolve to several items. Each runs the tree on its own and keeps its own factor, metric, and confidence. When the plate is confirmed it is written as a single entry whose litres are the sum of the items that carry a headline: the lowest confidence on the plate wins, no match level is claimed for the whole, and no secondary metric is carried across. Items with no supported factor stay in the record without contributing a number.
+
 ## Calculations
 
 Solid product:
@@ -117,7 +119,7 @@ Use consumed mass for meal tracking and purchased mass for purchase tracking. Do
 - **SU-EATABLE LIFE:** primary total volumetric food-water estimates and uncertainty-aware fallbacks.
 - **HESTIA:** country-specific freshwater withdrawal for raw crops; attach as a secondary metric.
 - **OWID / Poore-Nemecek:** physical freshwater-withdrawal fallback and cross-check for broad food categories.
-- **USLCI:** transport, fuel, electricity, materials, and calculable non-food processes.
+- **USLCI:** transport activity coefficients only — fuel litres per passenger-kilometre. Its own water exchanges are not used; the water intensity of the fuel comes from cited literature. Electricity, materials, and other non-food processes are not calculable from the shipped package, so the modes resting on them are labelled unsupported.
 - **USEEIO v2.0:** last-resort U.S. spend-based freshwater-withdrawal proxy.
 - **USEEIO v2.5.1:** retained for other environmental indicators, but it has no water indicator and must not be used for water estimates.
 - **Water Footprint Network Report 48:** reference for country/product green, blue, and grey animal-product footprints; older and PDF-based, so not a primary application lookup source.

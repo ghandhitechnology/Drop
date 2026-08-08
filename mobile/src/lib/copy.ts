@@ -141,6 +141,8 @@ export const copy = {
       collapsed: 'Result closed.',
       amount: (quantity: string, litres: string) => `${quantity}. ${litres}.`,
       confirmed: (label: string) => `${label} added to your history.`,
+      /** The write failed. The card stayed where it was, so say so and invite the retry. */
+      saveFailed: 'That save stalled. The card is still here — press again.',
       dismissed: (label: string, left: number) => `${label} set aside. ${left} left.`,
       /** Said as a card reaches the tray. It is waiting, not written. */
       queued: (label: string, waiting: number, left: number) =>
@@ -321,6 +323,106 @@ export const copy = {
     seeding: 'Filling 40 days',
   },
 
+  /* -------------------------------------------------------------- goal */
+
+  /**
+   * The mark for the week.
+   *
+   * Two things this copy holds to. It never grades a week — a person who logs
+   * an honest heavy week has done the thing the product asks of them, and being
+   * told off for it teaches them to stop logging. And it states figures rather
+   * than verdicts: "1,100 L over" is a fact the person can act on, where "over
+   * your goal" is a scolding with the useful part left out.
+   */
+  goal: {
+    span: 'This week',
+    /** The figures over the bar: "7,200 of 14,000 L". */
+    count: (spent = '0', goal = '0') => `${spent} of ${goal}`,
+    /** Sits under the bar on the left. */
+    daysLeft: (days = 0) =>
+      days === 0 ? 'Last day of the week' : days === 1 ? '1 day left' : `${days} days left`,
+    /** Under the bar on the right, once the week is near the mark or past it. */
+    toMark: (litres = '0 L') => `${litres} to the mark`,
+    over: (litres = '0 L') => `${litres} over`,
+    /** Opens the sheet from the record. */
+    edit: 'Move the mark',
+    editHint: 'Opens the weekly mark',
+
+    /** The whole bar, spoken as one phrase. */
+    spoken: (spent = '0 litres', goal = '0 litres', days = 'Last day of the week') =>
+      `This week, ${spent} of a ${goal} mark. ${days}.`,
+    /** Where the week ought to stand today, spoken after the figures. */
+    paceSpoken: (litres = '0 litres') => `Today's share of the mark is ${litres}`,
+
+    /* ------------------------------------------- before there is a mark */
+
+    invite: {
+      title: 'Give the week a mark',
+      body: 'A weekly number to measure against, moved whenever you like.',
+      action: 'Set a mark',
+    },
+
+    /* -------------------------------------------------- the heavy thing */
+
+    /**
+     * Names the week's heaviest item and, where the catalogue holds a lighter
+     * one of the same kind, what that swap frees. Both figures come from the
+     * same tables as every other number in Drop.
+     */
+    leader: (label = 'Beef', times = 1, litres = '0 L') =>
+      times > 1 ? `${label}, ${times}× — ${litres} of this week` : `${label} — ${litres} of this week`,
+    swap: (label = 'Chicken', litres = '0 L') => `${label} instead frees ${litres}`,
+    swapHint: 'Opens this item in the catalogue',
+
+    /* ------------------------------------------------------- the sheet */
+
+    sheet: {
+      title: 'A mark for the week',
+      body: 'Drop counts what you confirm. Move the mark whenever you like.',
+      close: 'Close',
+      perDay: (litres = '0 L') => `${litres} a day`,
+      less: 'Less',
+      more: 'More',
+      lessHint: 'Lowers the mark by 500 litres',
+      moreHint: 'Raises the mark by 500 litres',
+      save: 'Set the mark',
+      saved: 'The mark is set',
+      remove: 'Take the mark off',
+      removeHint: 'Removes the weekly mark from your record',
+      /** Spoken when the stepper moves. */
+      announce: (litres = '0 litres') => `${litres} a week`,
+    },
+
+    /* ------------------------------------------------------- the marks */
+
+    /** Built from the person's own weeks, once there are two of them. */
+    fromBaseline: {
+      title: 'Your last weeks ran',
+      tenth: 'A tenth under your average',
+      tenthBody: 'A week that moves without being felt',
+      quarter: 'A quarter under',
+      quarterBody: 'A steeper week — one swap most days',
+      hold: 'Hold your average',
+      holdBody: 'Watch the shape before moving it',
+    },
+
+    /**
+     * Day one has no average, and there is no per-person water figure that
+     * plays the part maintenance calories play in a calorie tracker. So the
+     * opening mark says what it is: a round number to measure a first week
+     * against, with a way to wait for a real one.
+     */
+    opening: {
+      start: 'Start here',
+      startBody: 'A round number to measure your first week against',
+      light: 'Lighter',
+      lightBody: 'Mostly plants, short trips',
+      later: 'Decide later',
+      laterBody: 'Log a week and Drop will suggest a number from it',
+      note: 'Drop suggests a mark of your own once two weeks are logged',
+    },
+  },
+
   /* --------------------------------------------------------- first run */
 
   /**
@@ -331,16 +433,43 @@ export const copy = {
   onboarding: {
     skip: 'Skip',
     skipHint: 'Goes straight to the camera',
-    /** Printed beside the two drawn dashes. */
-    stepShort: (current = '1', total = '2') => `${current} of ${total}`,
+    /** Printed beside the drawn dashes. */
+    stepShort: (current = '1', total = '3') => `${current} of ${total}`,
     /** What a screen reader hears in that dash's place. */
-    step: (current = '1', total = '2') => `Step ${current} of ${total}`,
+    step: (current = '1', total = '3') => `Step ${current} of ${total}`,
 
     promise: {
       title: 'Every thing you use carries hidden water.',
       body: "Let's see it.",
       action: 'Show me',
       actionHint: 'Goes to the next screen',
+    },
+
+    /**
+     * The weekly mark, offered before there is a week to build one from.
+     *
+     * The copy owns that plainly — "somewhere to start" — because on day one
+     * the number really is a round one, and dressing it up as a recommendation
+     * would be the false precision the whole product exists to avoid. Both
+     * offered marks are round, the way out is beside them, and Drop says it
+     * will bring a real number once it has the weeks to make one from.
+     */
+    mark: {
+      title: 'Give the week a mark.',
+      body: 'A weekly number to measure against. Pick somewhere to start — you can move it whenever you like.',
+      action: 'Use this mark',
+      actionHint: 'Saves this weekly mark and goes to the next screen',
+      later: 'Decide later',
+      laterHint: 'Goes to the next screen without a mark',
+      /** The two round marks, named so a choice is between words. */
+      steady: 'Steady',
+      steadyBody: 'An everyday week, meat a few times',
+      lighter: 'Lighter',
+      lighterBody: 'Mostly plants, short trips',
+      /** Sits under the choices. */
+      note: 'Drop brings you a mark of your own once two weeks are logged.',
+      /** Spoken for one choice. */
+      choice: (name = 'Steady', litres = '0 litres') => `${name}, ${litres} a week`,
     },
 
     camera: {
@@ -354,8 +483,11 @@ export const copy = {
 
     announce: {
       promise: 'Welcome to Drop. Every thing you use carries hidden water.',
+      mark: 'Choose a weekly mark, or decide later.',
       camera: 'Drop is asking to look through your camera.',
       done: 'Camera ready.',
+      /** Spoken once a mark is taken. */
+      marked: (litres = '0 litres') => `Mark set to ${litres} a week.`,
     },
   },
 

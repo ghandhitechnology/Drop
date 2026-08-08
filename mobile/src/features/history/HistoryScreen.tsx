@@ -31,6 +31,7 @@ import { SketchButton } from '../../ui/SketchButton';
 import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
 import type { Entry } from '../../data/types';
+import { GoalBlock, useGoalStore } from '../goal';
 import { DayHeader } from './DayHeader';
 import { seedHistory } from './devSeed';
 import { EmptyState } from './EmptyState';
@@ -57,15 +58,21 @@ export function HistoryScreen() {
   const remove = useHistoryStore((s) => s.remove);
   const restore = useHistoryStore((s) => s.restore);
 
+  const goal = useGoalStore((s) => s.goal);
+  const loadGoal = useGoalStore((s) => s.load);
+
   const [seeding, setSeeding] = useState(false);
   const announced = useRef(false);
 
   // Re-read on every arrival: a confirmation may have landed on the camera
-  // screen, or an entry may have been removed from its own detail page.
+  // screen, or an entry may have been removed from its own detail page. The
+  // mark is re-read alongside it so the week, the figure, and the bars move in
+  // one commit rather than in three.
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [load]),
+      loadGoal();
+    }, [load, loadGoal]),
   );
 
   useEffect(() => {
@@ -188,11 +195,13 @@ export function HistoryScreen() {
                 {copy.history.title}
               </Text>
               <TodayHeader litres={today.totalLitres} />
+              <GoalBlock />
               <TrendChart
                 days={days}
                 range={range}
                 todayKey={todayKey}
                 onRange={handleRange}
+                dailyShare={goal === null ? null : goal / 7}
               />
             </View>
           }

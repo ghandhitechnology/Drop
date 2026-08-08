@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Canvas, Group, Skia } from '@shopify/react-native-skia';
 import { CameraView, type BarcodeScanningResult } from 'expo-camera';
 import { useCallback, useEffect, useMemo, useRef, type RefObject } from 'react';
