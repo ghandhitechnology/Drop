@@ -191,6 +191,10 @@ export const copy = {
     addAnotherHint: 'Keeps this and goes back to the list',
     goMany: (count = 2) => `Show me the water · ${count}`,
     goManyHint: 'Hands everything to Drop as one plate',
+    basketLabel: (count = 1) =>
+      count === 1 ? 'One thing added' : `${count} things added`,
+    removePick: (label = 'Apple') => `Remove ${label}`,
+    removePickHint: 'Takes this thing out of the group',
     soFar: (count = 1) =>
       count === 1 ? 'One thing so far' : `${count} things so far`,
 
@@ -207,6 +211,7 @@ export const copy = {
         count === 1 ? `1 match for ${query}` : `${count} matches for ${query}`,
       amount: (label = 'Apple') => `${label}. Set the amount.`,
       added: (label = 'Apple', count = 1) => `${label} added. ${count} so far.`,
+      removed: (label = 'Apple') => `${label} removed.`,
     },
   },
 

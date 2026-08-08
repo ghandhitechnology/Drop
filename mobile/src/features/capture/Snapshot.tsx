@@ -94,7 +94,7 @@ export function Snapshot({ uri, size, seed, label, tilt, style }: SnapshotProps)
 
       <Image
         source={FRAME}
-        style={StyleSheet.absoluteFill}
+        style={[styles.frame, { width: size, height: size }]}
         resizeMode="contain"
         accessible={false}
       />
@@ -104,6 +104,9 @@ export function Snapshot({ uri, size, seed, label, tilt, style }: SnapshotProps)
 
 const styles = StyleSheet.create({
   print: { position: 'relative' },
+  // Explicit dimensions keep iOS from resolving the 1254px source at its
+  // intrinsic size when this absolute image sits inside a transformed print.
+  frame: { position: 'absolute', left: 0, top: 0 },
   window: {
     position: 'absolute',
     overflow: 'hidden',
