@@ -1,5 +1,5 @@
 /**
- * The two drawn scenes of the first run, as clean geometry.
+ * The drawn scenes of the first run, as clean geometry.
  *
  * Both are authored here rather than inside the components so the shapes can be
  * reasoned about — and checked — without a renderer. Roughness is never baked
@@ -148,5 +148,75 @@ export function viewfinderBrackets(
       .detach(),
     seed: (seed + index * 613) >>> 0,
   }));
+}
+
+/* --------------------------------------------- screen three: the week mark */
+
+export type WeekStroke = { path: SkPath; seed: number; strokeScale: number };
+
+/** Where the track sits in the scene, and how tall it is drawn. */
+const TRACK_Y = 0.78;
+const TRACK_HEIGHT = 0.075;
+const TRACK_INSET = 0.06;
+/** How much of the track the example week has taken. */
+const EXAMPLE_FILL = 0.56;
+/** Where the example week ought to be by now — the notch, past the fill. */
+const EXAMPLE_PACE = 0.71;
+
+/**
+ * The bar the record will show, drawn once at scene size.
+ *
+ * This screen is teaching one thing, and the honest way to teach it is to draw
+ * the thing itself rather than a metaphor for it. So the marks here are the
+ * same three the real bar is made of — the track whose far end is the mark, the
+ * week coloured in, and the notch for where the week ought to stand — and a
+ * person meeting the bar in their record afterwards has already seen it.
+ *
+ * Ordered the way a hand would lay them down: the box first, then what is in
+ * it, then the annotation on top.
+ */
+export function weekMarks(scene: number, seed = 0x9ee4b): WeekStroke[] {
+  const height = scene * TRACK_HEIGHT;
+  const radius = height / 2;
+  const top = scene * TRACK_Y - radius;
+  const bottom = top + height;
+  const left = scene * TRACK_INSET;
+  const right = scene - left;
+  const run = right - left;
+
+  const track = Skia.PathBuilder.Make()
+    .moveTo(left + radius, top)
+    .lineTo(right - radius, top)
+    .arcToOval({ x: right - height, y: top, width: height, height }, -90, 180, false)
+    .lineTo(left + radius, bottom)
+    .arcToOval({ x: left, y: top, width: height, height }, 90, 180, false)
+    .close()
+    .detach();
+
+  /**
+   * The week, coloured in as a hand does it: passes back and forth inside the
+   * track rather than a flooded rectangle. Three of them is enough at this size
+   * — the scene is a drawing, and the real bar carries the finer version.
+   */
+  const filled = left + run * EXAMPLE_FILL;
+  const body = Skia.PathBuilder.Make();
+  const passes = 3;
+  for (let index = 0; index < passes; index += 1) {
+    const y = top + height * ((index + 0.5) / passes);
+    if (index % 2 === 0) body.moveTo(left + radius * 0.6, y).lineTo(filled, y);
+    else body.moveTo(filled, y).lineTo(left + radius * 0.6, y);
+  }
+
+  const paceX = left + run * EXAMPLE_PACE;
+  const notch = Skia.PathBuilder.Make()
+    .moveTo(paceX, top - height * 0.42)
+    .lineTo(paceX, bottom + height * 0.42)
+    .detach();
+
+  return [
+    { path: track, seed: (seed + 0) >>> 0, strokeScale: 0.8 },
+    { path: body.detach(), seed: (seed + 811) >>> 0, strokeScale: height * 0.22 },
+    { path: notch, seed: (seed + 1622) >>> 0, strokeScale: 1.1 },
+  ];
 }
 

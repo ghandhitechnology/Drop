@@ -426,16 +426,43 @@ export const copy = {
   onboarding: {
     skip: 'Skip',
     skipHint: 'Goes straight to the camera',
-    /** Printed beside the two drawn dashes. */
-    stepShort: (current = '1', total = '2') => `${current} of ${total}`,
+    /** Printed beside the drawn dashes. */
+    stepShort: (current = '1', total = '3') => `${current} of ${total}`,
     /** What a screen reader hears in that dash's place. */
-    step: (current = '1', total = '2') => `Step ${current} of ${total}`,
+    step: (current = '1', total = '3') => `Step ${current} of ${total}`,
 
     promise: {
       title: 'Every thing you use carries hidden water.',
       body: "Let's see it.",
       action: 'Show me',
       actionHint: 'Goes to the next screen',
+    },
+
+    /**
+     * The weekly mark, offered before there is a week to build one from.
+     *
+     * The copy owns that plainly — "somewhere to start" — because on day one
+     * the number really is a round one, and dressing it up as a recommendation
+     * would be the false precision the whole product exists to avoid. Both
+     * offered marks are round, the way out is beside them, and Drop says it
+     * will bring a real number once it has the weeks to make one from.
+     */
+    mark: {
+      title: 'Give the week a mark.',
+      body: 'A weekly number to measure against. Pick somewhere to start — you can move it whenever you like.',
+      action: 'Use this mark',
+      actionHint: 'Saves this weekly mark and goes to the next screen',
+      later: 'Decide later',
+      laterHint: 'Goes to the next screen without a mark',
+      /** The two round marks, named so a choice is between words. */
+      steady: 'Steady',
+      steadyBody: 'An everyday week, meat a few times',
+      lighter: 'Lighter',
+      lighterBody: 'Mostly plants, short trips',
+      /** Sits under the choices. */
+      note: 'Drop brings you a mark of your own once two weeks are logged.',
+      /** Spoken for one choice. */
+      choice: (name = 'Steady', litres = '0 litres') => `${name}, ${litres} a week`,
     },
 
     camera: {
@@ -449,8 +476,11 @@ export const copy = {
 
     announce: {
       promise: 'Welcome to Drop. Every thing you use carries hidden water.',
+      mark: 'Choose a weekly mark, or decide later.',
       camera: 'Drop is asking to look through your camera.',
       done: 'Camera ready.',
+      /** Spoken once a mark is taken. */
+      marked: (litres = '0 litres') => `Mark set to ${litres} a week.`,
     },
   },
 
