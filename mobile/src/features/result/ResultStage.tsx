@@ -51,24 +51,28 @@ import { useTheme } from '../../design/theme';
 import { radius as radii, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { seedFromString } from '../../drawing/seededRandom';
-import { insertConfirmed } from '../../data/entries';
+import { insertConfirmed, insertPlate } from '../../data/entries';
 import { copy, formatQuantity } from '../../lib/copy';
 import { tapConfirmed, tapSelection } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
-import type { Estimate, Rect } from '../capture/types';
+import { estimatesOf, keptItemsOf, plateItemsOf, type Estimate, type Rect } from '../capture/types';
 import { characterSideForAnchor } from '../capture/anchor';
 import { captureLayout, PULL_ROW, TEASER_HEIGHT } from '../capture/layout';
 import { Snapshot, snapshotTilt } from '../capture/Snapshot';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { ExpansionRays } from './ExpansionRays';
+import { FindMarks } from './FindMarks';
 import { localEstimate, servingOf, toEngineEstimate } from './localPipeline';
 import { ConfirmMark, PullChevron } from './Marks';
 import { pulseHistory } from '../history/pulse';
 import { MorphShape } from './MorphShape';
+import { PileEdges } from './PileEdges';
 import { ResultCard } from './ResultCard';
+import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
 import { beat, useExpansion } from './useExpansion';
+import { MAX_PEEKS, savableEstimates, useStackOrder } from './useStackOrder';
 
 export type ResultStageProps = {
   /** The camera stage, in its own coordinates — the same space as the anchor. */
@@ -112,6 +116,8 @@ const BEAT_STATES = new Set([
   'expanded',
   'adjusting',
   'confirmed',
+  'plating',
+  'plateConfirmed',
 ]);
 
 const OPEN_STATES = new Set(['expanded', 'adjusting', 'confirmed']);
@@ -122,6 +128,7 @@ const BACKDROP_DISMISS_STATES = new Set([
   'recognizing',
   'analyzing',
   'presenting',
+  'plating',
 ]);
 
 /**
@@ -143,7 +150,7 @@ function workingLine(name: string): string | null {
   }
 }
 
-function characterFor(name: string, estimate: Estimate | null): CharacterState {
+function characterFor(name: string, figured: boolean): CharacterState {
   switch (name) {
     case 'captured':
     case 'recognizing':
@@ -151,9 +158,10 @@ function characterFor(name: string, estimate: Estimate | null): CharacterState {
     case 'analyzing':
       return 'analyzing';
     case 'confirmed':
+    case 'plateConfirmed':
       return 'celebrating';
     default:
-      return estimate && estimate.headline ? 'presenting' : 'unresolved';
+      return figured ? 'presenting' : 'unresolved';
   }
 }
 
@@ -173,18 +181,48 @@ export function ResultStage({ stage }: ResultStageProps) {
   const adjust = useCaptureMachine((s) => s.adjust);
   const reviseEstimate = useCaptureMachine((s) => s.reviseEstimate);
   const confirmEntry = useCaptureMachine((s) => s.confirm);
+  const dismissCard = useCaptureMachine((s) => s.dismissCard);
+  const confirmPlate = useCaptureMachine((s) => s.confirmPlate);
   const retake = useCaptureMachine((s) => s.retake);
 
-  const estimate = 'estimate' in state ? state.estimate : null;
+  /*
+   * A plate is the same stage wearing more cards. `estimate` stays exactly the
+   * single path's derivation; the plate reads through the list selectors, and
+   * `multi` is what every plate-only branch below gates on.
+   */
+  const multi = state.name === 'plating' || state.name === 'plateConfirmed';
+  const plateItems = useMemo(() => plateItemsOf(state) ?? [], [state]);
+  const estimates = useMemo(() => estimatesOf(state), [state]);
+  const estimate = 'estimate' in state ? state.estimate : estimates[0] ?? null;
+  const anyFigure = estimates.some((entry) => entry.headline !== null);
+  const kept = useMemo(() => {
+    if (state.name === 'plating') {
+      return state.items
+        .map((_, index) => index)
+        .filter((index) => !state.dismissed.includes(index));
+    }
+    if (state.name === 'plateConfirmed') return [...state.kept];
+    return [];
+  }, [state]);
+  const seeds = useMemo(
+    () => plateItems.map((entry) => entry.estimate.catalog_id),
+    [plateItems],
+  );
+  const plateBoxes = useMemo(
+    () => plateItems.map((entry) => entry.box),
+    [plateItems],
+  );
+
   const item = state.name === 'analyzing' ? state.item : null;
   const anchor: Rect | null = 'anchor' in state ? state.anchor : null;
   const photoUri = 'photoUri' in state ? state.photoUri : null;
   const live = BEAT_STATES.has(state.name);
-  const backdropDismissible = BACKDROP_DISMISS_STATES.has(state.name);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [cardHeight, setCardHeight] = useState(0);
   const [receding, setReceding] = useState(false);
+  /** A pile has no `expanded` machine state; whether it is open lives here. */
+  const [plateOpen, setPlateOpen] = useState(false);
 
   /* --------------------------------------------------------- geometry */
 
@@ -260,27 +298,6 @@ export function ResultStage({ stage }: ResultStageProps) {
     [cardBox.x, cardBox.y],
   );
 
-  /**
-   * Where the print goes once the card is open: the middle of the window the
-   * card leaves above itself, sized to fill it without crowding either edge. A
-   * tall card simply gets a smaller print rather than one behind it.
-   */
-  const printOpen = useMemo(() => {
-    const top = insets.top + space.xxl;
-    const bottom = cardBox.y - space.lg;
-    const side = Math.min(
-      Math.max(0, bottom - top) * PRINT_OPEN_FILL,
-      stage.width * PRINT_OPEN_WIDTH_SHARE,
-    );
-    return {
-      y: (top + bottom) / 2,
-      scale: Math.max(
-        PRINT_OPEN_MIN,
-        Math.min(PRINT_OPEN_MAX, side / Math.max(1, layout.slot.width)),
-      ),
-    };
-  }, [insets.top, cardBox.y, stage.width, layout.slot.width]);
-
   /** The lean the print settles at. Stable per photo, so it never re-shuffles. */
   const printTilt = useMemo(() => snapshotTilt(photoUri ?? 'drop'), [photoUri]);
 
@@ -318,19 +335,36 @@ export function ResultStage({ stage }: ResultStageProps) {
    * An item whose figure arrives later has nothing to hide, so it opens itself.
    * The morph still runs — that is the card being made — but the rays stay
    * home, because they are a celebration of a number and there is none here.
+   * A plate opens itself only when every card on it is such an item.
    */
-  const unsupported = Boolean(estimate && !estimate.headline);
-  const fanfare = Boolean(estimate?.headline) && !motion.reduceMotion;
-  const open = OPEN_STATES.has(state.name) || unsupported;
+  const unsupported = multi
+    ? estimates.length > 0 && !anyFigure
+    : Boolean(estimate && !estimate.headline);
+  const fanfare = anyFigure && !motion.reduceMotion;
+  const open = multi
+    ? plateOpen || state.name === 'plateConfirmed' || unsupported
+    : OPEN_STATES.has(state.name) || unsupported;
 
-  const handleOpen = useCallback(() => expand(), [expand]);
-  const handleClose = useCallback(() => collapse(), [collapse]);
+  const backdropDismissible =
+    BACKDROP_DISMISS_STATES.has(state.name) && !(multi && open);
+
+  const handleOpen = useCallback(
+    () => (multi ? setPlateOpen(true) : expand()),
+    [multi, expand],
+  );
+  const handleClose = useCallback(
+    () => (multi ? setPlateOpen(false) : collapse()),
+    [multi, collapse],
+  );
 
   const { expansion, gesture } = useExpansion({
     open,
     enabled:
       !receding &&
-      (state.name === 'presenting' || state.name === 'expanded' || state.name === 'adjusting'),
+      (state.name === 'presenting' ||
+        state.name === 'expanded' ||
+        state.name === 'adjusting' ||
+        state.name === 'plating'),
     onOpen: handleOpen,
     onClose: handleClose,
     reduceMotion: motion.reduceMotion,
@@ -349,6 +383,7 @@ export function ResultStage({ stage }: ResultStageProps) {
       tick.value = 0;
       setReceding(false);
       setDetailOpen(false);
+      setPlateOpen(false);
       return;
     }
 
@@ -383,7 +418,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   /* --------------------------------------------- beat 3: Drop presents */
 
   useEffect(() => {
-    if (state.name !== 'presenting') return;
+    if (state.name !== 'presenting' && state.name !== 'plating') return;
     setDetailOpen(false);
     if (motion.reduceMotion) return;
     pop.value = withSequence(
@@ -416,7 +451,7 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   // The tick, the hold, then the saved card travelling into History.
   useEffect(() => {
-    if (state.name !== 'confirmed') return;
+    if (state.name !== 'confirmed' && state.name !== 'plateConfirmed') return;
 
     tick.value = withTiming(1, { duration: motion.reduceMotion ? 0 : beat.tick });
 
@@ -515,6 +550,111 @@ export function ResultStage({ stage }: ResultStageProps) {
     retake,
   ]);
 
+  /* ------------------------------------------------------------ the pile */
+
+  /** The print takes back a dismissed sheet with the same pulse Drop uses. */
+  const printPulse = useSharedValue(1);
+
+  const handleExitStart = useCallback(() => {
+    if (motion.reduceMotion) return;
+    printPulse.value = withSequence(
+      withTiming(1.05, { duration: 110 }),
+      withSpring(1, spring.drop),
+    );
+  }, [motion.reduceMotion, printPulse]);
+
+  /**
+   * A sheet has landed back in the print. The last one leaving is the person
+   * clearing the plate, which is a close, not a save — it takes the same door
+   * an unsaved single card takes.
+   */
+  const handleDismissed = useCallback(
+    (index: number, last: boolean) => {
+      if (last) {
+        handleDismiss();
+        return;
+      }
+      const label = plateItems[index]?.estimate.display_name ?? '';
+      dismissCard(index);
+      AccessibilityInfo.announceForAccessibility(
+        copy.result.announce.dismissed(label, Math.max(0, kept.length - 1)),
+      );
+    },
+    [handleDismiss, dismissCard, plateItems, kept.length],
+  );
+
+  const stack = useStackOrder({
+    kept,
+    seeds,
+    expansion,
+    enabled: state.name === 'plating' && open && !receding,
+    onExitStart: handleExitStart,
+    onDismissed: handleDismissed,
+    reduceMotion: motion.reduceMotion,
+  });
+
+  const handleConfirmMany = useCallback(async () => {
+    if (busy.current || state.name !== 'plating') return;
+    const savable = savableEstimates(
+      keptItemsOf(state).map((entry) => entry.estimate),
+    );
+    if (savable.length === 0) return;
+    busy.current = true;
+    try {
+      const entry = await insertPlate(savable.map(toEngineEstimate), {
+        inputMethod: photoUri ? 'camera' : 'search',
+        photoUri,
+      });
+      tapConfirmed();
+      confirmPlate(entry.id, entry.estimate as unknown as Estimate);
+      AccessibilityInfo.announceForAccessibility(
+        savable.length === 1
+          ? copy.result.announce.confirmed(entry.item_label)
+          : copy.result.announce.confirmedMany(savable.length, entry.item_label),
+      );
+    } finally {
+      busy.current = false;
+    }
+  }, [state, photoUri, confirmPlate]);
+
+  /** The strip zone above the card. Constant per run, so the print sits still. */
+  const pileZone = multi
+    ? Math.min(Math.max(plateItems.length - 1, 0), MAX_PEEKS) * stack.peekStep
+    : 0;
+
+  /**
+   * Where the print goes once the card is open: the middle of the window the
+   * card leaves above itself, sized to fill it without crowding either edge. A
+   * tall card simply gets a smaller print rather than one behind it — and a
+   * pile's peeking strips are part of the card's claim on the room.
+   */
+  const printOpen = useMemo(() => {
+    const top = insets.top + space.xxl;
+    const bottom = cardBox.y - pileZone - space.lg;
+    const side = Math.min(
+      Math.max(0, bottom - top) * PRINT_OPEN_FILL,
+      stage.width * PRINT_OPEN_WIDTH_SHARE,
+    );
+    return {
+      y: (top + bottom) / 2,
+      scale: Math.max(
+        PRINT_OPEN_MIN,
+        Math.min(PRINT_OPEN_MAX, side / Math.max(1, layout.slot.width)),
+      ),
+    };
+  }, [insets.top, cardBox.y, pileZone, stage.width, layout.slot.width]);
+
+  /** Where a dismissed sheet flies home: the print, at its open resting spot. */
+  const printCenter = useMemo(
+    () => ({ x: slotCenter.x, y: printOpen.y }),
+    [slotCenter.x, printOpen.y],
+  );
+
+  const cardCenter = useMemo(
+    () => ({ x: cardBox.x + cardBox.width / 2, y: cardBox.y + cardBox.height / 2 }),
+    [cardBox],
+  );
+
   /* --------------------------------------------------------- the looks */
 
   const avatarStyle = useAnimatedStyle(() => {
@@ -588,7 +728,8 @@ export function ResultStage({ stage }: ResultStageProps) {
       (held + (1 - held) * fold) *
       stampScale *
       (1 + (printOpen.scale - 1) * t) *
-      (1 - exit * (1 - EXIT_SCALE));
+      (1 - exit * (1 - EXIT_SCALE)) *
+      printPulse.value;
 
     return {
       opacity:
@@ -663,13 +804,15 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   /* ---------------------------------------------------------- the tree */
 
-  const character = characterFor(state.name, estimate);
-  const teaser = estimate
-    ? copy.result.teaser(
-        estimate.display_name,
-        formatQuantity(estimate.quantity.value, estimate.quantity.unit),
-      )
-    : item?.display_name ?? workingLine(state.name);
+  const character = characterFor(state.name, anyFigure);
+  const teaser = multi
+    ? copy.result.inFrame(stack.keptCount || plateItems.length)
+    : estimate
+      ? copy.result.teaser(
+          estimate.display_name,
+          formatQuantity(estimate.quantity.value, estimate.quantity.unit),
+        )
+      : item?.display_name ?? workingLine(state.name);
 
   return (
     <View style={styles.root} pointerEvents="box-none">
@@ -680,8 +823,13 @@ export function ResultStage({ stage }: ResultStageProps) {
               style={StyleSheet.absoluteFill}
               // While the result is still presenting itself, every tap is a
               // request to see it — the number is the whole point of the beat.
-              // Only an open card treats the backdrop as the way out.
-              onPress={state.name === 'presenting' ? handleOpen : retake}
+              // Only an open card treats the backdrop as the way out. A pile
+              // still waiting on its pull is the same moment wearing more cards.
+              onPress={
+                state.name === 'presenting' || state.name === 'plating'
+                  ? handleOpen
+                  : retake
+              }
               accessible={false}
               testID="result-backdrop-dismiss"
             />
@@ -708,6 +856,14 @@ export function ResultStage({ stage }: ResultStageProps) {
                 tilt={0}
                 label={copy.capture.snapshot}
               />
+              {multi && (
+                <FindMarks
+                  boxes={plateBoxes}
+                  side={layout.slot.width}
+                  landed={captureFold}
+                  reduceMotion={motion.reduceMotion}
+                />
+              )}
             </Animated.View>
           )}
 
@@ -717,6 +873,27 @@ export function ResultStage({ stage }: ResultStageProps) {
               accessible={false}
               importantForAccessibility="no-hide-descendants"
             >
+              {/*
+                The buried sheets go down first, so the front card's paper —
+                the morph, next — covers their bodies and leaves only the top
+                strips peeking above it.
+              */}
+              {multi && (
+                <PileEdges
+                  box={cardBox}
+                  radius={CARD_RADIUS}
+                  order={stack.order}
+                  depthOf={stack.depthOf}
+                  lift={stack.lift}
+                  expansion={expansion}
+                  tiltOf={stack.tiltOf}
+                  peekStep={stack.peekStep}
+                  paper={colors.paper}
+                  ink={colors.ink}
+                  seed={seed}
+                />
+              )}
+
               <MorphShape
                 expansion={expansion}
                 from={silhouetteBox}
@@ -743,7 +920,7 @@ export function ResultStage({ stage }: ResultStageProps) {
                 />
               )}
 
-              {estimate?.headline && (
+              {anyFigure && (
                 <PullChevron
                   cx={layout.bubble.x}
                   cy={layout.chevronY}
@@ -757,50 +934,91 @@ export function ResultStage({ stage }: ResultStageProps) {
             </Canvas>
           </Animated.View>
 
-          {estimate && (
-            <Animated.View
-              style={[
-                styles.card,
-                {
-                  left: CARD_MARGIN,
-                  right: CARD_MARGIN,
-                  bottom: insets.bottom + CARD_MARGIN,
-                  maxHeight: stage.height * CARD_MAX_SHARE,
-                },
-                contentStyle,
-              ]}
-              pointerEvents={open && !receding ? 'auto' : 'none'}
-              onLayout={(event) => {
-                const { height } = event.nativeEvent.layout;
-                setCardHeight((current) => (current === height ? current : height));
-              }}
-            >
-              <ScrollView
-                contentContainerStyle={styles.cardContent}
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={open}
+          {multi ? (
+            plateItems.length > 0 && (
+              <Animated.View
+                style={[
+                  styles.card,
+                  {
+                    left: CARD_MARGIN,
+                    right: CARD_MARGIN,
+                    bottom: insets.bottom + CARD_MARGIN,
+                  },
+                  contentStyle,
+                ]}
+                pointerEvents={open && !receding ? 'box-none' : 'none'}
               >
-                <ResultCard
-                  estimate={estimate}
+                <ResultStack
+                  items={plateItems}
+                  stack={stack}
+                  expansion={expansion}
                   open={open}
-                  adjusting={state.name === 'adjusting'}
-                  confirmed={state.name === 'confirmed'}
-                  detailOpen={detailOpen}
-                  base={serving?.value ?? estimate.quantity.value}
-                  basis={serving?.basis ?? null}
-                  onToggleDetail={() => setDetailOpen((value) => !value)}
-                  onAdjust={adjust}
-                  onQuantity={handleQuantity}
-                  onConfirm={handleConfirm}
+                  confirmed={state.name === 'plateConfirmed'}
+                  savableCount={
+                    savableEstimates(
+                      kept
+                        .map((index) => plateItems[index]?.estimate)
+                        .filter((entry): entry is Estimate => entry !== undefined),
+                    ).length
+                  }
+                  cardCenter={cardCenter}
+                  printCenter={printCenter}
+                  zoneHeight={pileZone}
+                  maxHeight={stage.height * CARD_MAX_SHARE}
+                  onCardHeight={(height) =>
+                    setCardHeight((current) => (current === height ? current : height))
+                  }
+                  onSave={handleConfirmMany}
                   onClose={handleDismiss}
-                  onRetake={handleRetake}
-                  onSearch={openSearch}
                 />
-              </ScrollView>
-            </Animated.View>
+              </Animated.View>
+            )
+          ) : (
+            estimate && (
+              <Animated.View
+                style={[
+                  styles.card,
+                  {
+                    left: CARD_MARGIN,
+                    right: CARD_MARGIN,
+                    bottom: insets.bottom + CARD_MARGIN,
+                    maxHeight: stage.height * CARD_MAX_SHARE,
+                  },
+                  contentStyle,
+                ]}
+                pointerEvents={open && !receding ? 'auto' : 'none'}
+                onLayout={(event) => {
+                  const { height } = event.nativeEvent.layout;
+                  setCardHeight((current) => (current === height ? current : height));
+                }}
+              >
+                <ScrollView
+                  contentContainerStyle={styles.cardContent}
+                  showsVerticalScrollIndicator={false}
+                  scrollEnabled={open}
+                >
+                  <ResultCard
+                    estimate={estimate}
+                    open={open}
+                    adjusting={state.name === 'adjusting'}
+                    confirmed={state.name === 'confirmed'}
+                    detailOpen={detailOpen}
+                    base={serving?.value ?? estimate.quantity.value}
+                    basis={serving?.basis ?? null}
+                    onToggleDetail={() => setDetailOpen((value) => !value)}
+                    onAdjust={adjust}
+                    onQuantity={handleQuantity}
+                    onConfirm={handleConfirm}
+                    onClose={handleDismiss}
+                    onRetake={handleRetake}
+                    onSearch={openSearch}
+                  />
+                </ScrollView>
+              </Animated.View>
+            )
           )}
 
-          {state.name === 'confirmed' && (
+          {(state.name === 'confirmed' || state.name === 'plateConfirmed') && (
             <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
               <Canvas
                 style={StyleSheet.absoluteFill}
@@ -830,14 +1048,16 @@ export function ResultStage({ stage }: ResultStageProps) {
                 pointerEvents="none"
               />
               <DropCharacter state={character} size={heroSize} seed={seed} announce />
-              {backdropDismissible && state.name !== 'presenting' && (
-                <Pressable
-                  style={StyleSheet.absoluteFill}
-                  onPress={(event) => event.stopPropagation()}
-                  accessible={false}
-                  testID="result-character-touch-guard"
-                />
-              )}
+              {backdropDismissible &&
+                state.name !== 'presenting' &&
+                state.name !== 'plating' && (
+                  <Pressable
+                    style={StyleSheet.absoluteFill}
+                    onPress={(event) => event.stopPropagation()}
+                    accessible={false}
+                    testID="result-character-touch-guard"
+                  />
+                )}
             </Animated.View>
           </GestureDetector>
 
@@ -858,7 +1078,7 @@ export function ResultStage({ stage }: ResultStageProps) {
                 screen reader and by a thumb that would rather tap.
               */}
               <View style={styles.pullRow} pointerEvents="box-none">
-                {estimate?.headline && (
+                {anyFigure && (
                   <Touch
                     onPress={handleOpen}
                     style={styles.pull}

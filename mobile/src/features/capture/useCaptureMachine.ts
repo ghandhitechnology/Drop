@@ -21,7 +21,14 @@ import { create } from 'zustand';
 import { copy, litresSentence } from '../../lib/copy';
 import { sameBarcode } from './barcode';
 import { getPipeline, type PipelineRun } from './pipeline';
-import type { BarcodeHint, CaptureState, Estimate, Rect, RecognizedItem } from './types';
+import type {
+  BarcodeHint,
+  CaptureState,
+  Estimate,
+  PlateItem,
+  Rect,
+  RecognizedItem,
+} from './types';
 
 /** Non-reactive run bookkeeping — changing these must not re-render the camera. */
 let run: PipelineRun | null = null;
@@ -54,6 +61,12 @@ export type CaptureActions = {
   reviseEstimate: (estimate: Estimate) => void;
   /** The one door into history. */
   confirm: (entryId: string) => void;
+  /** Set a plate card aside. Idempotent, and it refuses to empty the stack. */
+  dismissCard: (index: number) => void;
+  /** Put a set-aside card back. */
+  restoreCard: (index: number) => void;
+  /** The one door into history for a plate. */
+  confirmPlate: (entryId: string, saved: Estimate) => void;
   /** Drop the frozen frame and go back to a live viewfinder. */
   retake: () => void;
 };
@@ -152,6 +165,19 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
               };
             }),
 
+          onPresentingMany: (items: PlateItem[]) =>
+            forRun(token, (current) => {
+              if (current.name !== 'analyzing') return null;
+              announce(copy.capture.announce.plate(items.length));
+              return {
+                name: 'plating',
+                photoUri: current.photoUri,
+                anchor: current.anchor,
+                items,
+                dismissed: [],
+              };
+            }),
+
           onUnresolved: () =>
             forRun(token, (current) => {
               if (!('photoUri' in current)) return null;
@@ -220,6 +246,45 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
           anchor: state.anchor,
           estimate: state.estimate,
           entryId,
+        },
+      });
+    },
+
+    dismissCard: (index) => {
+      const state = get().state;
+      if (state.name !== 'plating') return;
+      if (state.dismissed.includes(index)) return;
+      if (index < 0 || index >= state.items.length) return;
+      // Setting the last card aside is a retake, decided by the stage — the
+      // machine keeps at least one card on the stack.
+      if (state.dismissed.length + 1 >= state.items.length) return;
+      set({ state: { ...state, dismissed: [...state.dismissed, index] } });
+    },
+
+    restoreCard: (index) => {
+      const state = get().state;
+      if (state.name !== 'plating') return;
+      if (!state.dismissed.includes(index)) return;
+      set({
+        state: { ...state, dismissed: state.dismissed.filter((i) => i !== index) },
+      });
+    },
+
+    confirmPlate: (entryId, saved) => {
+      const state = get().state;
+      if (state.name !== 'plating') return;
+      const kept = state.items
+        .map((_, index) => index)
+        .filter((index) => !state.dismissed.includes(index));
+      set({
+        state: {
+          name: 'plateConfirmed',
+          photoUri: state.photoUri,
+          anchor: state.anchor,
+          items: state.items,
+          kept,
+          entryId,
+          saved,
         },
       });
     },

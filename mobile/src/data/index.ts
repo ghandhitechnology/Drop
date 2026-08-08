@@ -34,6 +34,7 @@ export {
   entryCounts,
   getEntry,
   insertConfirmed,
+  insertPlate,
   listByDay,
   listRecent,
   newEntryId,
@@ -43,6 +44,14 @@ export {
   undoDelete,
   type EntryMeta,
 } from './entries';
+
+export {
+  PLATE_ITEM_ID,
+  buildPlateEstimate,
+  isPlate,
+  plateLabel,
+  type PlateEstimate,
+} from './plate';
 
 export {
   DEFAULT_SEARCH_LIMIT,

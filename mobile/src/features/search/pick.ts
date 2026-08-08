@@ -1,13 +1,15 @@
 /**
  * What the catalogue sheet chose, waiting for the pipeline to collect it.
  *
- * The search route and the pipeline never meet: the sheet stages a pick here
- * and dismisses, the camera screen starts a run, and the pipeline takes the
- * pick on its way past. That keeps this module free of every import that would
- * tie it to the machine or to a screen — which is what lets `pipeline.ts` read
- * it without a cycle.
+ * The search route and the pipeline never meet: the sheet stages its picks
+ * here and dismisses, the camera screen starts a run, and the pipeline takes
+ * them on its way past. That keeps this module free of every import that
+ * would tie it to the machine or to a screen — which is what lets
+ * `pipeline.ts` read it without a cycle.
  *
- * A pick is taken exactly once. A run that starts without one is a photo.
+ * One pick plays the single-card sequence; several play as a plate. Either
+ * way the staging is taken exactly once, and a run that starts with nothing
+ * staged is a photo.
  */
 
 import type { WireUnit } from '../../data/api';
@@ -22,21 +24,21 @@ export type SearchPick = {
   userEntered: boolean;
 };
 
-let pending: SearchPick | null = null;
+let pending: SearchPick[] = [];
 
-/** Called by the sheet, immediately before it dismisses. */
+/** Called by the sheet, immediately before it dismisses. Order is kept. */
 export function stageSearchPick(pick: SearchPick): void {
-  pending = pick;
+  pending = [...pending, pick];
 }
 
 /** Called by the pipeline, once, at the top of a run. */
-export function takeSearchPick(): SearchPick | null {
-  const pick = pending;
-  pending = null;
-  return pick;
+export function takeSearchPicks(): SearchPick[] {
+  const picks = pending;
+  pending = [];
+  return picks;
 }
 
-/** Drop a staged pick that no run will collect — a dismissed sheet. */
-export function clearSearchPick(): void {
-  pending = null;
+/** Drop staged picks that no run will collect — a dismissed sheet. */
+export function clearSearchPicks(): void {
+  pending = [];
 }

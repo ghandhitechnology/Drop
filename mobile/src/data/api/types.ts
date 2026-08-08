@@ -42,10 +42,44 @@ export interface RecognizeCandidate {
   repaired: boolean;
 }
 
+/** A rectangle normalised to the captured frame, origin top-left, 0–1. */
+export interface WireBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/**
+ * One thing recognition saw in the frame.
+ *
+ * A photo of one banana answers with a single item and the pipeline treats it
+ * exactly as it always has. A plate answers with several, in the order they
+ * read off the picture — most prominent first.
+ */
+export interface RecognizeItem {
+  /** Position in the answer, and the stable key for a card in the stack. */
+  index: number;
+  /** What the model would call it, in its own words. Used when nothing matched. */
+  label: string;
+  category: ItemCategory | null;
+  /** Best first, already filtered to real catalogue ids by the service. */
+  candidates: RecognizeCandidate[];
+  quantity: WireQuantity | null;
+  detected_text: string[];
+  /** Where it sits in the frame, when the model could localise it. */
+  box: WireBox | null;
+  /** True when the catalogue has no word for this one yet. */
+  unmatched: boolean;
+}
+
 export interface RecognizeResponse {
   request_id: string;
   model: string;
   catalog_version: string;
+  /** Every item in the frame. Never empty unless the photo held nothing. */
+  items: RecognizeItem[];
+  /* The first item, flattened — kept so the single-item path reads as before. */
   /** Best first. Empty when the photo held nothing the catalogue knows. */
   candidates: RecognizeCandidate[];
   quantity: WireQuantity | null;

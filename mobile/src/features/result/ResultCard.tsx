@@ -10,6 +10,11 @@
  * confidence, the notes that change what the number means, the amount, then
  * the detail and the source. The hero takes screen-reader focus the moment the
  * card opens, so the answer is the first thing spoken.
+ *
+ * A card in a plate stack shows the reading and stops there. Everything it
+ * could otherwise offer belongs to the pile instead: one Save for all the
+ * sheets, one modal boundary around them, one way out. So the stacked variant
+ * keeps number, item, confidence and notes, and hands the rest upward.
  */
 
 import { useEffect, useRef } from 'react';
@@ -38,10 +43,22 @@ import { QuantityStepper } from './QuantityStepper';
 
 const CONFIRM_FRAME_SEED = seedFromString('result/add-to-history');
 
-export type ResultCardProps = {
+/** What the reading needs, whichever variant draws it. */
+type ResultCardCommon = {
   estimate: Estimate;
   /** True once the expansion has committed and the card is readable. */
   open: boolean;
+  /**
+   * True when this card is the one being read. A lone card always is; a sheet
+   * in a stack becomes it by arriving on top, which is when its hero takes
+   * screen-reader focus — not when it was quietly mounted underneath.
+   */
+  isFront?: boolean;
+};
+
+/** One photo, one item, everything you can do about it. */
+export type ResultCardFullProps = ResultCardCommon & {
+  variant?: 'full';
   adjusting: boolean;
   confirmed: boolean;
   detailOpen: boolean;
@@ -57,15 +74,29 @@ export type ResultCardProps = {
   onSearch: () => void;
 };
 
+/** One sheet of a plate: the reading alone, with the pile holding the rest. */
+export type ResultCardStackedProps = ResultCardCommon & {
+  variant: 'stacked';
+};
+
+export type ResultCardProps = ResultCardFullProps | ResultCardStackedProps;
+
 export function ResultCard(props: ResultCardProps) {
-  const { estimate, open } = props;
+  const { estimate, open, isFront = true } = props;
+  const stacked = props.variant === 'stacked';
   const hero = heroFigure(estimate);
 
+  // A sheet never claims the modal boundary — the pile is the thing standing in
+  // front of the app, and a card that took it would shut the screen reader out
+  // of every sheet behind it. Buried sheets step out of the reading order too:
+  // the pile speaks for them through their peek strips.
   return (
     <View
       style={styles.card}
-      accessibilityViewIsModal={open}
-      importantForAccessibility={open ? 'yes' : 'no-hide-descendants'}
+      accessibilityViewIsModal={stacked ? undefined : open}
+      importantForAccessibility={
+        open && (isFront || !stacked) ? 'yes' : 'no-hide-descendants'
+      }
     >
       {hero ? <Figured {...props} /> : <ArrivingLater {...props} />}
     </View>
@@ -74,31 +105,20 @@ export function ResultCard(props: ResultCardProps) {
 
 /* --------------------------------------------------------- with a figure */
 
-function Figured({
-  estimate,
-  open,
-  adjusting,
-  confirmed,
-  detailOpen,
-  base,
-  basis,
-  onToggleDetail,
-  onAdjust,
-  onQuantity,
-  onConfirm,
-  onClose,
-}: ResultCardProps) {
+function Figured(props: ResultCardProps) {
+  const { estimate, open, isFront = true } = props;
   const { colors } = useTheme();
   const hero = heroFigure(estimate);
   const headline = estimate.headline;
   const heroRef = useRef<View>(null);
 
-  // The number is the answer, so it is what a screen reader lands on.
+  // The number is the answer, so it is what a screen reader lands on — again
+  // each time a new sheet is brought to the front of a stack.
   useEffect(() => {
-    if (!open) return;
+    if (!open || !isFront) return;
     const handle = findNodeHandle(heroRef.current);
     if (handle) AccessibilityInfo.setAccessibilityFocus(handle);
-  }, [open]);
+  }, [open, isFront]);
 
   if (!hero || !headline) return null;
 
@@ -136,9 +156,10 @@ function Figured({
 
       {/*
         Recognition's shortlist, when it had one. Draws nothing at all when the
-        match was clear, which is most captures.
+        match was clear, which is most captures — and nothing in a stack, where
+        the shortlist belongs to the photo rather than to any one sheet.
       */}
-      <CandidateChips />
+      {props.variant === 'stacked' ? null : <CandidateChips />}
 
       <View style={styles.chipRow}>
         <ConfidenceChip confidence={estimate.confidence} />
@@ -153,6 +174,53 @@ function Figured({
 
       <HeadlineNotes estimate={estimate} />
 
+      {props.variant === 'stacked' ? null : <Controls {...props} />}
+    </>
+  );
+}
+
+/**
+ * The hero is one line, always.
+ *
+ * A range is twice as many glyphs as a point value, so the type size steps
+ * down to keep it on one line at the card's width rather than letting the unit
+ * fall off the edge. `adjustsFontSizeToFit` stays on underneath as the
+ * backstop for very large system text sizes.
+ */
+function heroScale(value: string) {
+  if (value.length <= 5) return null;
+  if (value.length <= 7) return styles.hero58;
+  if (value.length <= 9) return styles.hero50;
+  return styles.hero42;
+}
+
+/* ---------------------------------------------------------- what you can do */
+
+/**
+ * Everything the card offers beyond the reading: change the amount, look
+ * behind the number, keep it, or leave.
+ *
+ * A sheet in a stack draws none of it. The pile keeps one Save for all its
+ * items and one way out, so an individual sheet is only ever something to
+ * read and to swipe away.
+ */
+function Controls({
+  estimate,
+  adjusting,
+  confirmed,
+  detailOpen,
+  base,
+  basis,
+  onToggleDetail,
+  onAdjust,
+  onQuantity,
+  onConfirm,
+  onClose,
+}: ResultCardFullProps) {
+  const { colors } = useTheme();
+
+  return (
+    <>
       {adjusting ? (
         <QuantityStepper
           base={base}
@@ -231,21 +299,6 @@ function Figured({
   );
 }
 
-/**
- * The hero is one line, always.
- *
- * A range is twice as many glyphs as a point value, so the type size steps
- * down to keep it on one line at the card's width rather than letting the unit
- * fall off the edge. `adjustsFontSizeToFit` stays on underneath as the
- * backstop for very large system text sizes.
- */
-function heroScale(value: string) {
-  if (value.length <= 5) return null;
-  if (value.length <= 7) return styles.hero58;
-  if (value.length <= 9) return styles.hero50;
-  return styles.hero42;
-}
-
 /* ------------------------------------------------------ arriving later */
 
 /**
@@ -253,16 +306,20 @@ function heroScale(value: string) {
  *
  * Drop says what is coming and offers the next move. There is no number and
  * no confirm — nothing without a figure has anything to add to a history.
+ *
+ * On a plate, the next move belongs to the plate: the sheet says its name and
+ * what is coming, and the other items are still there to be read.
  */
-function ArrivingLater({ estimate, open, onRetake, onSearch }: ResultCardProps) {
+function ArrivingLater(props: ResultCardProps) {
+  const { estimate, open, isFront = true } = props;
   const { colors } = useTheme();
   const lineRef = useRef<View>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !isFront) return;
     const handle = findNodeHandle(lineRef.current);
     if (handle) AccessibilityInfo.setAccessibilityFocus(handle);
-  }, [open]);
+  }, [open, isFront]);
 
   return (
     <>
@@ -276,24 +333,32 @@ function ArrivingLater({ estimate, open, onRetake, onSearch }: ResultCardProps) 
         </Text>
       </View>
 
-      <Touch
-        onPress={onSearch}
-        style={[
-          styles.confirm,
-          { backgroundColor: colors.accentSoft, borderColor: colors.accent },
-        ]}
-        accessibilityLabel={copy.unsupported.action}
-      >
-        <Text variant="label" tone="accent">
-          {copy.unsupported.action}
-        </Text>
-      </Touch>
+      {props.variant === 'stacked' ? null : (
+        <>
+          <Touch
+            onPress={props.onSearch}
+            style={[
+              styles.confirm,
+              { backgroundColor: colors.accentSoft, borderColor: colors.accent },
+            ]}
+            accessibilityLabel={copy.unsupported.action}
+          >
+            <Text variant="label" tone="accent">
+              {copy.unsupported.action}
+            </Text>
+          </Touch>
 
-      <Touch onPress={onRetake} style={styles.tail} accessibilityLabel={copy.unsupported.keep}>
-        <Text variant="label" tone="inkSoft">
-          {copy.unsupported.keep}
-        </Text>
-      </Touch>
+          <Touch
+            onPress={props.onRetake}
+            style={styles.tail}
+            accessibilityLabel={copy.unsupported.keep}
+          >
+            <Text variant="label" tone="inkSoft">
+              {copy.unsupported.keep}
+            </Text>
+          </Touch>
+        </>
+      )}
     </>
   );
 }

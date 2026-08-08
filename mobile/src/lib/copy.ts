@@ -56,6 +56,7 @@ export const copy = {
       expanded: 'Details open.',
       unresolved: 'Frame held. Find by name is ready.',
       barcode: 'Barcode in frame.',
+      plate: (count: number) => `${count} things in this frame.`,
     },
   },
 
@@ -110,12 +111,35 @@ export const copy = {
     otherMatches: 'Also looks like',
     switchTo: (label: string) => `Switch to ${label}`,
 
+    /* ------------------------------------------------------------ the pile */
+
+    /** The save line on a pile of cards — the count is the copy. */
+    confirmMany: (count: number) => `Add ${count} to my history`,
+    dismiss: 'Set this one aside',
+    dismissHint: 'Swipe up to set it aside',
+    bring: (label: string) => `Bring ${label} to the front`,
+    inFrame: (count: number) =>
+      count === 1 ? 'One thing in this frame' : `${count} things in this frame`,
+
     announce: {
       expanded: (label: string, litres: string) => `${label}. ${litres}. Details open.`,
       collapsed: 'Result closed.',
       amount: (quantity: string, litres: string) => `${quantity}. ${litres}.`,
       confirmed: (label: string) => `${label} added to your history.`,
+      dismissed: (label: string, left: number) => `${label} set aside. ${left} left.`,
+      presentingMany: (count: number, label: string, litres: string) =>
+        `${count} things in this frame. ${label}. ${litres}.`,
+      confirmedMany: (count: number, label: string) =>
+        `${count} things added to your history as ${label}.`,
     },
+  },
+
+  /** Several things in one photo, saved as one record. */
+  plate: {
+    /** The name a card wears when the model saw it but named it nothing. */
+    unknownItem: 'Something new',
+    /** Beside a pile item whose water figure arrives in a later release. */
+    arrivingLater: 'Arriving later',
   },
 
   /** An item whose water figure arrives in a later release. */
@@ -161,6 +185,15 @@ export const copy = {
     go: 'Show me the water',
     goHint: 'Hands this to Drop on the camera screen',
 
+    /* ------------------------------------------------------- the basket */
+
+    addAnother: 'Add another thing',
+    addAnotherHint: 'Keeps this and goes back to the list',
+    goMany: (count = 2) => `Show me the water · ${count}`,
+    goManyHint: 'Hands everything to Drop as one plate',
+    soFar: (count = 1) =>
+      count === 1 ? 'One thing so far' : `${count} things so far`,
+
     /** The word beside an item's drawn mark. */
     category: {
       food: 'Food',
@@ -173,6 +206,7 @@ export const copy = {
       results: (count = 0, query = '') =>
         count === 1 ? `1 match for ${query}` : `${count} matches for ${query}`,
       amount: (label = 'Apple') => `${label}. Set the amount.`,
+      added: (label = 'Apple', count = 1) => `${label} added. ${count} so far.`,
     },
   },
 
@@ -237,6 +271,7 @@ export const copy = {
       recorded: (when = 'Today at 09:12') => `Recorded ${when}`,
       photo: 'The photo behind this record',
       amount: 'Amount',
+      onThePlate: 'On the plate',
       remove: 'Take this out of history',
       /** The footer under the source block. */
       frozen: 'Saved exactly as it read on the day',
@@ -461,17 +496,23 @@ function trim(value: number, places: number): string {
   return String(Math.round(value * factor) / factor);
 }
 
-/** "120 g", "250 ml", "10 km", "$18". One unit, no parentheses. */
+/** "120 g", "250 ml", "10 km", "$18", "×3". One unit, no parentheses. */
 export function formatQuantity(value: number, unit: Unit): string {
   switch (unit) {
     case 'kg':
       return value < 1 ? `${Math.round(value * 1000)} g` : `${trim(value, 2)} kg`;
+    case 'g':
+      return value >= 1000 ? `${trim(value / 1000, 2)} kg` : `${trim(value, 0)} g`;
     case 'l':
       return value < 1 ? `${Math.round(value * 1000)} ml` : `${trim(value, 2)} L`;
+    case 'ml':
+      return value >= 1000 ? `${trim(value / 1000, 2)} L` : `${trim(value, 0)} ml`;
     case 'km':
       return `${trim(value, 1)} km`;
     case 'usd':
       return `$${trim(value, 2)}`;
+    case 'item':
+      return `×${trim(value, 0)}`;
   }
 }
 
@@ -563,6 +604,7 @@ const FALLBACK_WORD: Record<string, string> = {
   dataset_recommends_typology: 'Matched to the group figure the dataset recommends',
   high_item_uncertainty_typology: 'Matched to the group median',
   recipe_sum: 'Matched ingredient by ingredient',
+  plate_sum: 'Added up from the things in one photo',
 };
 
 /** A line for the match route, or nothing when the route needs no comment. */
@@ -599,7 +641,12 @@ const UNSUPPORTED_BY_ID: Record<string, string> = {
 const UNSUPPORTED_DEFAULT =
   'Water data for this one arrives in a future update. Find something else by name?';
 
+/** The model saw it; the catalogue has yet to learn its name. */
+const UNSUPPORTED_UNMATCHED =
+  'Drop is still learning this one. Find it by name?';
+
 export function unsupportedLine(estimate: Estimate): string {
+  if (estimate.unsupported?.reason === 'not_in_catalog') return UNSUPPORTED_UNMATCHED;
   return UNSUPPORTED_BY_ID[estimate.catalog_id] ?? UNSUPPORTED_DEFAULT;
 }
 
@@ -607,6 +654,7 @@ export function unsupportedLine(estimate: Estimate): string {
 export const UNSUPPORTED_LINES: string[] = [
   ...Object.values(UNSUPPORTED_BY_ID),
   UNSUPPORTED_DEFAULT,
+  UNSUPPORTED_UNMATCHED,
 ];
 
 /* -------------------------------------------------------------- sources */

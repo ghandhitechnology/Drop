@@ -41,13 +41,15 @@ function searchAnchor() {
 }
 
 /**
- * Play the sequence for a chosen catalogue entry.
+ * Play the sequence for the chosen catalogue entries.
  *
  * Safe to call from a screen that is dismissing: the machine is global and the
- * camera stays mounted underneath the sheet the whole time.
+ * camera stays mounted underneath the sheet the whole time. One pick plays the
+ * single card; several arrive as a plate of stacked cards.
  */
-export function runSearchPick(pick: SearchPick): void {
-  stageSearchPick(pick);
+export function runSearchPicks(picks: readonly SearchPick[]): void {
+  if (picks.length === 0) return;
+  for (const pick of picks) stageSearchPick(pick);
 
   const machine = useCaptureMachine.getState();
   // A held frame from an earlier run still owns the machine; letting it go is
@@ -59,6 +61,6 @@ export function runSearchPick(pick: SearchPick): void {
 }
 
 /** Fire the sequence once the sheet is out of the way. */
-export function handOffAfterDismiss(pick: SearchPick): void {
-  setTimeout(() => runSearchPick(pick), HANDOFF_DELAY_MS);
+export function handOffAfterDismiss(picks: readonly SearchPick[]): void {
+  setTimeout(() => runSearchPicks(picks), HANDOFF_DELAY_MS);
 }

@@ -16,8 +16,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../design/theme';
 import { radius, space } from '../../design/tokens';
 import { getEntry } from '../../data/entries';
+import { isPlate } from '../../data/plate';
 import type { Entry } from '../../data/types';
-import { copy, heroFigure, litresSentence } from '../../lib/copy';
+import { copy, formatLitres, heroFigure, litresSentence } from '../../lib/copy';
 import { localDay } from '../../lib/time';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
@@ -148,6 +149,27 @@ export function EntryDetailScreen() {
         <ConfidenceChip confidence={entry.confidence} />
         <HeadlineNotes estimate={frozen} />
 
+        {/* A plate carries its cards inside the snapshot — list them. */}
+        {isPlate(entry.estimate) && (
+          <View style={[styles.items, { borderColor: colors.inkFaint }]}>
+            <Text variant="label" tone="inkSoft">
+              {copy.history.detail.onThePlate}
+            </Text>
+            {entry.estimate.plate.items.map((item, index) => (
+              <View key={`${index}:${item.catalog_id}`} style={styles.itemRow}>
+                <Text variant="body" tone="ink" numberOfLines={1} style={styles.itemName}>
+                  {item.display_name}
+                </Text>
+                <Text variant="label" tone="inkSoft" style={styles.itemLitres}>
+                  {item.headline
+                    ? `${formatLitres(item.headline.value_l)} ${copy.result.unitShort}`
+                    : copy.plate.arrivingLater}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         <View style={[styles.amount, { borderColor: colors.inkFaint }]}>
           <Text variant="label" tone="inkSoft">
             {copy.history.detail.amount}
@@ -217,6 +239,22 @@ const styles = StyleSheet.create({
     paddingVertical: space.md,
   },
   amountValue: { fontVariant: ['tabular-nums'] },
+
+  items: {
+    borderWidth: 1,
+    borderRadius: radius.md,
+    paddingHorizontal: space.md,
+    paddingVertical: space.md,
+    gap: space.sm,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    gap: space.md,
+  },
+  itemName: { flexShrink: 1 },
+  itemLitres: { fontVariant: ['tabular-nums'] },
 
   print: { alignSelf: 'center', marginVertical: space.sm },
 
