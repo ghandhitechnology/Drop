@@ -16,19 +16,21 @@ import type { Estimate } from '../../capture/types';
 import {
   EXIT_SCALE,
   FAN_OUT_POINT,
-  LIFT_TRAVEL,
-  LIFT_TRIGGER,
+  SWIPE_TRAVEL,
+  SWIPE_TRIGGER,
   MAX_PEEKS,
   PEEK_STEP,
   PEEK_STEP_MAX,
   PEEK_STEP_MIN,
   STACK_INSET_X,
+  SWIPE_SAG,
   TILT_RANGE,
   clampPeekStep,
   contentOpacity,
   exitOpacity,
   exitScale,
   exitTilt,
+  frontSheetOffset,
   nextOrder,
   peekOpacity,
   pileInset,
@@ -66,6 +68,14 @@ describe('nextOrder', () => {
 
   it('lets the plate come back empty — the stage decides what that means', () => {
     expect(nextOrder([4], { type: 'dismiss', index: 4 })).toEqual([]);
+    expect(nextOrder([4], { type: 'queue', index: 4 })).toEqual([]);
+  });
+
+  it('closes the pile up the same way whichever direction the sheet went', () => {
+    // The paper does not care where a sheet was headed. Only the stage does.
+    expect(nextOrder([0, 1, 2, 3], { type: 'queue', index: 0 })).toEqual([1, 2, 3]);
+    expect(nextOrder([0, 1, 2, 3], { type: 'queue', index: 2 })).toEqual([0, 1, 3]);
+    expect(nextOrder([0, 1, 2], { type: 'queue', index: 9 })).toEqual([0, 1, 2]);
   });
 
   it('moves only the sheet that was tapped', () => {
@@ -270,7 +280,7 @@ describe('the seeded lean', () => {
 
 /* ------------------------------------------------------------ the exit -- */
 
-describe('the exit back into the print', () => {
+describe('the exit off the pile', () => {
   it('starts life-size and lands print-size', () => {
     expect(exitScale(0)).toBe(1);
     expect(exitScale(1)).toBeCloseTo(EXIT_SCALE, 10);
@@ -284,11 +294,84 @@ describe('the exit back into the print', () => {
   });
 
   it('throws the sheet three times its resting lean, and no further', () => {
-    expect(exitTilt(0, 1.2)).toBe(0);
-    expect(exitTilt(1, 1.2)).toBeCloseTo(3.6, 10);
-    expect(exitTilt(1, -1.6)).toBeCloseTo(-4.8, 10);
-    expect(exitTilt(1, 4)).toBe(5);
-    expect(exitTilt(1, -4)).toBe(-5);
+    expect(exitTilt(0, 1.2, 1)).toBe(0);
+    expect(exitTilt(1, 1.2, 1)).toBeCloseTo(3.6, 10);
+    expect(exitTilt(1, 4, 1)).toBe(5);
+  });
+
+  it('leans the sheet into the way it is travelling, whichever way that is', () => {
+    // The seeded lean is a resting wobble and has no opinion about the exit;
+    // the swipe does. A sheet thrown left leans left even if it was sitting
+    // tilted the other way.
+    expect(exitTilt(1, 1.2, -1)).toBeCloseTo(-3.6, 10);
+    expect(exitTilt(1, -1.2, -1)).toBeCloseTo(-3.6, 10);
+    expect(exitTilt(1, -1.2, 1)).toBeCloseTo(3.6, 10);
+    expect(exitTilt(1, -4, -1)).toBe(-5);
+  });
+});
+
+/* ------------------------------------------- paper and ink, together -- */
+
+describe('the front sheet offset', () => {
+  const card = { x: 200, y: 500 };
+  const print = { x: 200, y: 200 };
+  const tray = { x: 340, y: 120 };
+
+  // Its whole job is to be the single answer two different renderers use: the
+  // React view holding the words, and the Skia group holding the paper. If it
+  // ever returned something either side had to adjust, they would drift apart
+  // and the card would visibly come off its own frame.
+  const at = (swipeX: number, away: number, direction = 1, lift = 0, tilt = 0) =>
+    frontSheetOffset(swipeX, away, direction, lift, card, print, tray, tilt);
+
+  it('leaves a sheet exactly where it lives when nothing is happening', () => {
+    expect(at(0, 0)).toEqual({ x: 0, y: 0, scale: 1, rotate: 0 });
+  });
+
+  it('follows the thumb one-to-one before the sheet is let go', () => {
+    expect(at(-40, 0).x).toBe(-40);
+    expect(at(60, 0).x).toBe(60);
+  });
+
+  it('sags as it is dragged, and no further than the sag allows', () => {
+    expect(at(0, 0).y).toBe(0);
+    expect(at(-SWIPE_TRAVEL / 2, 0).y).toBeCloseTo(SWIPE_SAG / 2, 10);
+    expect(at(-SWIPE_TRAVEL * 3, 0).y).toBe(SWIPE_SAG);
+  });
+
+  it('lands a swipe left in the print', () => {
+    const landed = at(-80, 1, -1);
+    expect(landed.x).toBeCloseTo(print.x - card.x, 10);
+    expect(landed.y).toBeCloseTo(print.y - card.y, 10);
+  });
+
+  it('lands a swipe right in the tray', () => {
+    const landed = at(80, 1, 1);
+    expect(landed.x).toBeCloseTo(tray.x - card.x, 10);
+    expect(landed.y).toBeCloseTo(tray.y - card.y, 10);
+  });
+
+  it('picks the sheet up from where the thumb left it rather than snapping first', () => {
+    // Half way out, the sheet is half way between the thumb and the target —
+    // it never jumps back to centre to start its trip.
+    const half = at(-90, 0.5, -1);
+    expect(half.x).toBeCloseTo(-90 + (print.x - card.x - -90) * 0.5, 10);
+  });
+
+  it('shrinks toward its destination', () => {
+    expect(at(0, 0).scale).toBe(1);
+    expect(at(0, 1, -1).scale).toBeCloseTo(EXIT_SCALE, 10);
+  });
+
+  it('leans the way it is being dragged before the direction is committed', () => {
+    // Nothing has been let go yet, so the heading comes from the drag itself.
+    expect(at(-50, 0, 1, 1, 1.2).rotate).toBeLessThan(0);
+    expect(at(50, 0, -1, 1, 1.2).rotate).toBeGreaterThan(0);
+  });
+
+  it('lets the committed exit take over the lean once the thumb is off', () => {
+    expect(at(-50, 1, -1, 1, 1.2).rotate).toBeLessThan(0);
+    expect(at(5, 1, 1, 1, 1.2).rotate).toBeGreaterThan(0);
   });
 });
 
@@ -333,7 +416,7 @@ describe('savableEstimates', () => {
 
 describe('the constants hold their relationships', () => {
   it('asks for less travel to commit than the full journey', () => {
-    expect(LIFT_TRIGGER).toBeLessThan(LIFT_TRAVEL);
+    expect(SWIPE_TRIGGER).toBeLessThan(SWIPE_TRAVEL);
   });
 
   it('fans the pile out only once the card frame has room for it', () => {

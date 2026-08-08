@@ -116,10 +116,20 @@ export const copy = {
     /** The save line on a pile of cards — the count is the copy. */
     confirmMany: (count: number) => `Add ${count} to my history`,
     dismiss: 'Set this one aside',
-    dismissHint: 'Swipe up to set it aside',
+    queue: 'Add this one',
+    /** The two directions, said once, under the pile. */
+    sortHint: 'Swipe right to add it, left to set it aside',
     bring: (label: string) => `Bring ${label} to the front`,
     inFrame: (count: number) =>
       count === 1 ? 'One thing in this frame' : `${count} things in this frame`,
+
+    /* -------------------------------------------------------------- the tray */
+
+    /** The tray by the History door, counting what a save would write. */
+    tray: (count: number) => (count === 1 ? '1 to add' : `${count} to add`),
+    /** Nothing swiped across is written yet, so the way out says what it costs. */
+    closeWithQueue: (count: number) =>
+      count === 1 ? 'Put it back and close' : `Put the ${count} back and close`,
 
     announce: {
       expanded: (label: string, litres: string) => `${label}. ${litres}. Details open.`,
@@ -127,6 +137,12 @@ export const copy = {
       amount: (quantity: string, litres: string) => `${quantity}. ${litres}.`,
       confirmed: (label: string) => `${label} added to your history.`,
       dismissed: (label: string, left: number) => `${label} set aside. ${left} left.`,
+      /** Said as a card reaches the tray. It is waiting, not written. */
+      queued: (label: string, waiting: number, left: number) =>
+        `${label} ready to add. ${waiting} waiting, ${left} left to sort.`,
+      /** Said when the way out puts the tray back. */
+      discarded: (count: number) =>
+        `Result closed. ${count} went back into the photo.`,
       presentingMany: (count: number, label: string, litres: string) =>
         `${count} things in this frame. ${label}. ${litres}.`,
       confirmedMany: (count: number, label: string) =>

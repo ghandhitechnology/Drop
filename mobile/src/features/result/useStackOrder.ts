@@ -8,15 +8,19 @@
  * of paper rather than a frame between two animations — the same bargain
  * `useExpansion` makes with `expansion`.
  *
- * Depth is continuous, which is what lets a thumb hold it. Lifting the front
- * sheet subtracts the drag's progress from every other depth, so the whole pile
- * rises to meet the finger; letting go under the trigger puts it back down.
- * Past the trigger the sheet flies back into the print it came out of, and the
- * pile closes up by one.
+ * Depth is continuous, which is what lets a thumb hold it. Dragging the front
+ * sheet sideways subtracts the drag's progress from every other depth, so the
+ * whole pile rises to meet the finger; letting go under the trigger puts it
+ * back down.
+ *
+ * Past the trigger the sheet leaves, and which way it went is the whole
+ * decision: left throws it back into the print it was found in, right sends it
+ * to the tray to wait for the save. One gesture, two destinations, and the
+ * intent rides out with the sheet so the stage knows which happened.
  *
  * Order lives here rather than in the capture machine. Which sheet is on top is
  * a fact about the paper, not about the plate — the machine only ever hears
- * that a card was set aside.
+ * that a card left, and where it went.
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -52,17 +56,19 @@ export const MAX_PEEKS = 3;
 export const STACK_INSET_X = 8;
 
 /** Thumb travel, in dp, that carries the front sheet to its exit. */
-export const LIFT_TRAVEL = 120;
+export const SWIPE_TRAVEL = 120;
 
-/** Past this the release dismisses rather than springs back. */
-export const LIFT_TRIGGER = 72;
+/** Past this the release commits rather than springs back. */
+export const SWIPE_TRIGGER = 72;
 
-/** A flick this fast dismisses regardless of how far it got. */
+/** A flick this fast commits regardless of how far it got. */
 export const FLICK_VELOCITY = 700;
 
-/** Downward drag is resisted and goes nowhere: the pile only opens upward. */
-const DOWN_RUBBER = 2.5;
-const DOWN_CAP = 12;
+/** How far a sheet sags as it is dragged across, in dp at full travel. */
+export const SWIPE_SAG = 10;
+
+/** How much of the thrown lean a sheet shows while it is still under the thumb. */
+export const TILT_UNDER_THUMB = 0.35;
 
 /** How far a sheet is allowed to lean at rest, in degrees. */
 export const TILT_RANGE = 1.6;
@@ -140,7 +146,7 @@ export function peekOpacity(depth: number): number {
   return arriving * leaving;
 }
 
-/** The sheet shrinking toward the print. */
+/** The sheet shrinking toward wherever it is headed. */
 export function exitScale(progress: number): number {
   'worklet';
   return 1 + clamp(progress, 0, 1) * (EXIT_SCALE - 1);
@@ -152,10 +158,66 @@ export function exitOpacity(progress: number): number {
   return 1 - clamp((progress - EXIT_FADE_POINT) / (1 - EXIT_FADE_POINT), 0, 1);
 }
 
-/** The lean, exaggerated on the way out so the sheet reads as thrown. */
-export function exitTilt(progress: number, seedTilt: number): number {
+/**
+ * The lean, exaggerated on the way out so the sheet reads as thrown.
+ *
+ * `direction` is the sign of the swipe, so a sheet always leans into the way it
+ * is travelling rather than against it.
+ */
+export function exitTilt(
+  progress: number,
+  seedTilt: number,
+  direction: number = 1,
+): number {
   'worklet';
-  return clamp(progress, 0, 1) * clamp(seedTilt * 3, -EXIT_TILT_MAX, EXIT_TILT_MAX);
+  const lean = clamp(Math.abs(seedTilt) * 3, 0, EXIT_TILT_MAX);
+  return clamp(progress, 0, 1) * lean * (direction < 0 ? -1 : 1);
+}
+
+/**
+ * Where the front sheet is, as one displacement.
+ *
+ * A sheet is paper and ink, and they are drawn by two different engines: the
+ * words are React views, the card under them is Skia inside the stage's canvas.
+ * Nothing but this function keeps them together — so it is the one place the
+ * motion is described, and both sides read it rather than each doing the sum.
+ *
+ * `rotate` comes back in degrees, which is what a React transform wants; the
+ * Skia side converts. Everything is relative to the front card's resting
+ * rectangle, so all-zero input is the sheet sitting exactly where it lives.
+ */
+export type SheetOffset = { x: number; y: number; scale: number; rotate: number };
+
+export function frontSheetOffset(
+  /** Travel under the thumb, in dp. Negative is left. */
+  swipeX: number,
+  /** 0 → 1 once the sheet has been let go and is on its way out. */
+  away: number,
+  /** Which way the exit committed: -1 left, 1 right. */
+  direction: number,
+  /** 0 → 1 as the thumb carries the sheet toward its trigger. */
+  lift: number,
+  cardCenter: { x: number; y: number },
+  /** Where a swipe left lands. */
+  printCenter: { x: number; y: number },
+  /** Where a swipe right lands. */
+  trayCenter: { x: number; y: number },
+  /** The sheet's seeded resting lean, in degrees. */
+  tilt: number,
+): SheetOffset {
+  'worklet';
+  // Under the thumb the lean follows the drag; once the sheet has been let go
+  // it follows the exit, which is the direction the drag committed to.
+  const heading = away > 0 ? direction : Math.sign(swipeX) || 1;
+  const toward = heading > 0 ? trayCenter : printCenter;
+  // Held, the sheet sags a little as it is dragged aside — paper, not a tile.
+  const sag = SWIPE_SAG * Math.min(1, Math.abs(swipeX) / SWIPE_TRAVEL);
+  return {
+    x: swipeX + (toward.x - cardCenter.x - swipeX) * away,
+    y: sag + (toward.y - cardCenter.y - sag) * away,
+    scale: exitScale(away),
+    rotate: exitTilt(Math.max(away, lift * TILT_UNDER_THUMB), tilt, heading),
+  };
 }
 
 /**
@@ -201,20 +263,31 @@ export function savableEstimates(estimates: readonly Estimate[]): Estimate[] {
 
 /* -------------------------------------------------------------- ordering */
 
+/**
+ * Which way a sheet left the pile.
+ *
+ * `dismiss` is the swipe left — the card goes back into the photo and is
+ * forgotten. `queue` is the swipe right — the card goes to the tray and waits
+ * for the one write at the end of the run. The pile treats them identically;
+ * only the destination and what the stage does about it differ.
+ */
+export type SwipeIntent = 'dismiss' | 'queue';
+
 export type StackAction =
   | { type: 'dismiss'; index: number }
+  | { type: 'queue'; index: number }
   | { type: 'bringToFront'; index: number };
 
 /**
  * Order math, on its own.
  *
- * `order` is front to back, by index into the plate's items. Dismissing takes a
- * sheet out; bringing one forward moves only that sheet and leaves every other
- * one where it was, which is what a hand does to a pile of paper — and means
- * the fewest cards move for the tap.
+ * `order` is front to back, by index into the plate's items. Either swipe takes
+ * a sheet out; bringing one forward moves only that sheet and leaves every
+ * other one where it was, which is what a hand does to a pile of paper — and
+ * means the fewest cards move for the tap.
  *
  * An order can come back empty. That is the last sheet leaving, which the stage
- * routes to its dismiss-all path rather than to the machine.
+ * routes to its end-of-run path rather than to the machine.
  */
 export function nextOrder(
   order: readonly number[],
@@ -222,11 +295,11 @@ export function nextOrder(
 ): number[] {
   if (!order.includes(action.index)) return order.slice();
 
-  if (action.type === 'dismiss') {
-    return order.filter((index) => index !== action.index);
+  if (action.type === 'bringToFront') {
+    return [action.index, ...order.filter((index) => index !== action.index)];
   }
 
-  return [action.index, ...order.filter((index) => index !== action.index)];
+  return order.filter((index) => index !== action.index);
 }
 
 /**
@@ -260,40 +333,42 @@ function slotDepths(order: readonly number[]): number[] {
 /* ------------------------------------------------------------- the hook */
 
 export type StackOrderOptions = {
-  /** Indices of the cards still on the plate, in the order they read off the photo. */
+  /** Indices of the cards still on the pile, in the order they read off the photo. */
   kept: readonly number[];
   /** Catalogue id per item index — the seed a sheet leans from. */
   seeds: readonly string[];
   /** The stage's expansion. The pile fans out of the print as it crosses FAN_OUT_POINT. */
   expansion: SharedValue<number>;
-  /** False while the stage is saving or receding; the lift stops taking fingers. */
+  /** False while the stage is saving or receding; the swipe stops taking fingers. */
   enabled: boolean;
-  /** The exit has committed. The print pulses here, before the sheet arrives. */
-  onExitStart?: (index: number) => void;
-  /** The sheet has landed. `last` when it was the only one left on the plate. */
-  onDismissed: (index: number, last: boolean) => void;
+  /** The exit has committed. Whatever is catching the sheet pulses here, before it arrives. */
+  onExitStart?: (index: number, intent: SwipeIntent) => void;
+  /** The sheet has landed. `last` when it was the only one left on the pile. */
+  onResolved: (index: number, intent: SwipeIntent, last: boolean) => void;
   reduceMotion: boolean;
 };
 
 export type StackOrder = {
   /** Front to back, by index into the plate's items. */
   order: number[];
-  /** The sheet on top, or -1 when the plate is empty. */
+  /** The sheet on top, or -1 when the pile is empty. */
   front: number;
-  /** How many sheets are still on the plate. */
+  /** How many sheets are still on the pile. */
   keptCount: number;
-  /** The sheet on its way back into the print, or -1 when none is. */
+  /** The sheet on its way off the pile, or -1 when none is. */
   exiting: number;
   /** Depth of one sheet, by item index. 0 is the front. */
   depthOf: (index: number) => SharedValue<number>;
-  /** 0 → 1 as a thumb lifts the front sheet toward its exit. */
+  /** 0 → 1 as a thumb carries the front sheet toward its exit, either way. */
   lift: SharedValue<number>;
-  /** The front sheet's travel under the thumb, in dp. Negative is up. */
-  liftY: SharedValue<number>;
-  /** 0 → 1 as the dismissed sheet flies back into the print. */
+  /** The front sheet's travel under the thumb, in dp. Negative is left. */
+  swipeX: SharedValue<number>;
+  /** 0 → 1 as the departing sheet flies to wherever it is going. */
   exit: SharedValue<number>;
-  /** The lift pan. Belongs to the front sheet only. */
-  liftGesture: PanGesture;
+  /** -1 while a sheet is leaving to the left, 1 to the right. */
+  exitDirection: SharedValue<number>;
+  /** The swipe pan. Belongs to the front sheet only. */
+  swipeGesture: PanGesture;
   /** A sheet's lean at rest, in degrees. Zero under reduced motion. */
   tiltOf: (index: number) => number;
   /** The peek row in force, measured or assumed. */
@@ -304,6 +379,8 @@ export type StackOrder = {
   bringToFront: (index: number) => void;
   /** Send the front sheet back into the print, with no finger involved. */
   dismissFront: () => void;
+  /** Send the front sheet to the tray, with no finger involved. */
+  queueFront: () => void;
 };
 
 export function useStackOrder({
@@ -312,7 +389,7 @@ export function useStackOrder({
   expansion,
   enabled,
   onExitStart,
-  onDismissed,
+  onResolved,
   reduceMotion,
 }: StackOrderOptions): StackOrder {
   const [order, setOrder] = useState<number[]>(() => kept.slice());
@@ -336,8 +413,9 @@ export function useStackOrder({
   );
 
   const lift = useSharedValue(0);
-  const liftY = useSharedValue(0);
+  const swipeX = useSharedValue(0);
   const exit = useSharedValue(0);
+  const exitDirection = useSharedValue(1);
 
   /** Where each sheet is headed, readable from the fan-out's worklet. */
   const targets = useSharedValue<number[]>(slotDepths(order));
@@ -363,8 +441,8 @@ export function useStackOrder({
     setExitingIndex(-1);
     exit.value = 0;
     lift.value = 0;
-    liftY.value = 0;
-  }, [exitingIndex, order, exit, lift, liftY]);
+    swipeX.value = 0;
+  }, [exitingIndex, order, exit, lift, swipeX]);
 
   // Every rearrangement — a dismissal closing the pile, a tap pulling a sheet
   // out of it — is the same move: each depth springs to its new place, all at
@@ -415,31 +493,32 @@ export function useStackOrder({
   );
 
   const finishExit = useCallback(
-    (index: number, last: boolean) => {
-      onDismissed(index, last);
+    (index: number, intent: SwipeIntent, last: boolean) => {
+      onResolved(index, intent, last);
     },
-    [onDismissed],
+    [onResolved],
   );
 
   const startExit = useCallback(
-    (index: number) => {
+    (index: number, intent: SwipeIntent) => {
       if (index < 0 || exitingIndex >= 0) return;
       const last = order.length <= 1;
 
       setExitingIndex(index);
       tapSelection();
-      onExitStart?.(index);
+      onExitStart?.(index, intent);
 
+      exitDirection.value = intent === 'queue' ? 1 : -1;
       exit.value = 0;
       exit.value = withTiming(
         1,
         { duration: reduceMotion ? REDUCED_MS : duration.settle },
         (finished) => {
-          if (finished) runOnJS(finishExit)(index, last);
+          if (finished) runOnJS(finishExit)(index, intent, last);
         },
       );
     },
-    [exitingIndex, order, exit, reduceMotion, onExitStart, finishExit],
+    [exitingIndex, order, exit, exitDirection, reduceMotion, onExitStart, finishExit],
   );
 
   const settleBack = useCallback(() => {
@@ -447,36 +526,37 @@ export function useStackOrder({
     lift.value = reduceMotion
       ? withTiming(0, { duration: REDUCED_MS })
       : withSpring(0, spring.card);
-    liftY.value = reduceMotion
+    swipeX.value = reduceMotion
       ? withTiming(0, { duration: REDUCED_MS })
       : withSpring(0, spring.card);
-  }, [lift, liftY, reduceMotion]);
+  }, [lift, swipeX, reduceMotion]);
 
-  const liftGesture = useMemo(
+  const swipeGesture = useMemo(
     () =>
       Gesture.Pan()
         .enabled(enabled && front >= 0 && exiting < 0)
-        // Vertical intent only: a horizontal drag belongs to whatever is
-        // underneath, and the avatar's own expansion pan lives outside this
-        // sheet, so hit-testing keeps the two apart without either yielding.
-        .activeOffsetY([-10, 10])
-        .failOffsetX([-16, 16])
+        // Horizontal intent only. Vertical belongs to the card's own scroll and
+        // to the expansion pan the avatar owns, so hit-testing keeps the axes
+        // apart without either gesture having to yield.
+        .activeOffsetX([-12, 12])
+        .failOffsetY([-24, 24])
         .onUpdate((event) => {
-          const dy = event.translationY;
-          liftY.value =
-            dy < 0 ? dy : Math.min(DOWN_CAP, dy / DOWN_RUBBER);
-          lift.value = Math.min(1, Math.max(0, -dy / LIFT_TRAVEL));
+          swipeX.value = event.translationX;
+          lift.value = Math.min(1, Math.abs(event.translationX) / SWIPE_TRAVEL);
         })
         .onEnd((event) => {
-          const flicked = event.velocityY < -FLICK_VELOCITY;
-          const dropped = event.velocityY > FLICK_VELOCITY;
-          const committed =
-            !dropped && (flicked || -event.translationY >= LIFT_TRIGGER);
+          const dx = event.translationX;
+          const vx = event.velocityX;
+          const flicked = Math.abs(vx) > FLICK_VELOCITY;
+          // A flick and a drag can disagree about direction near the turn; the
+          // flick wins, because it is the more deliberate of the two.
+          const direction = flicked ? Math.sign(vx) : Math.sign(dx);
+          const committed = direction !== 0 && (flicked || Math.abs(dx) >= SWIPE_TRIGGER);
 
           if (committed) {
             // The travel stays where the thumb left it: the exit picks the
             // sheet up from there rather than snapping it back first.
-            runOnJS(startExit)(front);
+            runOnJS(startExit)(front, direction > 0 ? 'queue' : 'dismiss');
             return;
           }
           settleBack();
@@ -484,7 +564,7 @@ export function useStackOrder({
         .onFinalize((_event, success) => {
           if (!success) settleBack();
         }),
-    [enabled, front, exiting, lift, liftY, settleBack, startExit],
+    [enabled, front, exiting, lift, swipeX, settleBack, startExit],
   );
 
   const tilts = useMemo(
@@ -511,7 +591,11 @@ export function useStackOrder({
   }, []);
 
   const dismissFront = useCallback(() => {
-    startExit(front);
+    startExit(front, 'dismiss');
+  }, [startExit, front]);
+
+  const queueFront = useCallback(() => {
+    startExit(front, 'queue');
   }, [startExit, front]);
 
   return {
@@ -521,13 +605,15 @@ export function useStackOrder({
     exiting,
     depthOf,
     lift,
-    liftY,
+    swipeX,
     exit,
-    liftGesture,
+    exitDirection,
+    swipeGesture,
     tiltOf,
     peekStep,
     onPeekLayout,
     bringToFront,
     dismissFront,
+    queueFront,
   };
 }

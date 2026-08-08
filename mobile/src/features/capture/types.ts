@@ -157,6 +157,15 @@ export type CaptureState =
       /** Indices of cards the person has set aside. Index, never id: a plate
        *  can carry the same catalogue entry twice. */
       dismissed: readonly number[];
+      /**
+       * Indices swiped toward history but not yet written.
+       *
+       * Nothing here has reached SQLite. A plate is one row, so the cards are
+       * held until the run ends and then written in a single `insertPlate` —
+       * closing the result throws the queue away, which is the whole reason it
+       * lives in state rather than in the database.
+       */
+      queued: readonly number[];
     }
   | {
       name: 'plateConfirmed';
@@ -164,6 +173,8 @@ export type CaptureState =
       anchor: Rect;
       items: PlateItem[];
       kept: readonly number[];
+      /** What had already been swiped across when the write happened. */
+      queued: readonly number[];
       entryId: string;
       /** What actually went into history — the merged plate, or the one survivor. */
       saved: Estimate;
@@ -194,10 +205,49 @@ export function plateItemsOf(state: CaptureState): PlateItem[] | null {
     : null;
 }
 
-/** The cards still on the stack, in order. */
+/**
+ * The cards a save would write, in order.
+ *
+ * A queued card is kept — it has been swiped toward history, not away from it.
+ * The only thing that leaves this list is a dismissal.
+ */
 export function keptItemsOf(state: CaptureState): PlateItem[] {
   if (state.name !== 'plating') return [];
   return state.items.filter((_, index) => !state.dismissed.includes(index));
+}
+
+/** Indices of the cards a save would write, in the order they read off the photo. */
+export function keptIndicesOf(state: CaptureState): number[] {
+  if (state.name !== 'plating') return [];
+  return state.items
+    .map((_, index) => index)
+    .filter((index) => !state.dismissed.includes(index));
+}
+
+/**
+ * The cards still under the thumb: kept, and not yet swiped across.
+ *
+ * This is what the pile draws. A queued card has left the paper for the tray,
+ * so it is out of the stack's arrangement even though it is still going to be
+ * saved.
+ */
+export function pileIndicesOf(state: CaptureState): number[] {
+  if (state.name === 'plateConfirmed') {
+    return state.kept.filter((index) => !state.queued.includes(index));
+  }
+  if (state.name !== 'plating') return [];
+  return state.items
+    .map((_, index) => index)
+    .filter(
+      (index) => !state.dismissed.includes(index) && !state.queued.includes(index),
+    );
+}
+
+/** How many cards are waiting in the tray, unwritten. */
+export function queuedCountOf(state: CaptureState): number {
+  return state.name === 'plating' || state.name === 'plateConfirmed'
+    ? state.queued.length
+    : 0;
 }
 
 /**

@@ -38,6 +38,24 @@ function announce(message: string) {
   AccessibilityInfo.announceForAccessibility(message);
 }
 
+/**
+ * Whether a card can still be swiped either way.
+ *
+ * Both directions take a card off the pile, so both share one rule: the card
+ * has to be on the pile, and it must not be the last one there. Emptying the
+ * pile ends the run, and what that means — write the queue, or fold the whole
+ * thing back into the shutter — is the stage's decision, not the machine's.
+ */
+function movable(
+  state: Extract<CaptureState, { name: 'plating' }>,
+  index: number,
+): boolean {
+  if (index < 0 || index >= state.items.length) return false;
+  if (state.dismissed.includes(index) || state.queued.includes(index)) return false;
+  const onPile = state.items.length - state.dismissed.length - state.queued.length;
+  return onPile > 1;
+}
+
 export type CaptureActions = {
   /** Camera reported ready. Moves idle → framing. */
   ready: () => void;
@@ -63,10 +81,20 @@ export type CaptureActions = {
   confirm: (entryId: string) => void;
   /** Set a plate card aside. Idempotent, and it refuses to empty the stack. */
   dismissCard: (index: number) => void;
+  /**
+   * Swipe a plate card toward history. Nothing is written — the card moves to
+   * the queue and waits for the one `insertPlate` at the end of the run.
+   * Idempotent, and it refuses to empty the stack.
+   */
+  queueCard: (index: number) => void;
   /** Put a set-aside card back. */
   restoreCard: (index: number) => void;
-  /** The one door into history for a plate. */
-  confirmPlate: (entryId: string, saved: Estimate) => void;
+  /**
+   * The one door into history for a plate. `kept` is what was actually written,
+   * by index, because the last card of a run leaves the pile in the same tick
+   * as the save and the machine cannot re-derive it.
+   */
+  confirmPlate: (entryId: string, saved: Estimate, kept: readonly number[]) => void;
   /** Drop the frozen frame and go back to a live viewfinder. */
   retake: () => void;
 };
@@ -175,6 +203,7 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
                 anchor: current.anchor,
                 items,
                 dismissed: [],
+                queued: [],
               };
             }),
 
@@ -253,36 +282,41 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
     dismissCard: (index) => {
       const state = get().state;
       if (state.name !== 'plating') return;
-      if (state.dismissed.includes(index)) return;
-      if (index < 0 || index >= state.items.length) return;
-      // Setting the last card aside is a retake, decided by the stage — the
-      // machine keeps at least one card on the stack.
-      if (state.dismissed.length + 1 >= state.items.length) return;
+      if (!movable(state, index)) return;
       set({ state: { ...state, dismissed: [...state.dismissed, index] } });
+    },
+
+    queueCard: (index) => {
+      const state = get().state;
+      if (state.name !== 'plating') return;
+      if (!movable(state, index)) return;
+      set({ state: { ...state, queued: [...state.queued, index] } });
     },
 
     restoreCard: (index) => {
       const state = get().state;
       if (state.name !== 'plating') return;
-      if (!state.dismissed.includes(index)) return;
+      if (!state.dismissed.includes(index) && !state.queued.includes(index)) return;
       set({
-        state: { ...state, dismissed: state.dismissed.filter((i) => i !== index) },
+        state: {
+          ...state,
+          dismissed: state.dismissed.filter((i) => i !== index),
+          queued: state.queued.filter((i) => i !== index),
+        },
       });
     },
 
-    confirmPlate: (entryId, saved) => {
+    confirmPlate: (entryId, saved, kept) => {
       const state = get().state;
       if (state.name !== 'plating') return;
-      const kept = state.items
-        .map((_, index) => index)
-        .filter((index) => !state.dismissed.includes(index));
       set({
         state: {
           name: 'plateConfirmed',
           photoUri: state.photoUri,
           anchor: state.anchor,
           items: state.items,
-          kept,
+          kept: [...kept],
+          queued: state.queued,
           entryId,
           saved,
         },
