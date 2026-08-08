@@ -51,7 +51,8 @@ import { useTheme } from '../../design/theme';
 import { radius as radii, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
 import { seedFromString } from '../../drawing/seededRandom';
-import { insertConfirmed, insertPlate } from '../../data/entries';
+import { insertConfirmed, insertPlate, newEntryId } from '../../data/entries';
+import { discardCapturedPhoto, persistCapturedPhoto } from '../../data/photos';
 import { copy, formatQuantity } from '../../lib/copy';
 import { tapConfirmed, tapSelection } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
@@ -434,16 +435,24 @@ export function ResultStage({ stage }: ResultStageProps) {
   const handleConfirm = useCallback(async () => {
     if (busy.current || !estimate || !estimate.headline) return;
     busy.current = true;
+    const entryId = newEntryId();
+    const storedPhotoUri = photoUri
+      ? await persistCapturedPhoto(photoUri, entryId).catch(() => null)
+      : null;
     try {
       const entry = await insertConfirmed(toEngineEstimate(estimate), {
+        id: entryId,
         inputMethod: photoUri ? 'camera' : 'search',
-        photoUri,
+        photoUri: storedPhotoUri,
       });
       tapConfirmed();
       confirmEntry(entry.id);
       AccessibilityInfo.announceForAccessibility(
         copy.result.announce.confirmed(estimate.display_name),
       );
+    } catch (error) {
+      if (storedPhotoUri) discardCapturedPhoto(storedPhotoUri);
+      throw error;
     } finally {
       busy.current = false;
     }
@@ -600,10 +609,15 @@ export function ResultStage({ stage }: ResultStageProps) {
     );
     if (savable.length === 0) return;
     busy.current = true;
+    const entryId = newEntryId();
+    const storedPhotoUri = photoUri
+      ? await persistCapturedPhoto(photoUri, entryId).catch(() => null)
+      : null;
     try {
       const entry = await insertPlate(savable.map(toEngineEstimate), {
+        id: entryId,
         inputMethod: photoUri ? 'camera' : 'search',
-        photoUri,
+        photoUri: storedPhotoUri,
       });
       tapConfirmed();
       confirmPlate(entry.id, entry.estimate as unknown as Estimate);
@@ -612,6 +626,9 @@ export function ResultStage({ stage }: ResultStageProps) {
           ? copy.result.announce.confirmed(entry.item_label)
           : copy.result.announce.confirmedMany(savable.length, entry.item_label),
       );
+    } catch (error) {
+      if (storedPhotoUri) discardCapturedPhoto(storedPhotoUri);
+      throw error;
     } finally {
       busy.current = false;
     }

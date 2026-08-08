@@ -14,12 +14,18 @@ export interface ChatMessage {
     >;
 }
 
-export async function chatJSON(opts: {
+export type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high';
+
+export type ChatJSONOptions = {
   messages: ChatMessage[];
   schemaName: string;
   schema: Record<string, unknown>;
   timeoutMs?: number;
-}): Promise<unknown> {
+  reasoningEffort?: ReasoningEffort;
+  maxTokens?: number;
+};
+
+export async function chatJSON(opts: ChatJSONOptions): Promise<unknown> {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new Error('OPENROUTER_API_KEY is not set');
 
@@ -38,6 +44,15 @@ export async function chatJSON(opts: {
       body: JSON.stringify({
         model: MODEL,
         temperature: 0,
+        ...(opts.maxTokens === undefined ? {} : { max_tokens: opts.maxTokens }),
+        ...(opts.reasoningEffort === undefined
+          ? {}
+          : {
+              reasoning: {
+                effort: opts.reasoningEffort,
+                exclude: true,
+              },
+            }),
         messages: opts.messages,
         response_format: {
           type: 'json_schema',
