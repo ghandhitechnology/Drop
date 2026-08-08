@@ -69,7 +69,7 @@ export interface Estimate {
   } | null;
   quantity: {
     value: number;
-    unit: 'kg' | 'l' | 'km' | 'usd';
+    unit: 'kg' | 'g' | 'l' | 'ml' | 'km' | 'usd' | 'item';
     source?: QuantitySource;
   };
   factor: FactorRef | null;
@@ -111,6 +111,24 @@ export type RecognizedItem = {
   display_name: string;
   /** Present when a barcode carried the identification. */
   gtin14?: string;
+  /** How many things the frame held, when it held more than one. */
+  count?: number;
+};
+
+/** A rectangle normalised to the captured frame, origin top-left, 0–1. */
+export type NormalizedBox = { x: number; y: number; w: number; h: number };
+
+/**
+ * One card in a plate.
+ *
+ * The estimate is the engine's own output, unchanged — the box rides beside it
+ * rather than inside it, because `Estimate` is the shape that gets frozen into
+ * history and the engine owns every field of it.
+ */
+export type PlateItem = {
+  estimate: Estimate;
+  /** Where it was in the frame. Null falls the card back to the capture anchor. */
+  box: NormalizedBox | null;
 };
 
 /**
@@ -130,6 +148,26 @@ export type CaptureState =
   | { name: 'expanded'; photoUri: string; anchor: Rect; estimate: Estimate }
   | { name: 'adjusting'; photoUri: string; anchor: Rect; estimate: Estimate }
   | { name: 'confirmed'; photoUri: string; anchor: Rect; estimate: Estimate; entryId: string }
+  | {
+      name: 'plating';
+      photoUri: string;
+      anchor: Rect;
+      /** In the order they read off the photo. Frozen for the life of the state. */
+      items: PlateItem[];
+      /** Indices of cards the person has set aside. Index, never id: a plate
+       *  can carry the same catalogue entry twice. */
+      dismissed: readonly number[];
+    }
+  | {
+      name: 'plateConfirmed';
+      photoUri: string;
+      anchor: Rect;
+      items: PlateItem[];
+      kept: readonly number[];
+      entryId: string;
+      /** What actually went into history — the merged plate, or the one survivor. */
+      saved: Estimate;
+    }
   | { name: 'unresolved'; photoUri: string };
 
 export type CaptureStateName = CaptureState['name'];
@@ -149,11 +187,37 @@ export function estimateOf(state: CaptureState): Estimate | null {
   return 'estimate' in state ? state.estimate : null;
 }
 
+/** Every card of a plate, whichever side of the confirm it is on. */
+export function plateItemsOf(state: CaptureState): PlateItem[] | null {
+  return state.name === 'plating' || state.name === 'plateConfirmed'
+    ? state.items
+    : null;
+}
+
+/** The cards still on the stack, in order. */
+export function keptItemsOf(state: CaptureState): PlateItem[] {
+  if (state.name !== 'plating') return [];
+  return state.items.filter((_, index) => !state.dismissed.includes(index));
+}
+
+/**
+ * Everything on screen as a list, so the stage can treat one card and a pile
+ * through the same eyes. A single state yields its one estimate.
+ */
+export function estimatesOf(state: CaptureState): Estimate[] {
+  if (state.name === 'plating' || state.name === 'plateConfirmed') {
+    return state.items.map((item) => item.estimate);
+  }
+  return 'estimate' in state ? [state.estimate] : [];
+}
+
 const RESULT_STATES: ReadonlySet<CaptureStateName> = new Set([
   'presenting',
   'expanded',
   'adjusting',
   'confirmed',
+  'plating',
+  'plateConfirmed',
 ]);
 
 /**

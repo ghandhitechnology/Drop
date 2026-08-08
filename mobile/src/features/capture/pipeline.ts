@@ -27,14 +27,16 @@ import {
   encodePhoto,
   recognize as recognizePhoto,
   type RecognizeCandidate,
+  type RecognizeItem,
 } from '../../data/api';
 import { hydrateCatalog } from '../../data/catalogStore';
 import { getDb } from '../../data/db';
-import { getTables } from '../../data/tables';
+import { FACTORS_VERSION, getTables } from '../../data/tables';
+import { copy } from '../../lib/copy';
 import { clearCandidates, offerCandidates } from '../search/candidates';
 import { estimateFor, type PickedQuantity } from '../search/estimate';
 import { takeSearchPick } from '../search/pick';
-import type { BarcodeHint, Estimate, RecognizedItem } from './types';
+import type { BarcodeHint, Estimate, PlateItem, RecognizedItem } from './types';
 
 export type PipelineInput = {
   photoUri: string;
@@ -46,6 +48,12 @@ export type PipelineHandlers = {
   onRecognizing: () => void;
   onAnalyzing: (item: RecognizedItem) => void;
   onPresenting: (estimate: Estimate) => void;
+  /**
+   * Two or more things in one frame. The list is ordered as they read off the
+   * photo and every entry is a card, including ones the catalogue has no word
+   * for — those arrive with no headline and draw as "arriving later".
+   */
+  onPresentingMany: (items: PlateItem[]) => void;
   /** The photo is held and the person is invited to find it by name. */
   onUnresolved: () => void;
 };
@@ -239,6 +247,19 @@ function fromBarcode(
   return { catalogId, displayName, quantity, gtin14, shortlist: [], source: 'barcode' };
 }
 
+/**
+ * What identification decided: one thing, or a plate of them.
+ *
+ * The single arm carries today's resolution unchanged; the many arm carries
+ * the wire items so each can run the engine for itself.
+ */
+type Identified =
+  | { kind: 'single'; resolution: Resolution }
+  | { kind: 'many'; items: RecognizeItem[] };
+
+/** A pile taller than this reads as clutter, whatever the model saw. */
+export const MAX_PLATE_ITEMS = 6;
+
 export const realPipeline: Pipeline = (input, handlers) => {
   let settled = false;
   let cancelled = false;
@@ -260,19 +281,22 @@ export const realPipeline: Pipeline = (input, handlers) => {
 
   /* ------------------------------------------------------ identification */
 
-  async function identify(): Promise<Resolution | null> {
+  async function identify(): Promise<Identified | null> {
     const tables = getTables();
 
     // 1 — the catalogue sheet already decided.
     const pick = takeSearchPick();
     if (pick) {
       return {
-        catalogId: pick.catalogId,
-        displayName: pick.displayName,
-        quantity: pick.quantity,
-        shortlist: [],
-        source: 'search',
-        userEntered: pick.userEntered,
+        kind: 'single',
+        resolution: {
+          catalogId: pick.catalogId,
+          displayName: pick.displayName,
+          quantity: pick.quantity,
+          shortlist: [],
+          source: 'search',
+          userEntered: pick.userEntered,
+        },
       };
     }
 
@@ -297,12 +321,15 @@ export const realPipeline: Pipeline = (input, handlers) => {
         if (!hit.coverage_miss && catalogId && tables.catalog.has(catalogId)) {
           const entry = tables.catalog.get(catalogId)!;
           console.log('[capture/pipeline] barcode', hit.ean, '→', catalogId, hit.mapping.match_level);
-          return fromBarcode(
-            catalogId,
-            entry.display_name,
-            hit.quantity,
-            input.barcode.gtin14,
-          );
+          return {
+            kind: 'single',
+            resolution: fromBarcode(
+              catalogId,
+              entry.display_name,
+              hit.quantity,
+              input.barcode.gtin14,
+            ),
+          };
         }
         console.log('[capture/pipeline] barcode', hit.ean, 'reads the photo instead');
       } catch (error) {
@@ -325,6 +352,17 @@ export const realPipeline: Pipeline = (input, handlers) => {
       ...(input.barcode ? { hint: `retail code ${input.barcode.value}` } : {}),
     });
 
+    // A frame holding several things becomes a plate. A packet's label
+    // quantity stays on the single arm — one tin's 330 ml says nothing about
+    // the rest of a plate.
+    const usable = seen.items.filter(
+      (item) => item.candidates.length > 0 || item.label !== '',
+    );
+    if (usable.length > 1) {
+      console.log('[capture/pipeline] recognized plate of', usable.length);
+      return { kind: 'many', items: usable.slice(0, MAX_PLATE_ITEMS) };
+    }
+
     const known = seen.candidates.filter((candidate) => tables.catalog.has(candidate.catalog_id));
     const top = known[0];
     if (!top) return null;
@@ -337,13 +375,47 @@ export const realPipeline: Pipeline = (input, handlers) => {
     );
 
     return {
-      catalogId: top.catalog_id,
-      displayName: top.display_name,
-      quantity: labelQuantity ?? seen.quantity,
-      shortlist: top.score < MULTI_CANDIDATE_SCORE ? known : [],
-      ...(input.barcode ? { gtin14: input.barcode.gtin14 } : {}),
-      source: 'photo',
+      kind: 'single',
+      resolution: {
+        catalogId: top.catalog_id,
+        displayName: top.display_name,
+        quantity: labelQuantity ?? seen.quantity,
+        shortlist: top.score < MULTI_CANDIDATE_SCORE ? known : [],
+        ...(input.barcode ? { gtin14: input.barcode.gtin14 } : {}),
+        source: 'photo',
+      },
     };
+  }
+
+  /* ------------------------------------------------------------ per item */
+
+  /**
+   * One wire item, run through the engine.
+   *
+   * The engine already retries with the catalogue's published serving when the
+   * model hands back a unit the entry rejects — that is the whole defence
+   * against unreliable per-item quantities.
+   */
+  function toPlateItem(item: RecognizeItem): PlateItem {
+    const tables = getTables();
+    const box = item.box ?? null;
+    const known = item.candidates.filter((c) => tables.catalog.has(c.catalog_id));
+    const top = known[0];
+
+    if (top) {
+      const outcome = estimateFor({
+        catalogId: top.catalog_id,
+        quantity: item.quantity,
+        source:
+          item.quantity?.basis === 'package_label'
+            ? 'package_label'
+            : item.quantity
+              ? 'vision_estimate'
+              : 'catalog_default',
+      });
+      if (outcome) return { estimate: outcome.estimate, box };
+    }
+    return { estimate: arrivingLater(item), box };
   }
 
   /* -------------------------------------------------------------- the run */
@@ -357,13 +429,34 @@ export const realPipeline: Pipeline = (input, handlers) => {
     if (!alive()) return;
     handlers.onRecognizing();
 
-    const resolved = await identify();
+    const identified = await identify();
     if (!alive()) return;
-    if (!resolved) {
+    if (!identified) {
       finish(handlers.onUnresolved);
       return;
     }
 
+    if (identified.kind === 'many') {
+      const first = identified.items[0]!;
+      handlers.onAnalyzing({
+        catalog_id: first.candidates[0]?.catalog_id ?? '',
+        display_name: first.candidates[0]?.display_name ?? first.label,
+        count: identified.items.length,
+      });
+
+      await delay(REAL_TIMINGS.analyzing);
+      if (!alive()) return;
+
+      const plate = identified.items.map(toPlateItem);
+      if (plate.length < 2) {
+        finish(handlers.onUnresolved);
+        return;
+      }
+      finish(() => handlers.onPresentingMany(plate));
+      return;
+    }
+
+    const resolved = identified.resolution;
     handlers.onAnalyzing({
       catalog_id: resolved.catalogId,
       display_name: resolved.displayName,
@@ -423,6 +516,34 @@ function quantitySource(resolved: Resolution) {
   if (resolved.quantity?.basis === 'package_label') return 'package_label' as const;
   if (resolved.quantity) return 'vision_estimate' as const;
   return 'catalog_default' as const;
+}
+
+/**
+ * A card for something the catalogue has no word for yet.
+ *
+ * It carries no headline, which is exactly what the result card already reads
+ * to draw the "arriving later" face — and exactly what `insertConfirmed`
+ * refuses, so an unknown can never be counted as zero litres by accident.
+ */
+function arrivingLater(item: RecognizeItem): Estimate {
+  const q = item.quantity;
+  return {
+    catalog_id: '',
+    display_name: item.label || copy.plate.unknownItem,
+    category: item.category ?? 'product',
+    headline: null,
+    quantity: q
+      ? { value: q.value, unit: q.unit, source: 'vision_estimate' }
+      : { value: 1, unit: 'item', source: 'vision_estimate' },
+    factor: null,
+    match_level: null,
+    confidence: null,
+    fallback_reason: null,
+    assumptions: [],
+    secondary: [],
+    unsupported: { reason: 'not_in_catalog' },
+    factors_version: FACTORS_VERSION,
+  };
 }
 
 function describe(error: unknown): string {

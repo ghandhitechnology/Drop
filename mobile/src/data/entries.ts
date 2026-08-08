@@ -19,6 +19,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { deviceTimeZone, localDay, localWeek, recentDays } from '../lib/time';
 import { getDb } from './db';
+import { buildPlateEstimate } from './plate';
 import type {
   DailyTotal,
   DailyTotalRow,
@@ -181,6 +182,23 @@ export async function insertConfirmed(
   });
 
   return { ...row, estimate };
+}
+
+/**
+ * Records a plate: several cards, one row.
+ *
+ * A single survivor is saved as an ordinary entry — there is nothing to merge
+ * and history carries no wrapper around one thing. Everything else goes
+ * through `buildPlateEstimate` and then through the same single writer as
+ * every other entry, which is what keeps `daily_totals` honest.
+ */
+export async function insertPlate(
+  items: Estimate[],
+  meta: EntryMeta,
+): Promise<Entry> {
+  if (items.length === 0) throw new Error('a plate needs at least one item');
+  if (items.length === 1) return insertConfirmed(items[0]!, meta);
+  return insertConfirmed(buildPlateEstimate(items), meta);
 }
 
 /**

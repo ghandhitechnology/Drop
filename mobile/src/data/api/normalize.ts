@@ -19,7 +19,9 @@ import {
   type OffStatus,
   type QuantityBasis,
   type RecognizeCandidate,
+  type RecognizeItem,
   type RecognizeResponse,
+  type WireBox,
   type ResearchEvidence,
   type ResearchResponse,
   type WireQuantity,
@@ -102,31 +104,95 @@ export function readCandidate(value: unknown): RecognizeCandidate | null {
   };
 }
 
+/** A box is kept only when it is a real rectangle inside the frame. */
+export function readBox(value: unknown): WireBox | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const raw = value as Record<string, unknown>;
+  const x = finiteNumber(raw.x);
+  const y = finiteNumber(raw.y);
+  const w = finiteNumber(raw.w);
+  const h = finiteNumber(raw.h);
+  if (x === null || y === null || w === null || h === null) return null;
+  if (x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > 1 || y + h > 1) return null;
+  return { x, y, w, h };
+}
+
+function readCandidates(value: unknown, what: string): RecognizeCandidate[] {
+  const candidates: RecognizeCandidate[] = [];
+  for (const entry of requireArray(value ?? [], what)) {
+    const candidate = readCandidate(entry);
+    if (candidate) candidates.push(candidate);
+  }
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates;
+}
+
+export function readItem(value: unknown, index: number): RecognizeItem | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const raw = value as Record<string, unknown>;
+  const candidates = readCandidates(raw.candidates, 'recognize.item.candidates');
+  const label = optionalString(raw.label) ?? '';
+  if (candidates.length === 0 && !label) return null;
+  return {
+    index,
+    label,
+    category: asCategory(raw.category),
+    candidates,
+    quantity: readQuantity(raw.quantity),
+    detected_text: strings(raw.detected_text, 'recognize.item.detected_text'),
+    box: readBox(raw.box),
+    unmatched: raw.unmatched === true || candidates.length === 0,
+  };
+}
+
 /**
  * Recognition, read.
  *
  * Candidates are re-sorted best-first here rather than trusted to arrive that
  * way, because the top one becomes the name on screen and the threshold that
  * decides whether a shortlist is offered at all is read off its score.
+ *
+ * An answer without `items` — an older service — is read through its flat
+ * fields and becomes a one-item list, so the rest of the app only ever sees
+ * the one shape.
  */
 export function readRecognize(body: unknown): RecognizeResponse {
   const raw = requireObject(body, 'recognize');
 
-  const candidates: RecognizeCandidate[] = [];
-  for (const entry of requireArray(raw.candidates ?? [], 'recognize.candidates')) {
-    const candidate = readCandidate(entry);
-    if (candidate) candidates.push(candidate);
+  const items: RecognizeItem[] = [];
+  if (Array.isArray(raw.items)) {
+    for (const entry of raw.items) {
+      const item = readItem(entry, items.length);
+      if (item) items.push(item);
+    }
   }
-  candidates.sort((a, b) => b.score - a.score);
 
+  if (items.length === 0) {
+    const candidates = readCandidates(raw.candidates, 'recognize.candidates');
+    if (candidates.length > 0) {
+      items.push({
+        index: 0,
+        label: candidates[0]?.display_name ?? '',
+        category: candidates[0]?.category ?? null,
+        candidates,
+        quantity: readQuantity(raw.quantity),
+        detected_text: strings(raw.detected_text, 'recognize.detected_text'),
+        box: null,
+        unmatched: false,
+      });
+    }
+  }
+
+  const first = items[0];
   return {
     request_id: optionalString(raw.request_id) ?? '',
     model: optionalString(raw.model) ?? '',
     catalog_version: optionalString(raw.catalog_version) ?? '',
-    candidates,
-    quantity: readQuantity(raw.quantity),
-    detected_text: strings(raw.detected_text, 'recognize.detected_text'),
-    unmatched: raw.unmatched === true || candidates.length === 0,
+    items,
+    candidates: first?.candidates ?? [],
+    quantity: first?.quantity ?? null,
+    detected_text: first?.detected_text ?? [],
+    unmatched: items.length === 0 || items.every((item) => item.unmatched),
   };
 }
 

@@ -170,6 +170,85 @@ describe('readRecognize', () => {
   });
 });
 
+/* ---------------------------------------------------- recognize, per item */
+
+const PLATE_BODY = {
+  ...RECOGNIZE_BODY,
+  items: [
+    {
+      index: 0,
+      label: 'rice',
+      category: 'food',
+      candidates: [
+        { catalog_id: 'rice', display_name: 'Rice', category: 'food', score: 0.9, reason: 'white rice', repaired: false },
+      ],
+      quantity: { value: 200, unit: 'g', basis: 'vision_estimate', evidence: null },
+      detected_text: [],
+      box: { x: 0.1, y: 0.2, w: 0.3, h: 0.3 },
+      unmatched: false,
+    },
+    {
+      index: 1,
+      label: 'mystery pastry',
+      category: 'food',
+      candidates: [],
+      quantity: null,
+      detected_text: [],
+      box: { x: 0.5, y: 0.5, w: 0.9, h: 0.4 },
+      unmatched: true,
+    },
+  ],
+};
+
+describe('readRecognize with items', () => {
+  it('reads every item with its own quantity and box', () => {
+    const read = readRecognize(PLATE_BODY);
+    expect(read.items).toHaveLength(2);
+    expect(read.items[0].quantity).toMatchObject({ value: 200, unit: 'g' });
+    expect(read.items[0].box).toEqual({ x: 0.1, y: 0.2, w: 0.3, h: 0.3 });
+  });
+
+  it('keeps an unmatched item, with a label and no candidates', () => {
+    const read = readRecognize(PLATE_BODY);
+    expect(read.items[1].unmatched).toBe(true);
+    expect(read.items[1].label).toBe('mystery pastry');
+    expect(read.items[1].candidates).toEqual([]);
+  });
+
+  it('drops a box that leaks outside the frame rather than trusting it', () => {
+    expect(readRecognize(PLATE_BODY).items[1].box).toBeNull();
+  });
+
+  it('mirrors the first item into the flat fields', () => {
+    const read = readRecognize(PLATE_BODY);
+    expect(read.candidates[0].catalog_id).toBe('rice');
+    expect(read.quantity).toMatchObject({ value: 200, unit: 'g' });
+  });
+
+  it('is unmatched only when every item is', () => {
+    expect(readRecognize(PLATE_BODY).unmatched).toBe(false);
+    const allUnmatched = {
+      items: [{ label: 'thing one', candidates: [] }, { label: 'thing two', candidates: [] }],
+    };
+    expect(readRecognize(allUnmatched).unmatched).toBe(true);
+  });
+
+  it('reindexes items after dropping unreadable ones', () => {
+    const read = readRecognize({
+      items: [null, PLATE_BODY.items[0], { candidates: [], label: '' }, PLATE_BODY.items[1]],
+    });
+    expect(read.items.map((i) => i.index)).toEqual([0, 1]);
+  });
+
+  it('turns an old flat answer into a one-item list', () => {
+    const read = readRecognize(RECOGNIZE_BODY);
+    expect(read.items).toHaveLength(1);
+    expect(read.items[0].candidates.map((c) => c.catalog_id)).toEqual(['banana', 'apple', 'tomato']);
+    expect(read.items[0].quantity).toMatchObject({ value: 120, unit: 'g' });
+    expect(read.items[0].box).toBeNull();
+  });
+});
+
 /* ----------------------------------------------------------------- barcode */
 
 describe('readBarcode', () => {
