@@ -35,7 +35,7 @@ import { FACTORS_VERSION, getTables } from '../../data/tables';
 import { copy } from '../../lib/copy';
 import { clearCandidates, offerCandidates } from '../search/candidates';
 import { estimateFor, type PickedQuantity } from '../search/estimate';
-import { takeSearchPick } from '../search/pick';
+import { takeSearchPicks, type SearchPick } from '../search/pick';
 import type { BarcodeHint, Estimate, PlateItem, RecognizedItem } from './types';
 
 export type PipelineInput = {
@@ -251,11 +251,13 @@ function fromBarcode(
  * What identification decided: one thing, or a plate of them.
  *
  * The single arm carries today's resolution unchanged; the many arm carries
- * the wire items so each can run the engine for itself.
+ * the wire items so each can run the engine for itself; the picked arm is a
+ * plate the catalogue sheet assembled by hand, already priced.
  */
 type Identified =
   | { kind: 'single'; resolution: Resolution }
-  | { kind: 'many'; items: RecognizeItem[] };
+  | { kind: 'many'; items: RecognizeItem[] }
+  | { kind: 'picked'; plate: PlateItem[] };
 
 /** A pile taller than this reads as clutter, whatever the model saw. */
 export const MAX_PLATE_ITEMS = 6;
@@ -285,7 +287,15 @@ export const realPipeline: Pipeline = (input, handlers) => {
     const tables = getTables();
 
     // 1 — the catalogue sheet already decided.
-    const pick = takeSearchPick();
+    const picks = takeSearchPicks();
+    if (picks.length > 1) {
+      const plate = picks
+        .slice(0, MAX_PLATE_ITEMS)
+        .map(pickToPlateItem)
+        .filter((entry): entry is PlateItem => entry !== null);
+      if (plate.length > 1) return { kind: 'picked', plate };
+    }
+    const pick = picks[0];
     if (pick) {
       return {
         kind: 'single',
@@ -390,6 +400,19 @@ export const realPipeline: Pipeline = (input, handlers) => {
   /* ------------------------------------------------------------ per item */
 
   /**
+   * One catalogue pick, run through the engine. No box: nothing was framed.
+   * A serving nobody moved is a serving, the same rule the single arm keeps.
+   */
+  function pickToPlateItem(pick: SearchPick): PlateItem | null {
+    const outcome = estimateFor({
+      catalogId: pick.catalogId,
+      quantity: pick.quantity,
+      source: pick.userEntered ? 'user_entered' : 'catalog_default',
+    });
+    return outcome ? { estimate: outcome.estimate, box: null } : null;
+  }
+
+  /**
    * One wire item, run through the engine.
    *
    * The engine already retries with the catalogue's published serving when the
@@ -433,6 +456,21 @@ export const realPipeline: Pipeline = (input, handlers) => {
     if (!alive()) return;
     if (!identified) {
       finish(handlers.onUnresolved);
+      return;
+    }
+
+    if (identified.kind === 'picked') {
+      const first = identified.plate[0]!;
+      handlers.onAnalyzing({
+        catalog_id: first.estimate.catalog_id,
+        display_name: first.estimate.display_name,
+        count: identified.plate.length,
+      });
+
+      await delay(REAL_TIMINGS.analyzing);
+      if (!alive()) return;
+
+      finish(() => handlers.onPresentingMany(identified.plate));
       return;
     }
 

@@ -30,9 +30,14 @@ export type AmountStepProps = {
   basis: string | null;
   onBack: () => void;
   onGo: (quantity: number, userEntered: boolean) => void;
+  /**
+   * Keep this one and go back to the list for the next. Absent when the
+   * basket is full — the button simply is not offered.
+   */
+  onAddAnother?: (quantity: number, userEntered: boolean) => void;
 };
 
-export function AmountStep({ item, basis, onBack, onGo }: AmountStepProps) {
+export function AmountStep({ item, basis, onBack, onGo, onAddAnother }: AmountStepProps) {
   const { colors } = useTheme();
   const unit = item.defaultUnit as Estimate['quantity']['unit'];
 
@@ -46,6 +51,11 @@ export function AmountStep({ item, basis, onBack, onGo }: AmountStepProps) {
   const handleGo = useCallback(
     () => onGo(value, value !== item.defaultQuantity),
     [onGo, value, item.defaultQuantity],
+  );
+
+  const handleAddAnother = useCallback(
+    () => onAddAnother?.(value, value !== item.defaultQuantity),
+    [onAddAnother, value, item.defaultQuantity],
   );
 
   return (
@@ -82,6 +92,19 @@ export function AmountStep({ item, basis, onBack, onGo }: AmountStepProps) {
             {copy.search.go}
           </Text>
         </Touch>
+
+        {onAddAnother && (
+          <Touch
+            onPress={handleAddAnother}
+            style={styles.addAnother}
+            accessibilityLabel={copy.search.addAnother}
+            accessibilityHint={copy.search.addAnotherHint}
+          >
+            <Text variant="label" tone="inkSoft">
+              {copy.search.addAnother}
+            </Text>
+          </Touch>
+        )}
       </View>
     </View>
   );
@@ -101,4 +124,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  addAnother: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });

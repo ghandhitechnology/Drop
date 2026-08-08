@@ -22,14 +22,15 @@ import {
 } from 'react-native';
 
 import { useTheme } from '../../design/theme';
-import { space } from '../../design/tokens';
+import { radius, space } from '../../design/tokens';
 import { hydrateCatalog, useCatalogStore } from '../../data/catalogStore';
-import { clearSearchPick } from './pick';
+import { clearSearchPicks, type SearchPick } from './pick';
 import type { CatalogItem } from '../../data/types';
 import { Grain } from '../../drawing/grain';
 import { copy } from '../../lib/copy';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
+import { MAX_PLATE_ITEMS } from '../capture/pipeline';
 import { AmountStep } from './AmountStep';
 import { servingFor } from './estimate';
 import { handOffAfterDismiss } from './handoff';
@@ -58,6 +59,8 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
 
   const [query, setQuery] = useState('');
   const [chosen, setChosen] = useState<CatalogItem | null>(null);
+  /** Things kept for one combined hand-off, in the order they were added. */
+  const [basket, setBasket] = useState<SearchPick[]>([]);
   const handedOff = useRef(false);
 
   useEffect(() => {
@@ -68,7 +71,7 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
   // the next photo can never quietly resolve to whatever was tapped last.
   useEffect(
     () => () => {
-      if (!handedOff.current) clearSearchPick();
+      if (!handedOff.current) clearSearchPicks();
     },
     [],
   );
@@ -97,20 +100,48 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
     setChosen(item);
   }, []);
 
+  const pickFrom = useCallback(
+    (item: CatalogItem, quantity: number, userEntered: boolean): SearchPick => ({
+      catalogId: item.id,
+      displayName: item.label,
+      quantity: { value: quantity, unit: item.defaultUnit as WireUnit },
+      userEntered,
+    }),
+    [],
+  );
+
   const handleGo = useCallback(
     (quantity: number, userEntered: boolean) => {
       if (!chosen) return;
       handedOff.current = true;
-      handOffAfterDismiss({
-        catalogId: chosen.id,
-        displayName: chosen.label,
-        quantity: { value: quantity, unit: chosen.defaultUnit as WireUnit },
-        userEntered,
-      });
+      handOffAfterDismiss([...basket, pickFrom(chosen, quantity, userEntered)]);
       onDismiss();
     },
-    [chosen, onDismiss],
+    [chosen, basket, pickFrom, onDismiss],
   );
+
+  /** Keep this one and come back to the list for the next. */
+  const handleAddAnother = useCallback(
+    (quantity: number, userEntered: boolean) => {
+      if (!chosen) return;
+      const next = [...basket, pickFrom(chosen, quantity, userEntered)];
+      setBasket(next);
+      setChosen(null);
+      setQuery('');
+      AccessibilityInfo.announceForAccessibility(
+        copy.search.announce.added(chosen.label, next.length),
+      );
+    },
+    [chosen, basket, pickFrom],
+  );
+
+  /** Everything kept so far, handed off from the list without another pick. */
+  const handleGoWithBasket = useCallback(() => {
+    if (basket.length === 0) return;
+    handedOff.current = true;
+    handOffAfterDismiss(basket);
+    onDismiss();
+  }, [basket, onDismiss]);
 
   const basisFor = useCallback(
     (item: CatalogItem) => servingFor(item.id)?.basis ?? null,
@@ -130,6 +161,9 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
             basis={basisFor(chosen)}
             onBack={() => setChosen(null)}
             onGo={handleGo}
+            onAddAnother={
+              basket.length + 1 < MAX_PLATE_ITEMS ? handleAddAnother : undefined
+            }
           />
         </View>
       ) : (
@@ -164,6 +198,12 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
                 <Text variant="label" tone="inkSoft">
                   {status === 'ready' ? heading : copy.search.opening}
                 </Text>
+                {basket.length > 0 && (
+                  <Text variant="chip" tone="accent">
+                    {copy.search.soFar(basket.length)} ·{' '}
+                    {basket.map((entry) => entry.displayName).join(' · ')}
+                  </Text>
+                )}
               </View>
             }
             ListEmptyComponent={
@@ -184,6 +224,21 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
           />
 
           <View style={styles.footer}>
+            {basket.length > 0 && (
+              <Touch
+                onPress={handleGoWithBasket}
+                style={[
+                  styles.goMany,
+                  { backgroundColor: colors.accentSoft, borderColor: colors.accent },
+                ]}
+                accessibilityLabel={copy.search.goMany(basket.length)}
+                accessibilityHint={copy.search.goManyHint}
+              >
+                <Text variant="label" tone="accent">
+                  {copy.search.goMany(basket.length)}
+                </Text>
+              </Touch>
+            )}
             <Touch
               onPress={onDismiss}
               style={styles.back}
@@ -211,8 +266,15 @@ const styles = StyleSheet.create({
   amountBody: { flex: 1, paddingHorizontal: space.lg, paddingTop: space.lg },
   list: { flex: 1, marginTop: space.md },
   listContent: { paddingHorizontal: space.lg, paddingBottom: space.xl },
-  listHeader: { paddingVertical: space.sm },
+  listHeader: { paddingVertical: space.sm, gap: space.xs },
   empty: { paddingTop: space.xl, gap: space.sm },
-  footer: { paddingHorizontal: space.lg, paddingBottom: space.sm },
+  footer: { paddingHorizontal: space.lg, paddingBottom: space.sm, gap: space.xs },
+  goMany: {
+    minHeight: 56,
+    borderWidth: 1,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   back: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });

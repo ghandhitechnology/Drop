@@ -636,7 +636,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     busy.current = true;
     try {
       const entry = await insertPlate(savable.map(toEngineEstimate), {
-        inputMethod: 'camera',
+        inputMethod: photoUri ? 'camera' : 'search',
         photoUri,
       });
       tapConfirmed();

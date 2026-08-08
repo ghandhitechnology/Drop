@@ -191,6 +191,15 @@ export const copy = {
     go: 'Show me the water',
     goHint: 'Hands this to Drop on the camera screen',
 
+    /* ------------------------------------------------------- the basket */
+
+    addAnother: 'Add another thing',
+    addAnotherHint: 'Keeps this and goes back to the list',
+    goMany: (count = 2) => `Show me the water · ${count}`,
+    goManyHint: 'Hands everything to Drop as one plate',
+    soFar: (count = 1) =>
+      count === 1 ? 'One thing so far' : `${count} things so far`,
+
     /** The word beside an item's drawn mark. */
     category: {
       food: 'Food',
@@ -203,6 +212,7 @@ export const copy = {
       results: (count = 0, query = '') =>
         count === 1 ? `1 match for ${query}` : `${count} matches for ${query}`,
       amount: (label = 'Apple') => `${label}. Set the amount.`,
+      added: (label = 'Apple', count = 1) => `${label} added. ${count} so far.`,
     },
   },
 

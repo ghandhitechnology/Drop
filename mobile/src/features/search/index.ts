@@ -24,10 +24,10 @@ export {
 } from './estimate';
 
 export {
-  clearSearchPick,
+  clearSearchPicks,
   stageSearchPick,
-  takeSearchPick,
+  takeSearchPicks,
   type SearchPick,
 } from './pick';
 
-export { HANDOFF_DELAY_MS, handOffAfterDismiss, runSearchPick } from './handoff';
+export { HANDOFF_DELAY_MS, handOffAfterDismiss, runSearchPicks } from './handoff';
