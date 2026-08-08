@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * The capture state machine.
  *

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * The pipeline, running on the device.
  *

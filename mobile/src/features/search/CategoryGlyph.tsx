@@ -1,10 +1,11 @@
 /**
  * Four drawn marks, one per kind of thing.
  *
- * A catalogue list is 463 rows of very similar-looking text, and scanning it
- * with the eye is the whole job of this screen. The marks give each row a
- * shape before its word is read — an apple, a glass, a wheel, a parcel — so a
- * thumb heading for "bus" stops at the wheels rather than reading four labels.
+ * A catalogue list is a thousand rows of very similar-looking text, and
+ * scanning it with the eye is the whole job of this screen. The marks give each
+ * row a shape before its word is read — an apple, a glass, a wheel, a parcel —
+ * so a thumb heading for "bus" stops at the wheels rather than reading four
+ * labels.
  *
  * They carry no information the row does not already say in words, so the
  * canvas is hidden from the screen reader and the category is spoken as text

@@ -1,10 +1,10 @@
 /**
  * The other way in.
  *
- * Everything here happens on the device. The 463-item catalogue is already in
- * memory by the time the sheet opens — warmed at boot beside the factor
- * tables — so results move under the caret with no round trip, no debounce and
- * no spinner, and the whole screen works with the radio off.
+ * Everything here happens on the device. All thousand catalogue items are
+ * already in memory by the time the sheet opens — warmed at boot beside the
+ * factor tables — so results move under the caret with no round trip, no
+ * debounce and no spinner, and the whole screen works with the radio off.
  *
  * Two steps, one sheet: the list, then the amount. They swap in place rather
  * than pushing a route, because the second step is one number and a button and

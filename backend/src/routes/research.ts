@@ -47,23 +47,31 @@ research.post('/', async (c) => {
     ?? (entry ? `water footprint of ${entry.display_name}` : null);
   if (!question) return c.json({ error: 'question or catalog_id required' }, 400);
 
-  const out = await chatJSONRetry({
-    schemaName: 'research_evidence',
-    timeoutMs: 30_000,
-    schema: SCHEMA as unknown as Record<string, unknown>,
-    messages: [
-      {
-        role: 'system',
-        content:
-          'You collect published evidence about water footprints. Report ' +
-          'claims with their sources, publication years, and metric types ' +
-          '(total water footprint vs freshwater withdrawal vs scarcity-' +
-          'weighted). Cite only sources you are confident exist. Where ' +
-          'evidence is thin, say so in the summary.',
-      },
-      { role: 'user', content: question },
-    ],
-  }) as { summary: string; evidence: unknown[] };
+  // A failed model call is an upstream problem, not ours: answer it as a
+  // typed 502 so the app can tell it apart from a rejected request.
+  let out: { summary: string; evidence: unknown[] };
+  try {
+    out = await chatJSONRetry({
+      schemaName: 'research_evidence',
+      timeoutMs: 30_000,
+      schema: SCHEMA as unknown as Record<string, unknown>,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You collect published evidence about water footprints. Report ' +
+            'claims with their sources, publication years, and metric types ' +
+            '(total water footprint vs freshwater withdrawal vs scarcity-' +
+            'weighted). Cite only sources you are confident exist. Where ' +
+            'evidence is thin, say so in the summary.',
+        },
+        { role: 'user', content: question },
+      ],
+    }) as { summary: string; evidence: unknown[] };
+  } catch (err) {
+    console.error('research model call failed', err);
+    return c.json({ error: 'model unavailable' }, 502);
+  }
 
   return c.json({
     request_id: `res_${Date.now().toString(36)}`,

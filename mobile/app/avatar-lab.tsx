@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DropCharacter } from '../src/avatar/DropCharacter';
 import { avatarCopy } from '../src/avatar/copy';
 import { CHARACTER_STATES, poseFor, presentingVariant } from '../src/avatar/poses';
-import type { CharacterState } from '../src/avatar/poses';
 import { useSchemePreference, useTheme } from '../src/design/theme';
 import { useMotionPreference } from '../src/design/useMotion';
 import { radius, space } from '../src/design/tokens';

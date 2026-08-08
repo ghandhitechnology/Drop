@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { createHash } from 'node:crypto';
 import { catalogPrompt, tables, FACTORS_VERSION } from '../data';
-import { chatJSONRetry } from '../services/openrouter';
+import { chatJSONRetry, MODEL } from '../services/openrouter';
 import { sanitizeModelOutput } from '../services/sanitize';
 import {
   MAX_ITEMS,
@@ -136,31 +136,39 @@ recognize.post('/', async (c) => {
   const hash = createHash('sha256').update(body.image_base64).digest('hex');
   if (cache.has(hash)) return c.json(cache.get(hash) as object);
 
-  const out = await chatJSONRetry({
-    schemaName: 'recognition',
-    schema: RESPONSE_SCHEMA as unknown as Record<string, unknown>,
-    timeoutMs: 25_000,
-    reasoningEffort: 'high',
-    maxTokens: 12_000,
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'text',
-            text: body.hint
-              ? `Identify everything here. Context: ${body.hint}`
-              : 'Identify everything here.',
-          },
-          {
-            type: 'image_url',
-            image_url: { url: `data:${mime};base64,${body.image_base64}` },
-          },
-        ],
-      },
-    ],
-  }) as RawRecognition;
+  // A failed model call is an upstream problem, not ours: answer it as a
+  // typed 502 so the app can tell it apart from a rejected request.
+  let out: RawRecognition;
+  try {
+    out = await chatJSONRetry({
+      schemaName: 'recognition',
+      schema: RESPONSE_SCHEMA as unknown as Record<string, unknown>,
+      timeoutMs: 25_000,
+      reasoningEffort: 'high',
+      maxTokens: 12_000,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: body.hint
+                ? `Identify everything here. Context: ${body.hint}`
+                : 'Identify everything here.',
+            },
+            {
+              type: 'image_url',
+              image_url: { url: `data:${mime};base64,${body.image_base64}` },
+            },
+          ],
+        },
+      ],
+    }) as RawRecognition;
+  } catch (err) {
+    console.error('recognize model call failed', err);
+    return c.json({ error: 'model unavailable' }, 502);
+  }
 
   const sanity = sanitizeModelOutput(out);
   if (!sanity.ok) {
@@ -177,7 +185,7 @@ recognize.post('/', async (c) => {
 
   const response = {
     request_id: `rec_${hash.slice(0, 12)}`,
-    model: 'openai/gpt-5.6-luna',
+    model: MODEL,
     catalog_version: FACTORS_VERSION,
     items,
     item_count: items.length,

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { tables, FACTORS_VERSION } from '../data';
 import { chatJSONRetry } from '../services/openrouter';
-import { validateCatalogId } from '../services/catalogMatch';
+import { searchCatalog, validateCatalogId } from '../services/catalogMatch';
 
 const OFF_URL = 'https://world.openfoodfacts.org/api/v2/product';
 const OFF_FIELDS = [
@@ -50,6 +50,20 @@ export function parseLabelQuantity(
   if (unit === 'cl') return { value: productQuantity * 10, unit: 'ml' };
   if (unit === 'ml') return { value: productQuantity, unit: 'ml' };
   return { value: productQuantity, unit: 'g' };
+}
+
+/** How many catalog rows the mapping prompt is allowed to carry. The catalog
+ * is ~1000 entries; naming all of them costs more tokens than the whole rest
+ * of the request and buries the handful that could actually match. */
+const SHORTLIST_LIMIT = 25;
+
+/** OFF tags arrive locale-prefixed and hyphenated ("en:fruit-juices"); the
+ * catalog's search tokens are plain words, so strip both before searching. */
+function shortlistQuery(off: OffProduct): string {
+  const tags = (off.categories_tags ?? []).map(
+    (t) => t.replace(/^[a-z]{2}:/, '').replace(/-/g, ' '),
+  );
+  return [off.product_name ?? '', ...tags].join(' ');
 }
 
 export const barcode = new Hono();
@@ -121,8 +135,13 @@ barcode.get('/:ean', async (c) => {
         }
       }
     }
-    // 3) LLM-assisted, capped medium
-    if (!mapping.catalog_id && off.product_name) {
+    // 3) LLM-assisted over a searched shortlist, capped medium. Nothing to
+    // shortlist means nothing for the model to choose between, so skip the
+    // call and let this fall through to coverage_miss.
+    const shortlist = mapping.catalog_id || !off.product_name
+      ? []
+      : searchCatalog(shortlistQuery(off), tables, SHORTLIST_LIMIT);
+    if (shortlist.length > 0) {
       try {
         const out = await chatJSONRetry({
           schemaName: 'barcode_map',
@@ -148,8 +167,9 @@ barcode.get('/:ean', async (c) => {
               content:
                 `Product: ${off.product_name} (${off.brands ?? 'no brand'})\n` +
                 `OFF tags: ${(off.categories_tags ?? []).join(', ')}\n\n` +
-                'Catalog ids: ' +
-                [...tables.catalog.keys()].join(', '),
+                'Candidates (catalog_id|display_name):\n' +
+                shortlist.map((e) => `${e.catalog_id}|${e.display_name}`)
+                  .join('\n'),
             },
           ],
         }) as { catalog_id: string; confident: boolean };

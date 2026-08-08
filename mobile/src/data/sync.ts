@@ -21,7 +21,7 @@
  */
 import { getJson } from './api/client';
 import { factorsCachePut, kvGet, kvSet } from './db';
-import { SYNC_INTERVAL_MS, cacheKey, isCheckDue, readManifestVersion } from './syncPolicy';
+import { cacheKey, isCheckDue, readManifestVersion } from './syncPolicy';
 import { FACTORS_VERSION } from './tables';
 
 export {

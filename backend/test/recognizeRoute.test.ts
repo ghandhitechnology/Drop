@@ -66,3 +66,46 @@ describe('POST /v1/recognize inference configuration', () => {
     expect(request.temperature).toBe(0);
   });
 });
+
+/** An upstream model failure is a 502 with a body the app can read, never
+ * Hono's plain-text 500. */
+describe('model failures on the two model-backed routes', () => {
+  beforeEach(() => {
+    vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+      new Response('upstream on fire', { status: 502 }),
+    ));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('POST /v1/recognize answers 502 model unavailable', async () => {
+    const res = await app.request('/v1/recognize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_base64: 'unique-model-failure-fixture',
+        mime: 'image/jpeg',
+      }),
+    });
+
+    expect(res.status).toBe(502);
+    await expect(res.json()).resolves.toEqual({ error: 'model unavailable' });
+  });
+
+  it('POST /v1/research answers 502 model unavailable', async () => {
+    const res = await app.request('/v1/research', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ catalog_id: 'apple' }),
+    });
+
+    expect(res.status).toBe(502);
+    await expect(res.json()).resolves.toEqual({ error: 'model unavailable' });
+  });
+});

@@ -136,6 +136,8 @@ export const copy = {
       collapsed: 'Result closed.',
       amount: (quantity: string, litres: string) => `${quantity}. ${litres}.`,
       confirmed: (label: string) => `${label} added to your history.`,
+      /** The write failed. The card stayed where it was, so say so and invite the retry. */
+      saveFailed: 'That save stalled. The card is still here — press again.',
       dismissed: (label: string, left: number) => `${label} set aside. ${left} left.`,
       /** Said as a card reaches the tray. It is waiting, not written. */
       queued: (label: string, waiting: number, left: number) =>
