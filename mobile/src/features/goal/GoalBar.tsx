@@ -21,21 +21,21 @@
  * week has done what the product asks of them, and a red bar teaches them to
  * stop logging. Weight and position carry it.
  *
+ * The bar does not animate. It grew in on a horizontal scale for a while, and
+ * scaling a texture full of hand-drawn strokes stretches the strokes with it —
+ * the crayon grain smears out and snaps back as the transform lands, which read
+ * as a stutter rather than as drawing. The figure above it settles instead, and
+ * the bar is simply correct on arrival.
+ *
  * The canvas is decoration and is hidden from the screen reader; the figures
  * above and below it carry the meaning, and `GoalBlock` labels the group.
  */
 
 import { Canvas, Skia, type SkPath } from '@shopify/react-native-skia';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 
 import { useTheme } from '../../design/theme';
-import { useMotion } from '../../design/useMotion';
 import { HandPath } from '../../drawing/HandPath';
 import { mulberry32, seedFromString } from '../../drawing/seededRandom';
 import type { GoalProgress } from './goal';
@@ -57,7 +57,6 @@ export type GoalBarProps = {
 
 export function GoalBar({ progress }: GoalBarProps) {
   const { colors } = useTheme();
-  const motion = useMotion();
   const [width, setWidth] = useState(0);
 
   const over = progress.status === 'over';
@@ -74,17 +73,6 @@ export function GoalBar({ progress }: GoalBarProps) {
     [track, top, progress],
   );
 
-  /* The week fills in from the left, once per change of figure. */
-  const grow = useSharedValue(0);
-  useEffect(() => {
-    grow.value = 0;
-    grow.value = withTiming(1, { duration: motion.ms('draw') || 1 });
-  }, [grow, motion, progress.fill, track]);
-
-  const growStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleX: grow.value }],
-  }));
-
   const onLayout = (event: LayoutChangeEvent) => {
     const next = event.nativeEvent.layout.width;
     setWidth((current) => (Math.abs(current - next) < 0.5 ? current : next));
@@ -98,70 +86,64 @@ export function GoalBar({ progress }: GoalBarProps) {
       importantForAccessibility="no-hide-descendants"
       pointerEvents="none"
     >
+      {/*
+        One canvas. The three used to be separate so the middle one could sit
+        under its own animated view; with nothing moving, the marks are just
+        laid down in order — track, week, annotation — on a single surface.
+      */}
       {shapes && (
-        <>
-          <Canvas style={StyleSheet.absoluteFill}>
+        <Canvas style={StyleSheet.absoluteFill}>
+          <HandPath
+            path={shapes.track}
+            color={colors.inkFaint}
+            variant="pencil"
+            seed={SEED}
+            strokeScale={0.7}
+          />
+
+          {shapes.body && (
             <HandPath
-              path={shapes.track}
-              color={colors.inkFaint}
-              variant="pencil"
-              seed={SEED}
-              strokeScale={0.7}
+              path={shapes.body}
+              color={colors.ink}
+              variant="crayon"
+              seed={SEED + 3}
+              strokeScale={1.1}
+              opacity={0.9}
             />
-          </Canvas>
+          )}
+          {shapes.grain.map((path, index) => (
+            <HandPath
+              key={index}
+              path={path}
+              color={colors.ink}
+              variant="crayon"
+              seed={SEED + 11 + index}
+              strokeScale={TRACK_HEIGHT * 0.13}
+              opacity={0.5}
+            />
+          ))}
 
-          {/* The fill grows on a view transform rather than inside Skia: a
-              Skia transform re-runs the jitter effect on every frame, and a
-              view transform is a texture the GPU already holds. */}
-          <Animated.View style={[StyleSheet.absoluteFill, styles.growth, growStyle]}>
-            <Canvas style={StyleSheet.absoluteFill}>
-              {shapes.body && (
-                <HandPath
-                  path={shapes.body}
-                  color={colors.ink}
-                  variant="crayon"
-                  seed={SEED + 3}
-                  strokeScale={1.1}
-                  opacity={0.9}
-                />
-              )}
-              {shapes.grain.map((path, index) => (
-                <HandPath
-                  key={index}
-                  path={path}
-                  color={colors.ink}
-                  variant="crayon"
-                  seed={SEED + 11 + index}
-                  strokeScale={TRACK_HEIGHT * 0.13}
-                  opacity={0.5}
-                />
-              ))}
-            </Canvas>
-          </Animated.View>
-
-          <Canvas style={StyleSheet.absoluteFill}>
-            {shapes.notch && (
-              <HandPath
-                path={shapes.notch}
-                color={colors.accent}
-                variant="crayon"
-                seed={SEED + 31}
-                strokeScale={0.95}
-              />
-            )}
-            {shapes.runOn.map((path, index) => (
-              <HandPath
-                key={index}
-                path={path}
-                color={colors.ink}
-                variant="crayon"
-                seed={SEED + 41 + index}
-                strokeScale={1.15}
-                opacity={0.9}
-              />
-            ))}
-          </Canvas>
-        </>
+          {shapes.notch && (
+            <HandPath
+              path={shapes.notch}
+              color={colors.accent}
+              variant="crayon"
+              seed={SEED + 31}
+              strokeScale={0.95}
+            />
+          )}
+          {shapes.runOn.map((path, index) => (
+            <HandPath
+              key={index}
+              path={path}
+              color={colors.ink}
+              variant="crayon"
+              seed={SEED + 41 + index}
+              strokeScale={1.15}
+              opacity={0.9}
+            />
+          ))}
+        </Canvas>
       )}
     </View>
   );
@@ -304,6 +286,4 @@ function runOnPaths(width: number, middle: number, progress: GoalProgress): SkPa
 
 const styles = StyleSheet.create({
   root: { height: GOAL_ROW_HEIGHT, alignSelf: 'stretch' },
-  // The fill is anchored left so growth reads as filling rightward.
-  growth: { transformOrigin: 'left' },
 });
