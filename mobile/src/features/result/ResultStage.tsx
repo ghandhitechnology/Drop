@@ -9,8 +9,8 @@
  *      behind; Drop's silhouette morphs into the card's frame; Drop shrinks and
  *      docks at the corner of the thing it became.
  *   5. Confirm. A tick draws on, the haptic lands, Drop celebrates, and the
- *      card travels back to the anchor and dissolves — leaving the way back
- *      offered for five seconds.
+ *      saved card travels into History. Closing without saving takes the same
+ *      material back into the shutter instead.
  *
  * One shared value drives beat four end to end, so a thumb can hold the whole
  * transformation anywhere between shut and open. Everything Skia draws here is
@@ -21,7 +21,14 @@
 import { Canvas } from '@shopify/react-native-skia';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Extrapolation,
@@ -48,11 +55,13 @@ import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import type { Estimate, Rect } from '../capture/types';
 import { characterSideForAnchor } from '../capture/anchor';
+import { SHUTTER_SIZE } from '../capture/Shutter';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { ExpansionRays } from './ExpansionRays';
 import { localEstimate, servingOf, toEngineEstimate } from './localPipeline';
 import { ConfirmMark, PullChevron } from './Marks';
 import { MorphShape } from './MorphShape';
+import { setResultNoticeVisible } from './notice';
 import { ResultCard } from './ResultCard';
 import { buildRays, type Box } from './silhouette';
 import { UndoSnackbar } from './UndoSnackbar';
@@ -80,6 +89,10 @@ const DOCK_SIZE = 40;
 const SILHOUETTE_INSET = 0.02;
 /** Height of the teaser pill, for stacking the chevron under it. */
 const TEASER_HEIGHT = 38;
+/** Approximate centre of the measured History chip at the top-right door. */
+const HISTORY_CHIP_HALF_WIDTH = 54;
+/** Keep the result legible for most of its trip, then tuck it away at the end. */
+const EXIT_SCALE = 0.08;
 
 const BEAT_STATES = new Set([
   'captured',
@@ -120,6 +133,7 @@ function characterFor(name: string, estimate: Estimate | null): CharacterState {
 export function ResultStage({ stage }: ResultStageProps) {
   const { colors } = useTheme();
   const motion = useMotion();
+  const { width: windowWidth } = useWindowDimensions();
   const captureFoldMs = motion.ms('draw');
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -216,6 +230,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   const captureFold = useSharedValue(0);
   const pop = useSharedValue(1);
   const dissolve = useSharedValue(0);
+  const exitTargetX = useSharedValue(0);
+  const exitTargetY = useSharedValue(0);
   const tick = useSharedValue(0);
 
   /**
@@ -225,14 +241,16 @@ export function ResultStage({ stage }: ResultStageProps) {
    */
   const unsupported = Boolean(estimate && !estimate.headline);
   const fanfare = Boolean(estimate?.headline) && !motion.reduceMotion;
-  const open = (OPEN_STATES.has(state.name) || unsupported) && !receding;
+  const open = OPEN_STATES.has(state.name) || unsupported;
 
   const handleOpen = useCallback(() => expand(), [expand]);
   const handleClose = useCallback(() => collapse(), [collapse]);
 
   const { expansion, gesture } = useExpansion({
     open,
-    enabled: state.name === 'presenting' || state.name === 'expanded' || state.name === 'adjusting',
+    enabled:
+      !receding &&
+      (state.name === 'presenting' || state.name === 'expanded' || state.name === 'adjusting'),
     onOpen: handleOpen,
     onClose: handleClose,
     reduceMotion: motion.reduceMotion,
@@ -316,7 +334,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     }
   }, [estimate, photoUri, confirmEntry]);
 
-  // The tick, the hold, then the card travelling home.
+  // The tick, the hold, then the saved card travelling into History.
   useEffect(() => {
     if (state.name !== 'confirmed') return;
 
@@ -327,9 +345,11 @@ export function ResultStage({ stage }: ResultStageProps) {
 
     const hold = setTimeout(
       () => {
+        exitTargetX.value = windowWidth - space.lg - HISTORY_CHIP_HALF_WIDTH;
+        exitTargetY.value = insets.top + space.md + 24;
         setReceding(true);
         dissolve.value = withTiming(1, {
-          duration: motion.reduceMotion ? 0 : beat.recede,
+          duration: motion.reduceMotion ? 120 : beat.recede,
         });
       },
       motion.reduceMotion ? 0 : beat.hold,
@@ -337,31 +357,56 @@ export function ResultStage({ stage }: ResultStageProps) {
 
     const home = setTimeout(
       () => {
+        // Hide the camera doors before returning to the live frame, so they
+        // cannot flash above the notice for a single render.
+        setResultNoticeVisible(true);
         setSnack({ id, label });
         setReceding(false);
         setDetailOpen(false);
         retake();
       },
-      (motion.reduceMotion ? 0 : beat.hold) + (motion.reduceMotion ? 0 : beat.recede) + 40,
+      (motion.reduceMotion ? 0 : beat.hold) + (motion.reduceMotion ? 120 : beat.recede) + 40,
     );
 
     return () => {
       clearTimeout(hold);
       clearTimeout(home);
     };
-  }, [state, motion.reduceMotion, tick, dissolve, retake]);
+  }, [
+    state,
+    motion.reduceMotion,
+    tick,
+    dissolve,
+    exitTargetX,
+    exitTargetY,
+    windowWidth,
+    insets.top,
+    retake,
+  ]);
 
   /* ------------------------------------------------------- the way back */
 
   useEffect(() => {
     if (!snack) return;
-    const timer = setTimeout(() => setSnack(null), beat.undo);
+    setResultNoticeVisible(true);
+    const timer = setTimeout(() => {
+      setSnack(null);
+      setResultNoticeVisible(false);
+    }, beat.undo);
     return () => clearTimeout(timer);
   }, [snack]);
+
+  useEffect(
+    () => () => {
+      setResultNoticeVisible(false);
+    },
+    [],
+  );
 
   const handleUndo = useCallback(async () => {
     if (!snack) return;
     setSnack(null);
+    setResultNoticeVisible(false);
     await softDelete(snack.id);
     tapRemoving();
     AccessibilityInfo.announceForAccessibility(copy.result.announce.undone);
@@ -394,16 +439,55 @@ export function ResultStage({ stage }: ResultStageProps) {
     retake();
   }, [retake]);
 
+  /** An unsaved result folds into the shutter instead of implying it reached History. */
+  const handleDismiss = useCallback(() => {
+    if (receding) return;
+    exitTargetX.value = stage.width / 2;
+    exitTargetY.value = stage.height - insets.bottom - space.xl - SHUTTER_SIZE / 2;
+    setReceding(true);
+    dissolve.value = withTiming(1, {
+      duration: motion.reduceMotion ? 120 : beat.recede,
+    });
+
+    setTimeout(
+      () => {
+        setDetailOpen(false);
+        retake();
+        AccessibilityInfo.announceForAccessibility(copy.result.announce.collapsed);
+      },
+      (motion.reduceMotion ? 120 : beat.recede) + 40,
+    );
+  }, [
+    receding,
+    exitTargetX,
+    exitTargetY,
+    stage.width,
+    stage.height,
+    insets.bottom,
+    dissolve,
+    motion.reduceMotion,
+    retake,
+  ]);
+
   /* --------------------------------------------------------- the looks */
 
   const avatarStyle = useAnimatedStyle(() => {
     const t = expansion.value;
-    const cx = anchorCenter.x + (dockCenter.x - anchorCenter.x) * t;
-    const cy = anchorCenter.y + (dockCenter.y - anchorCenter.y) * t;
+    const exit = dissolve.value;
+    const restingX = anchorCenter.x + (dockCenter.x - anchorCenter.x) * t;
+    const restingY = anchorCenter.y + (dockCenter.y - anchorCenter.y) * t;
+    const cx = restingX + (exitTargetX.value - restingX) * exit;
+    const cy = restingY + (exitTargetY.value - restingY) * exit;
     const docked = DOCK_SIZE / heroSize;
-    const scale = (1 - t + t * docked) * (0.7 + 0.3 * arrival.value) * pop.value;
+    const scale =
+      (1 - t + t * docked) *
+      (0.7 + 0.3 * arrival.value) *
+      pop.value *
+      (1 - exit * (1 - EXIT_SCALE));
     return {
-      opacity: arrival.value * (1 - dissolve.value),
+      opacity:
+        arrival.value *
+        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
       transform: [
         { translateX: cx - heroSize / 2 },
         { translateY: cy - heroSize / 2 },
@@ -419,30 +503,56 @@ export function ResultStage({ stage }: ResultStageProps) {
   const dockGroundStyle = useAnimatedStyle(() => ({
     opacity:
       interpolate(expansion.value, [0.68, 0.88], [0, 1], Extrapolation.CLAMP) *
-      (1 - dissolve.value),
+      interpolate(dissolve.value, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
   }));
 
   const teaserStyle = useAnimatedStyle(() => ({
     opacity:
       interpolate(expansion.value, [0, 0.24], [1, 0], Extrapolation.CLAMP) *
       arrival.value *
-      (1 - dissolve.value),
+      interpolate(dissolve.value, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
   }));
 
-  const contentStyle = useAnimatedStyle(() => ({
-    opacity:
-      interpolate(expansion.value, [0.55, 0.85], [0, 1], Extrapolation.CLAMP) *
-      (1 - dissolve.value),
-    transform: [
-      { translateY: interpolate(expansion.value, [0.55, 1], [14, 0], Extrapolation.CLAMP) },
-    ],
-  }));
+  const contentStyle = useAnimatedStyle(() => {
+    const exit = dissolve.value;
+    const cardCenterX = cardBox.x + cardBox.width / 2;
+    const cardCenterY = cardBox.y + cardBox.height / 2;
+    return {
+      opacity:
+        interpolate(expansion.value, [0.55, 0.85], [0, 1], Extrapolation.CLAMP) *
+        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
+      transform: [
+        { translateX: (exitTargetX.value - cardCenterX) * exit },
+        {
+          translateY:
+            interpolate(expansion.value, [0.55, 1], [14, 0], Extrapolation.CLAMP) +
+            (exitTargetY.value - cardCenterY) * exit,
+        },
+        { scale: 1 - exit * (1 - EXIT_SCALE) },
+      ],
+    };
+  });
 
-  const shapeStyle = useAnimatedStyle(() => ({
-    opacity:
-      interpolate(captureFold.value, [0.38, 0.82], [0, 1], Extrapolation.CLAMP) *
-      (1 - dissolve.value),
-  }));
+  const shapeStyle = useAnimatedStyle(() => {
+    const exit = dissolve.value;
+    const scale = 1 - exit * (1 - EXIT_SCALE);
+    const stageCenterX = stage.width / 2;
+    const stageCenterY = stage.height / 2;
+    const cardCenterX = cardBox.x + cardBox.width / 2;
+    const cardCenterY = cardBox.y + cardBox.height / 2;
+    const desiredX = cardCenterX + (exitTargetX.value - cardCenterX) * exit;
+    const desiredY = cardCenterY + (exitTargetY.value - cardCenterY) * exit;
+    return {
+      opacity:
+        interpolate(captureFold.value, [0.38, 0.82], [0, 1], Extrapolation.CLAMP) *
+        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
+      transform: [
+        { translateX: desiredX - stageCenterX - (cardCenterX - stageCenterX) * scale },
+        { translateY: desiredY - stageCenterY - (cardCenterY - stageCenterY) * scale },
+        { scale },
+      ],
+    };
+  });
 
   /* ---------------------------------------------------------- the tree */
 
@@ -525,7 +635,7 @@ export function ResultStage({ stage }: ResultStageProps) {
                 },
                 contentStyle,
               ]}
-              pointerEvents={open ? 'auto' : 'none'}
+              pointerEvents={open && !receding ? 'auto' : 'none'}
               onLayout={(event) => {
                 const { height } = event.nativeEvent.layout;
                 setCardHeight((current) => (current === height ? current : height));
@@ -548,7 +658,7 @@ export function ResultStage({ stage }: ResultStageProps) {
                   onAdjust={adjust}
                   onQuantity={handleQuantity}
                   onConfirm={handleConfirm}
-                  onClose={handleClose}
+                  onClose={handleDismiss}
                   onRetake={handleRetake}
                   onSearch={openSearch}
                 />
@@ -557,14 +667,15 @@ export function ResultStage({ stage }: ResultStageProps) {
           )}
 
           {state.name === 'confirmed' && (
-            <Canvas
-              style={StyleSheet.absoluteFill}
-              pointerEvents="none"
-              accessible={false}
-              importantForAccessibility="no-hide-descendants"
-            >
-              <ConfirmMark box={tickBox} color={colors.positive} seed={seed} progress={tick} />
-            </Canvas>
+            <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
+              <Canvas
+                style={StyleSheet.absoluteFill}
+                accessible={false}
+                importantForAccessibility="no-hide-descendants"
+              >
+                <ConfirmMark box={tickBox} color={colors.positive} seed={seed} progress={tick} />
+              </Canvas>
+            </Animated.View>
           )}
 
           <GestureDetector gesture={gesture}>

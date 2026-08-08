@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '../src/design/theme';
+import { setResultNoticeVisible } from '../src/features/result/notice';
 import { SearchSheet } from '../src/features/search/SearchSheet';
 
 /**
@@ -19,6 +20,7 @@ export default function Search() {
   const router = useRouter();
 
   const dismiss = useCallback(() => {
+    setResultNoticeVisible(false);
     if (router.canGoBack()) router.back();
     else router.replace('/');
   }, [router]);

@@ -19,7 +19,7 @@ import { anchorFor, characterSideForAnchor } from './anchor';
 import { normalizeBarcode, SCANNED_TYPES } from './barcode';
 import { FrozenFrame } from './FrozenFrame';
 import { overlayInk } from './overlay';
-import { isResultVisible, photoUriOf, type Rect } from './types';
+import { isBusy, isResultVisible, photoUriOf, type Rect } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 
 /** A code has to go missing for this long before the hint lets go. */
@@ -139,6 +139,7 @@ export function CameraStage({
           uri={photoUri}
           width={stage.width}
           height={stage.height}
+          processing={isBusy(state)}
           dimmed={isResultVisible(state)}
         />
       )}

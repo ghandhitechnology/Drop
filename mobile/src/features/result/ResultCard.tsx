@@ -87,7 +87,6 @@ function Figured({
   onQuantity,
   onConfirm,
   onClose,
-  onRetake,
 }: ResultCardProps) {
   const { colors } = useTheme();
   const hero = heroFigure(estimate);
@@ -223,18 +222,11 @@ function Figured({
         </HandFrame>
       </Touch>
 
-      <View style={styles.tailRow}>
-        <Touch onPress={onClose} style={styles.tail} accessibilityLabel={copy.result.close}>
-          <Text variant="label" tone="inkSoft">
-            {copy.result.close}
-          </Text>
-        </Touch>
-        <Touch onPress={onRetake} style={styles.tail} accessibilityLabel={copy.capture.retake}>
-          <Text variant="label" tone="inkSoft">
-            {copy.capture.retake}
-          </Text>
-        </Touch>
-      </View>
+      <Touch onPress={onClose} style={styles.tail} accessibilityLabel={copy.result.close}>
+        <Text variant="label" tone="inkSoft">
+          {copy.result.close}
+        </Text>
+      </Touch>
     </>
   );
 }
@@ -355,6 +347,5 @@ const styles = StyleSheet.create({
   },
   spent: { opacity: 0.45 },
   intact: { opacity: 1 },
-  tailRow: { flexDirection: 'row', gap: space.md },
-  tail: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  tail: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });

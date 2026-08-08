@@ -13,12 +13,19 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useMotion } from '../../design/useMotion';
-import { RESULT_BLUR, RESULT_DIM } from './overlay';
+import {
+  PROCESSING_BLUR,
+  PROCESSING_DIM,
+  RESULT_BLUR,
+  RESULT_DIM,
+} from './overlay';
 
 export type FrozenFrameProps = {
   uri: string;
   width: number;
   height: number;
+  /** True while recognition is running: the frame becomes quiet background. */
+  processing: boolean;
   /** True from `presenting` onward: the frame steps back so the number leads. */
   dimmed: boolean;
 };
@@ -33,18 +40,30 @@ export type FrozenFrameProps = {
  *
  * Both are decoration — the meaning is in the text above them.
  */
-export function FrozenFrame({ uri, width, height, dimmed }: FrozenFrameProps) {
+export function FrozenFrame({
+  uri,
+  width,
+  height,
+  processing,
+  dimmed,
+}: FrozenFrameProps) {
   const motion = useMotion();
   const image = useImage(uri);
 
   const reveal = useSharedValue(0);
+  const shade = useSharedValue(0);
 
   useEffect(() => {
-    reveal.value = withTiming(dimmed ? 1 : 0, { duration: motion.ms('settle') });
-  }, [dimmed, reveal, motion]);
+    const treated = processing || dimmed;
+    reveal.value = withTiming(treated ? 1 : 0, { duration: motion.ms('settle') });
+    shade.value = withTiming(
+      processing ? PROCESSING_DIM : dimmed ? RESULT_DIM : 0,
+      { duration: motion.ms('settle') },
+    );
+  }, [processing, dimmed, reveal, shade, motion]);
 
   const blurStyle = useAnimatedStyle(() => ({ opacity: reveal.value }));
-  const dimStyle = useAnimatedStyle(() => ({ opacity: reveal.value * RESULT_DIM }));
+  const dimStyle = useAnimatedStyle(() => ({ opacity: shade.value }));
 
   return (
     <>
@@ -64,7 +83,7 @@ export function FrozenFrame({ uri, width, height, dimmed }: FrozenFrameProps) {
             importantForAccessibility="no-hide-descendants"
           >
             <SkiaImage image={image} x={0} y={0} width={width} height={height} fit="cover">
-              <Blur blur={RESULT_BLUR} mode="clamp" />
+              <Blur blur={processing ? PROCESSING_BLUR : RESULT_BLUR} mode="clamp" />
             </SkiaImage>
           </Canvas>
         </Animated.View>

@@ -10,12 +10,18 @@
  */
 
 import { Canvas, Skia } from '@shopify/react-native-skia';
-import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { space } from '../../design/tokens';
+import { useMotion } from '../../design/useMotion';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
@@ -24,13 +30,39 @@ import { isResultVisible } from '../capture/types';
 import { HandChip } from '../capture/HandChip';
 import { overlayInk } from '../capture/overlay';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
+import { useResultNotice } from '../result/notice';
 
 const GLYPH = 16;
 const SEED = seedFromString('history/tab');
 
 export function HistoryTab() {
   const router = useRouter();
+  const motion = useMotion();
   const state = useCaptureMachine((s) => s.state);
+  const noticeVisible = useResultNotice((s) => s.visible);
+  const hidden = isResultVisible(state) || state.name === 'unresolved' || noticeVisible;
+  const visibility = useSharedValue(hidden ? 0 : 1);
+
+  useEffect(() => {
+    visibility.value = withTiming(hidden ? 0 : 1, {
+      duration: motion.reduceMotion ? 0 : 180,
+    });
+  }, [hidden, motion.reduceMotion, visibility]);
+
+  // A native sheet freezes the camera beneath it. Snap the shared value back
+  // to the current visibility endpoint when that camera regains focus.
+  useFocusEffect(
+    useCallback(() => {
+      visibility.value = withTiming(hidden ? 0 : 1, {
+        duration: motion.reduceMotion ? 0 : 180,
+      });
+    }, [hidden, motion.reduceMotion, visibility]),
+  );
+
+  const visibilityStyle = useAnimatedStyle(() => ({
+    opacity: visibility.value,
+    transform: [{ translateY: (1 - visibility.value) * -4 }],
+  }));
 
   const stack = useMemo(() => {
     const builder = Skia.PathBuilder.Make();
@@ -42,37 +74,42 @@ export function HistoryTab() {
     return builder.detach();
   }, []);
 
-  if (isResultVisible(state) || state.name === 'unresolved') return null;
-
   return (
-    <SafeAreaView style={styles.root} pointerEvents="box-none" edges={['top']}>
-      <View style={styles.align} pointerEvents="box-none">
-        <HandChip
-          seed="history/tab"
-          onPress={() => router.push('/history')}
-          accessibilityLabel={copy.history.open}
-          accessibilityHint={copy.history.openHint}
-        >
-          <Canvas
-            style={styles.glyph}
-            pointerEvents="none"
-            accessible={false}
-            importantForAccessibility="no-hide-descendants"
+    <Animated.View
+      style={[styles.root, visibilityStyle]}
+      pointerEvents={hidden ? 'none' : 'box-none'}
+      accessibilityElementsHidden={hidden}
+      importantForAccessibility={hidden ? 'no-hide-descendants' : 'auto'}
+    >
+      <SafeAreaView pointerEvents="box-none" edges={['top']}>
+        <View style={styles.align} pointerEvents="box-none">
+          <HandChip
+            seed="history/tab"
+            onPress={() => router.push('/history')}
+            accessibilityLabel={copy.history.open}
+            accessibilityHint={copy.history.openHint}
           >
-            <HandPath
-              path={stack}
-              color={overlayInk.mark}
-              variant="pencil"
-              seed={SEED}
-              strokeScale={0.7}
-            />
-          </Canvas>
-          <Text variant="label" tone={overlayInk.mark}>
-            {copy.history.open}
-          </Text>
-        </HandChip>
-      </View>
-    </SafeAreaView>
+            <Canvas
+              style={styles.glyph}
+              pointerEvents="none"
+              accessible={false}
+              importantForAccessibility="no-hide-descendants"
+            >
+              <HandPath
+                path={stack}
+                color={overlayInk.mark}
+                variant="pencil"
+                seed={SEED}
+                strokeScale={0.7}
+              />
+            </Canvas>
+            <Text variant="label" tone={overlayInk.mark}>
+              {copy.history.open}
+            </Text>
+          </HandChip>
+        </View>
+      </SafeAreaView>
+    </Animated.View>
   );
 }
 

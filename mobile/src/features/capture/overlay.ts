@@ -38,3 +38,12 @@ export const RESULT_DIM = 0.62;
 
 /** Blur radius applied to the frozen frame once a result is on screen. */
 export const RESULT_BLUR = 16;
+
+/**
+ * Recognition only needs the held frame as context. Obscuring it more heavily
+ * keeps simulator timecode and visually loud packaging behind the status line.
+ */
+export const PROCESSING_DIM = 0.88;
+
+/** Blur used while the service is reading the captured frame. */
+export const PROCESSING_BLUR = 28;
