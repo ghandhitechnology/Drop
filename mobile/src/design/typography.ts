@@ -20,9 +20,11 @@ export type TextVariant =
   | 'hero'
   | 'heroUnit'
   | 'title'
+  | 'count'
   | 'chip'
   | 'body'
   | 'label'
+  | 'axis'
   | 'note';
 
 type VariantStyle = Pick<
@@ -49,6 +51,16 @@ export const typography: Record<TextVariant, VariantStyle> = {
     fontSize: 24,
     lineHeight: 30,
   },
+  /**
+   * A second figure, written rather than set: the week beside its mark, an
+   * amount beside a choice. Small enough to sit under the hero without arguing
+   * with it, and in the hand face because it is a number a person wrote down.
+   */
+  count: {
+    fontFamily: fontFamily.handSemi,
+    fontSize: 17,
+    lineHeight: 22,
+  },
   // No letterSpacing: on Android it is applied after the final glyph but not
   // included in the measured width, which clips the last character.
   chip: {
@@ -65,6 +77,20 @@ export const typography: Record<TextVariant, VariantStyle> = {
     fontFamily: fontFamily.uiSemi,
     fontSize: 14,
     lineHeight: 20,
+  },
+  /**
+   * The writing that belongs to a drawing: the figures beside a chart's guides,
+   * the weekday under a bar, the line beneath a goal.
+   *
+   * These sit among hand-drawn marks and were set in a UI face, which read as a
+   * printed label pasted onto a sketch. Gaegu puts them in the same hand as the
+   * strokes they annotate. It is a display face, so it stays on short runs —
+   * anything that becomes a sentence belongs in `body` or `label`.
+   */
+  axis: {
+    fontFamily: fontFamily.noteBold,
+    fontSize: 16,
+    lineHeight: 19,
   },
   /**
    * A pencil annotation in the margin — the standing camera hint, and anything
@@ -121,6 +147,12 @@ export const legibleTypography: Record<TextVariant, LegibleStyle> = {
     lineHeight: 32,
     fontWeight: '700',
   },
+  count: {
+    fontSize: typography.count.fontSize,
+    lineHeight: typography.count.lineHeight,
+    letterSpacing: 0.2,
+    fontWeight: '700',
+  },
   chip: {
     fontSize: typography.chip.fontSize,
     lineHeight: typography.chip.lineHeight,
@@ -135,6 +167,14 @@ export const legibleTypography: Record<TextVariant, LegibleStyle> = {
   label: {
     fontSize: typography.label.fontSize,
     lineHeight: 22,
+    letterSpacing: 0.2,
+    fontWeight: '700',
+  },
+  // Same trade as `note` below: the size Gaegu needed comes back down once the
+  // system face is carrying the words.
+  axis: {
+    fontSize: 13,
+    lineHeight: 17,
     letterSpacing: 0.2,
     fontWeight: '700',
   },

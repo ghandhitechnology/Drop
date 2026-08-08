@@ -8,6 +8,15 @@
  * effect on every one of ~90 strokes each frame, while a view transform is a
  * texture the GPU already has.
  *
+ * Bars are filled by hand rather than flooded (see `scribble.ts`), in the seven
+ * day window only. At thirty the bars are a few points wide, a serpentine fill
+ * inside one is indistinguishable from a solid, and thirty of them is thirty
+ * strokes bought for nothing — so the dense chart keeps the flat wash.
+ *
+ * The figures around the plot are set in the annotation face, because they are
+ * writing that belongs to a drawing. In a UI face they read as printed labels
+ * pasted onto a sketch.
+ *
  * The canvases are decoration and are hidden from the screen reader. Meaning is
  * carried by a transparent hit area per bar, each labelled "Tuesday, 4,200
  * litres", and by the plain summary line printed underneath.
@@ -33,6 +42,7 @@ import { Text } from '../../ui/Text';
 import type { DailyTotal } from '../../data/types';
 import { layoutChart, type ChartBar } from './chart';
 import { barDayName, litresSpoken, shortDate, weekdayShort } from './format';
+import { scribbleFill } from './scribble';
 import type { ChartRange } from './store';
 
 /** Height of the plot itself, guides included, axis labels excluded. */
@@ -43,14 +53,30 @@ const GUTTER = 46;
 const DENSE_ABOVE = 10;
 const BAR_RADIUS = 3;
 
+/** Length of one dash in the mark's rule, and the gap after it. */
+const DASH = 7;
+const DASH_GAP = 5;
+
 export type TrendChartProps = {
   days: DailyTotal[];
   range: ChartRange;
   todayKey: string;
   onRange: (range: ChartRange) => void;
+  /**
+   * The weekly mark's share of one day, drawn as a rule across the plot. The
+   * bar above answers "how is the week going"; this answers "which days spent
+   * it", which is the question a person asks straight afterwards.
+   */
+  dailyShare?: number | null;
 };
 
-export function TrendChart({ days, range, todayKey, onRange }: TrendChartProps) {
+export function TrendChart({
+  days,
+  range,
+  todayKey,
+  onRange,
+  dailyShare = null,
+}: TrendChartProps) {
   const { colors } = useTheme();
   const motion = useMotion();
   const [width, setWidth] = useState(0);
@@ -76,6 +102,17 @@ export function TrendChart({ days, range, todayKey, onRange }: TrendChartProps) 
     () => layout.ticks.map((tick) => guideAt(tick.y, width)),
     [layout.ticks, width],
   );
+
+  /**
+   * The mark's rule is dropped when it would sit off the top of the plot: a
+   * mark no day in the window came close to has nothing to say about the
+   * window, and pinning it to the ceiling would claim otherwise.
+   */
+  const markRule = useMemo(() => {
+    if (!dailyShare || dailyShare <= 0 || layout.max <= 0) return null;
+    if (dailyShare > layout.max) return null;
+    return dashedRule(layout.baselineY - (dailyShare / layout.max) * PLOT_HEIGHT, width);
+  }, [dailyShare, layout.max, layout.baselineY, width]);
 
   const onLayout = (event: LayoutChangeEvent) => {
     const next = event.nativeEvent.layout.width;
@@ -103,9 +140,9 @@ export function TrendChart({ days, range, todayKey, onRange }: TrendChartProps) 
           {layout.ticks.map((tick) => (
             <Text
               key={tick.value}
-              variant="chip"
+              variant="axis"
               tone="inkSoft"
-              style={[styles.tickLabel, { top: tick.y - 9 }]}
+              style={[styles.tickLabel, { top: tick.y - 10 }]}
               numberOfLines={1}
             >
               {formatLitres(tick.value)}
@@ -132,6 +169,16 @@ export function TrendChart({ days, range, todayKey, onRange }: TrendChartProps) 
                     strokeScale={index === layout.ticks.length - 1 ? 0.8 : 0.5}
                   />
                 ))}
+                {markRule && (
+                  <HandPath
+                    path={markRule}
+                    color={colors.accent}
+                    variant="crayon"
+                    seed={seedFromString('history/mark-rule')}
+                    strokeScale={0.7}
+                    opacity={0.85}
+                  />
+                )}
               </Canvas>
 
               <Animated.View
@@ -180,10 +227,10 @@ export function TrendChart({ days, range, todayKey, onRange }: TrendChartProps) 
         <View style={styles.axis} accessible={false} importantForAccessibility="no-hide-descendants">
           {dense ? (
             <View style={styles.axisEnds}>
-              <Text variant="chip" tone="inkSoft">
+              <Text variant="axis" tone="inkSoft">
                 {days.length > 0 ? shortDate(days[0].localDay) : ''}
               </Text>
-              <Text variant="chip" tone="inkSoft">
+              <Text variant="axis" tone="inkSoft">
                 {copy.history.today}
               </Text>
             </View>
@@ -191,7 +238,7 @@ export function TrendChart({ days, range, todayKey, onRange }: TrendChartProps) 
             layout.bars.map((bar) => (
               <Text
                 key={bar.day}
-                variant="chip"
+                variant="axis"
                 tone={bar.day === todayKey ? 'accent' : 'inkSoft'}
                 numberOfLines={1}
                 style={[styles.axisLabel, { left: bar.cellX, width: bar.cellWidth }]}
@@ -225,6 +272,8 @@ function Bar({
   ink: string;
   accent: string;
 }) {
+  const seed = seedFromString(`history/bar/${bar.day}`);
+
   const path = useMemo(() => {
     if (bar.height <= 0) return null;
     return Skia.Path.RRect(
@@ -232,17 +281,36 @@ function Bar({
     );
   }, [bar.x, bar.y, bar.width, bar.height]);
 
+  const fill = useMemo(
+    () =>
+      dense || bar.height <= 0
+        ? null
+        : scribbleFill(bar.x, bar.y, bar.width, bar.height, seed + 5),
+    [dense, bar.x, bar.y, bar.width, bar.height, seed],
+  );
+
   if (!path) return null;
   const stroke = today ? accent : ink;
 
   return (
     <>
-      <Path path={path} style="fill" color={stroke} opacity={today ? 0.28 : 0.2} />
+      {fill ? (
+        <HandPath
+          path={fill}
+          color={stroke}
+          variant="crayon"
+          seed={seed + 5}
+          strokeScale={0.7}
+          opacity={today ? 0.5 : 0.42}
+        />
+      ) : (
+        <Path path={path} style="fill" color={stroke} opacity={today ? 0.28 : 0.2} />
+      )}
       <HandPath
         path={path}
         color={stroke}
         variant={dense ? 'pencil' : 'crayon'}
-        seed={seedFromString(`history/bar/${bar.day}`)}
+        seed={seed}
         strokeScale={dense ? 0.55 : 0.85}
       />
     </>
@@ -251,6 +319,21 @@ function Bar({
 
 function guideAt(y: number, width: number) {
   return Skia.PathBuilder.Make().moveTo(0, y).lineTo(width, y).detach();
+}
+
+/**
+ * The mark's rule, as separate dashes rather than one line under a dash effect.
+ *
+ * A dash path effect would compose with the jitter effect `HandPath` already
+ * applies and the two fight over the same stroke; laying the dashes down as
+ * geometry leaves the hand-drawn pass to do what it does to everything else.
+ */
+function dashedRule(y: number, width: number) {
+  const builder = Skia.PathBuilder.Make();
+  for (let x = 0; x < width; x += DASH + DASH_GAP) {
+    builder.moveTo(x, y).lineTo(Math.min(x + DASH, width), y);
+  }
+  return builder.detach();
 }
 
 /* --------------------------------------------------------------- toggle -- */
@@ -318,7 +401,7 @@ const styles = StyleSheet.create({
   hit: { position: 'absolute', top: 0, bottom: 0 },
 
   axisRow: { flexDirection: 'row', marginTop: space.xs },
-  axis: { flex: 1, height: 18 },
+  axis: { flex: 1, height: 20 },
   axisLabel: { position: 'absolute', top: 0, textAlign: 'center' },
   axisEnds: { flexDirection: 'row', justifyContent: 'space-between' },
 });

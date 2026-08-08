@@ -17,7 +17,13 @@
 import type { Estimate } from '@drop/water-engine';
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import { deviceTimeZone, localDay, localWeek, recentDays } from '../lib/time';
+import {
+  deviceTimeZone,
+  localDay,
+  localWeek,
+  recentDays,
+  recentWeeks,
+} from '../lib/time';
 import { getDb } from './db';
 import { buildPlateEstimate } from './plate';
 import type {
@@ -27,6 +33,8 @@ import type {
   EntryCategory,
   EntryRow,
   InputMethod,
+  WeekLeader,
+  WeekTotal,
 } from './types';
 
 export interface EntryMeta {
@@ -332,6 +340,82 @@ export async function trends(
   );
   const byDay = new Map(rows.map((row) => [row.local_day, row]));
   return keys.map((key) => toDailyTotal(key, byDay.get(key) ?? null));
+}
+
+/* --------------------------------------------------------------- weeks --- */
+
+/**
+ * A week's running total, read off `entries` rather than off `daily_totals`.
+ *
+ * `daily_totals` is keyed by day and carries no week, and summing seven day
+ * keys would need the caller to know which seven — which is the calendar
+ * arithmetic `local_week` was stamped at write time to avoid. Grouping on the
+ * stamped key instead means a week bucket stays whatever it was when the rows
+ * were written, even for someone who has since changed timezone.
+ */
+export async function weekTotals(
+  count = 5,
+  now: Date = new Date(),
+  tz: string = deviceTimeZone(),
+): Promise<WeekTotal[]> {
+  const keys = recentWeeks(count, now, tz);
+  if (keys.length === 0) return [];
+
+  const db = await getDb();
+  const placeholders = keys.map(() => '?').join(', ');
+  const rows = await db.getAllAsync<{ local_week: string; litres: number; n: number }>(
+    `SELECT local_week, SUM(litres) AS litres, COUNT(*) AS n
+       FROM entries
+      WHERE local_week IN (${placeholders}) AND deleted_at IS NULL
+      GROUP BY local_week`,
+    keys,
+  );
+
+  const byWeek = new Map(rows.map((row) => [row.local_week, row]));
+  return keys.map((key) => {
+    const row = byWeek.get(key);
+    return {
+      localWeek: key,
+      totalLitres: row?.litres ?? 0,
+      entryCount: row?.n ?? 0,
+    };
+  });
+}
+
+/** This week so far, in the person's own zone. */
+export async function thisWeekTotal(
+  now: Date = new Date(),
+  tz: string = deviceTimeZone(),
+): Promise<WeekTotal> {
+  const [week] = await weekTotals(1, now, tz);
+  return week ?? { localWeek: localWeek(now, tz), totalLitres: 0, entryCount: 0 };
+}
+
+/**
+ * The heaviest thing in a week, and how many times it was logged.
+ *
+ * Grouped by catalogue item rather than by row, because "beef, twice" is what a
+ * person recognises and two beef rows are the same decision made twice.
+ */
+export async function weekLeaders(
+  week: string,
+  limit = 3,
+): Promise<WeekLeader[]> {
+  const db = await getDb();
+  return db.getAllAsync<WeekLeader>(
+    `SELECT item_id      AS itemId,
+            item_label   AS label,
+            category     AS category,
+            SUM(litres)  AS litres,
+            COUNT(*)     AS times
+       FROM entries
+      WHERE local_week = ? AND deleted_at IS NULL
+      GROUP BY item_id
+      ORDER BY litres DESC
+      LIMIT ?`,
+    week,
+    limit,
+  );
 }
 
 /** Live and soft-deleted counts — the data lab's health readout. */

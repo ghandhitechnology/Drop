@@ -316,6 +316,106 @@ export const copy = {
     seeding: 'Filling 40 days',
   },
 
+  /* -------------------------------------------------------------- goal */
+
+  /**
+   * The mark for the week.
+   *
+   * Two things this copy holds to. It never grades a week — a person who logs
+   * an honest heavy week has done the thing the product asks of them, and being
+   * told off for it teaches them to stop logging. And it states figures rather
+   * than verdicts: "1,100 L over" is a fact the person can act on, where "over
+   * your goal" is a scolding with the useful part left out.
+   */
+  goal: {
+    span: 'This week',
+    /** The figures over the bar: "7,200 of 14,000 L". */
+    count: (spent = '0', goal = '0') => `${spent} of ${goal}`,
+    /** Sits under the bar on the left. */
+    daysLeft: (days = 0) =>
+      days === 0 ? 'Last day of the week' : days === 1 ? '1 day left' : `${days} days left`,
+    /** Under the bar on the right, once the week is near the mark or past it. */
+    toMark: (litres = '0 L') => `${litres} to the mark`,
+    over: (litres = '0 L') => `${litres} over`,
+    /** Opens the sheet from the record. */
+    edit: 'Move the mark',
+    editHint: 'Opens the weekly mark',
+
+    /** The whole bar, spoken as one phrase. */
+    spoken: (spent = '0 litres', goal = '0 litres', days = 'Last day of the week') =>
+      `This week, ${spent} of a ${goal} mark. ${days}.`,
+    /** Where the week ought to stand today, spoken after the figures. */
+    paceSpoken: (litres = '0 litres') => `Today's share of the mark is ${litres}`,
+
+    /* ------------------------------------------- before there is a mark */
+
+    invite: {
+      title: 'Give the week a mark',
+      body: 'A weekly number to measure against, moved whenever you like.',
+      action: 'Set a mark',
+    },
+
+    /* -------------------------------------------------- the heavy thing */
+
+    /**
+     * Names the week's heaviest item and, where the catalogue holds a lighter
+     * one of the same kind, what that swap frees. Both figures come from the
+     * same tables as every other number in Drop.
+     */
+    leader: (label = 'Beef', times = 1, litres = '0 L') =>
+      times > 1 ? `${label}, ${times}× — ${litres} of this week` : `${label} — ${litres} of this week`,
+    swap: (label = 'Chicken', litres = '0 L') => `${label} instead frees ${litres}`,
+    swapHint: 'Opens this item in the catalogue',
+
+    /* ------------------------------------------------------- the sheet */
+
+    sheet: {
+      title: 'A mark for the week',
+      body: 'Drop counts what you confirm. Move the mark whenever you like.',
+      close: 'Close',
+      perDay: (litres = '0 L') => `${litres} a day`,
+      less: 'Less',
+      more: 'More',
+      lessHint: 'Lowers the mark by 500 litres',
+      moreHint: 'Raises the mark by 500 litres',
+      save: 'Set the mark',
+      saved: 'The mark is set',
+      remove: 'Take the mark off',
+      removeHint: 'Removes the weekly mark from your record',
+      /** Spoken when the stepper moves. */
+      announce: (litres = '0 litres') => `${litres} a week`,
+    },
+
+    /* ------------------------------------------------------- the marks */
+
+    /** Built from the person's own weeks, once there are two of them. */
+    fromBaseline: {
+      title: 'Your last weeks ran',
+      tenth: 'A tenth under your average',
+      tenthBody: 'A week that moves without being felt',
+      quarter: 'A quarter under',
+      quarterBody: 'A steeper week — one swap most days',
+      hold: 'Hold your average',
+      holdBody: 'Watch the shape before moving it',
+    },
+
+    /**
+     * Day one has no average, and there is no per-person water figure that
+     * plays the part maintenance calories play in a calorie tracker. So the
+     * opening mark says what it is: a round number to measure a first week
+     * against, with a way to wait for a real one.
+     */
+    opening: {
+      start: 'Start here',
+      startBody: 'A round number to measure your first week against',
+      light: 'Lighter',
+      lightBody: 'Mostly plants, short trips',
+      later: 'Decide later',
+      laterBody: 'Log a week and Drop will suggest a number from it',
+      note: 'Drop suggests a mark of your own once two weeks are logged',
+    },
+  },
+
   /* --------------------------------------------------------- first run */
 
   /**

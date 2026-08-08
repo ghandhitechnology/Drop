@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   calendarDateIn,
+  dayOfLocalWeek,
   deviceTimeZone,
   localDay,
   localWeek,
   recentDays,
+  recentWeeks,
   stampFor,
 } from '../time';
 
@@ -126,6 +128,71 @@ describe('recentDays', () => {
 
   it('returns an empty window for a zero count', () => {
     expect(recentDays(0, new Date('2026-08-08T12:00:00Z'), 'UTC')).toEqual([]);
+  });
+});
+
+describe('dayOfLocalWeek', () => {
+  it('numbers Monday 1 through Sunday 7', () => {
+    // 2026-08-10 is a Monday.
+    expect(dayOfLocalWeek(new Date('2026-08-10T12:00:00Z'), 'UTC')).toBe(1);
+    expect(dayOfLocalWeek(new Date('2026-08-13T12:00:00Z'), 'UTC')).toBe(4);
+    expect(dayOfLocalWeek(new Date('2026-08-16T12:00:00Z'), 'UTC')).toBe(7);
+  });
+
+  it('reads the weekday in the given zone, not in UTC', () => {
+    // 22:00 UTC Sunday is already Monday in Seoul.
+    const at = new Date('2026-08-09T22:00:00Z');
+    expect(dayOfLocalWeek(at, 'UTC')).toBe(7);
+    expect(dayOfLocalWeek(at, SEOUL)).toBe(1);
+  });
+
+  it('agrees with the week key it has to divide', () => {
+    // Day 1 is the first day of the week `localWeek` names, so stepping back
+    // that many days minus one has to stay inside the same week, and one more
+    // has to leave it.
+    const at = new Date('2026-08-13T09:00:00Z');
+    const day = dayOfLocalWeek(at, SEOUL);
+    const inside = new Date(at.getTime() - (day - 1) * 86_400_000);
+    const before = new Date(at.getTime() - day * 86_400_000);
+
+    expect(localWeek(inside, SEOUL)).toBe(localWeek(at, SEOUL));
+    expect(localWeek(before, SEOUL)).not.toBe(localWeek(at, SEOUL));
+  });
+});
+
+describe('recentWeeks', () => {
+  it('walks back one week at a time, oldest first', () => {
+    expect(recentWeeks(4, new Date('2026-08-13T12:00:00Z'), 'UTC')).toEqual([
+      '2026-W30',
+      '2026-W31',
+      '2026-W32',
+      '2026-W33',
+    ]);
+  });
+
+  it('ends on the week the date itself falls in', () => {
+    const at = new Date('2026-08-13T12:00:00Z');
+    const keys = recentWeeks(5, at, SEOUL);
+    expect(keys.at(-1)).toBe(localWeek(at, SEOUL));
+  });
+
+  it('crosses the turn of the year without a special case', () => {
+    // 2026-W53 exists; 2027 starts inside it.
+    expect(recentWeeks(3, new Date('2027-01-07T12:00:00Z'), 'UTC')).toEqual([
+      '2026-W52',
+      '2026-W53',
+      '2027-W01',
+    ]);
+  });
+
+  it('gives one key per week with no repeats over a long window', () => {
+    const keys = recentWeeks(60, new Date('2026-08-08T12:00:00Z'), 'UTC');
+    expect(keys).toHaveLength(60);
+    expect(new Set(keys).size).toBe(60);
+  });
+
+  it('returns an empty window for a zero count', () => {
+    expect(recentWeeks(0, new Date('2026-08-08T12:00:00Z'), 'UTC')).toEqual([]);
   });
 });
 
