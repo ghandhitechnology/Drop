@@ -84,6 +84,9 @@ export interface Estimate {
 
 /* -------------------------------------------------------- capture types */
 
+/** Recognition behavior selected from the live camera. */
+export type CaptureMode = 'normal' | 'fast';
+
 /**
  * A rectangle in **capture-stage coordinates** — the origin is the top-left of
  * the view that holds the camera, so it is directly usable as the start

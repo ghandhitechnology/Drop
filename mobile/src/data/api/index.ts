@@ -45,6 +45,8 @@ export type RecognizeOptions = RequestOptions & {
   mime?: string;
   /** Anything already known about the frame — a code read off a packet. */
   hint?: string;
+  /** Fast capture lowers reasoning effort without changing the response budget. */
+  mode?: 'normal' | 'fast';
 };
 
 /**
@@ -58,13 +60,14 @@ export async function recognize(
   photoBase64: string,
   options: RecognizeOptions = {},
 ): Promise<RecognizeResponse> {
-  const { mime, hint, ...request } = options;
+  const { mime, hint, mode, ...request } = options;
   const body = await postJson<unknown>(
     '/v1/recognize',
     {
       image_base64: photoBase64,
       mime: mime ?? 'image/jpeg',
       ...(hint ? { hint } : {}),
+      ...(mode ? { mode } : {}),
     },
     request,
   );

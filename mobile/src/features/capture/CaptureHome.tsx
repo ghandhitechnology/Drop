@@ -60,6 +60,8 @@ export function CaptureHome() {
   const [shutterActive, setShutterActive] = useState(false);
 
   const state = useCaptureMachine((s) => s.state);
+  const mode = useCaptureMachine((s) => s.mode);
+  const toggleFastMode = useCaptureMachine((s) => s.toggleFastMode);
   const retake = useCaptureMachine((s) => s.retake);
 
   const beginShutter = useCallback(() => setShutterActive(true), []);
@@ -132,7 +134,9 @@ export function CaptureHome() {
 
         {showControls && (
           <View style={styles.controls} pointerEvents="box-none">
-            <FramingNote>{copy.capture.framing}</FramingNote>
+            <FramingNote>
+              {mode === 'fast' ? copy.capture.framingFast : copy.capture.framing}
+            </FramingNote>
 
             <View style={styles.controlRow} pointerEvents="box-none">
               <HandChip
@@ -147,7 +151,12 @@ export function CaptureHome() {
                 </Text>
               </HandChip>
 
-              <Shutter onPress={takePhoto} disabled={shutterActive} />
+              <Shutter
+                onPress={takePhoto}
+                onToggleFast={toggleFastMode}
+                fast={mode === 'fast'}
+                disabled={shutterActive}
+              />
             </View>
           </View>
         )}
