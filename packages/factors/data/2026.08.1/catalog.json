@@ -10065,6 +10065,39 @@
    "synonyms": []
   },
   {
+   "catalog_id": "product_111400",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Houseplants & cut flowers",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:111400/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "houseplants & cut flowers plant houseplant bouquet succulent",
+   "state": "solid",
+   "subcategory": "product/111400",
+   "synonyms": [
+    "plant",
+    "houseplant",
+    "flowers",
+    "bouquet",
+    "succulent"
+   ]
+  },
+  {
    "catalog_id": "product_311111",
    "category": "product",
    "default_quantity": {
@@ -10086,10 +10119,79 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "pet food",
+   "search_tokens": "pet food dog cat kibble",
    "state": "solid",
    "subcategory": "product/311111",
-   "synonyms": []
+   "synonyms": [
+    "dog food",
+    "cat food",
+    "kibble"
+   ]
+  },
+  {
+   "catalog_id": "product_312200",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 10
+   },
+   "display_name": "Cigarettes & tobacco",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:312200/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "cigarettes & tobacco vape cigars",
+   "state": "solid",
+   "subcategory": "product/312200",
+   "synonyms": [
+    "cigarettes",
+    "tobacco",
+    "vape",
+    "cigars"
+   ]
+  },
+  {
+   "catalog_id": "product_313100",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 8
+   },
+   "display_name": "Yarn & thread",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:313100/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "yarn & thread wool knitting crochet",
+   "state": "solid",
+   "subcategory": "product/313100",
+   "synonyms": [
+    "yarn",
+    "thread",
+    "wool",
+    "knitting",
+    "crochet"
+   ]
   },
   {
    "catalog_id": "product_313200",
@@ -10113,10 +10215,15 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "fabric",
+   "search_tokens": "fabric cloth textile material",
    "state": "solid",
    "subcategory": "product/313200",
-   "synonyms": []
+   "synonyms": [
+    "fabric",
+    "cloth",
+    "textile",
+    "material"
+   ]
   },
   {
    "catalog_id": "product_314110",
@@ -10140,10 +10247,14 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "carpets & rugs",
+   "search_tokens": "carpets & rugs carpet rug mat",
    "state": "solid",
    "subcategory": "product/314110",
-   "synonyms": []
+   "synonyms": [
+    "carpet",
+    "rug",
+    "mat"
+   ]
   },
   {
    "catalog_id": "product_314120",
@@ -10167,10 +10278,49 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "curtains & bed linens",
+   "search_tokens": "curtains & bed linens sheets bedding pillowcase duvet towels",
    "state": "solid",
    "subcategory": "product/314120",
-   "synonyms": []
+   "synonyms": [
+    "curtains",
+    "sheets",
+    "bedding",
+    "pillowcase",
+    "duvet",
+    "towels"
+   ]
+  },
+  {
+   "catalog_id": "product_314900",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Bags & textile goods",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:314900/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "bags & textile goods tote bag backpack canvas rope",
+   "state": "solid",
+   "subcategory": "product/314900",
+   "synonyms": [
+    "tote bag",
+    "backpack",
+    "canvas bag",
+    "rope"
+   ]
   },
   {
    "catalog_id": "product_315000",
@@ -10194,10 +10344,17 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "clothing",
+   "search_tokens": "clothing shirt pants jacket dress clothes 옷",
    "state": "solid",
    "subcategory": "product/315000",
-   "synonyms": []
+   "synonyms": [
+    "shirt",
+    "pants",
+    "jacket",
+    "dress",
+    "clothes",
+    "옷"
+   ]
   },
   {
    "catalog_id": "product_316000",
@@ -10221,10 +10378,112 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "shoes & leather goods",
+   "search_tokens": "shoes & leather goods sneakers boots handbag belt wallet",
    "state": "solid",
    "subcategory": "product/316000",
-   "synonyms": []
+   "synonyms": [
+    "shoes",
+    "sneakers",
+    "boots",
+    "handbag",
+    "belt",
+    "wallet"
+   ]
+  },
+  {
+   "catalog_id": "product_321100",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 50
+   },
+   "display_name": "Lumber & wood boards",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:321100/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "lumber & wood boards timber planks",
+   "state": "solid",
+   "subcategory": "product/321100",
+   "synonyms": [
+    "lumber",
+    "wood",
+    "boards",
+    "timber",
+    "planks"
+   ]
+  },
+  {
+   "catalog_id": "product_321200",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 40
+   },
+   "display_name": "Plywood & panels",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:321200/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "plywood & panels mdf particle board",
+   "state": "solid",
+   "subcategory": "product/321200",
+   "synonyms": [
+    "plywood",
+    "mdf",
+    "particle board"
+   ]
+  },
+  {
+   "catalog_id": "product_321910",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 200
+   },
+   "display_name": "Wood flooring, windows & doors",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:321910/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "wood flooring, windows & doors hardwood floor wooden door window frame",
+   "state": "solid",
+   "subcategory": "product/321910",
+   "synonyms": [
+    "hardwood floor",
+    "wooden door",
+    "window frame"
+   ]
   },
   {
    "catalog_id": "product_322120",
@@ -10248,10 +10507,76 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "paper",
+   "search_tokens": "paper printer a4",
    "state": "solid",
    "subcategory": "product/322120",
-   "synonyms": []
+   "synonyms": [
+    "paper",
+    "printer paper",
+    "a4"
+   ]
+  },
+  {
+   "catalog_id": "product_322210",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Cardboard boxes & packaging",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:322210/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "cardboard boxes & packaging box moving shipping",
+   "state": "solid",
+   "subcategory": "product/322210",
+   "synonyms": [
+    "cardboard box",
+    "moving box",
+    "shipping box"
+   ]
+  },
+  {
+   "catalog_id": "product_322220",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 6
+   },
+   "display_name": "Paper bags & gift wrap",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:322220/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "paper bags & gift wrap bag wrapping",
+   "state": "solid",
+   "subcategory": "product/322220",
+   "synonyms": [
+    "paper bag",
+    "gift wrap",
+    "wrapping paper"
+   ]
   },
   {
    "catalog_id": "product_322230",
@@ -10275,10 +10600,15 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "stationery & notebooks",
+   "search_tokens": "stationery & notebooks notebook notepad journal envelope",
    "state": "solid",
    "subcategory": "product/322230",
-   "synonyms": []
+   "synonyms": [
+    "notebook",
+    "notepad",
+    "journal",
+    "envelope"
+   ]
   },
   {
    "catalog_id": "product_322291",
@@ -10302,10 +10632,48 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "tissues, napkins & diapers",
+   "search_tokens": "tissues, napkins & diapers tissues toilet paper wipes",
    "state": "solid",
    "subcategory": "product/322291",
-   "synonyms": []
+   "synonyms": [
+    "tissues",
+    "napkins",
+    "diapers",
+    "toilet paper",
+    "wipes"
+   ]
+  },
+  {
+   "catalog_id": "product_322299",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 8
+   },
+   "display_name": "Disposable plates & cups",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:322299/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "disposable plates & cups paper plate cup cutlery party supplies",
+   "state": "solid",
+   "subcategory": "product/322299",
+   "synonyms": [
+    "paper plate",
+    "paper cup",
+    "disposable cutlery",
+    "party supplies"
+   ]
   },
   {
    "catalog_id": "product_323110",
@@ -10329,10 +10697,172 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "books, newspapers & magazines",
+   "search_tokens": "books, newspapers & magazines book magazine newspaper novel",
    "state": "solid",
    "subcategory": "product/323110",
-   "synonyms": []
+   "synonyms": [
+    "book",
+    "magazine",
+    "newspaper",
+    "novel"
+   ]
+  },
+  {
+   "catalog_id": "product_324122",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 100
+   },
+   "display_name": "Roofing shingles",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:324122/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "roofing shingles",
+   "state": "solid",
+   "subcategory": "product/324122",
+   "synonyms": [
+    "shingles",
+    "roofing"
+   ]
+  },
+  {
+   "catalog_id": "product_324190",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 10
+   },
+   "display_name": "Motor oil & lubricants",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:324190/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "motor oil & lubricants engine lubricant wd40",
+   "state": "solid",
+   "subcategory": "product/324190",
+   "synonyms": [
+    "motor oil",
+    "engine oil",
+    "lubricant",
+    "wd40"
+   ]
+  },
+  {
+   "catalog_id": "product_325120",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 40
+   },
+   "display_name": "Propane & compressed gas",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:325120/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "propane & compressed gas canister camping",
+   "state": "solid",
+   "subcategory": "product/325120",
+   "synonyms": [
+    "propane",
+    "gas canister",
+    "camping gas"
+   ]
+  },
+  {
+   "catalog_id": "product_325310",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 20
+   },
+   "display_name": "Fertilizer",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:325310/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "fertilizer plant food compost",
+   "state": "solid",
+   "subcategory": "product/325310",
+   "synonyms": [
+    "fertilizer",
+    "plant food",
+    "compost"
+   ]
+  },
+  {
+   "catalog_id": "product_325320",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Pesticides & weed killers",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:325320/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "pesticides & weed killers pesticide herbicide insecticide killer bug spray",
+   "state": "solid",
+   "subcategory": "product/325320",
+   "synonyms": [
+    "pesticide",
+    "herbicide",
+    "insecticide",
+    "weed killer",
+    "bug spray"
+   ]
   },
   {
    "catalog_id": "product_325412",
@@ -10356,10 +10886,111 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "medicines",
+   "search_tokens": "medicines medicine pills vitamins supplements painkillers",
    "state": "solid",
    "subcategory": "product/325412",
-   "synonyms": []
+   "synonyms": [
+    "medicine",
+    "pills",
+    "vitamins",
+    "supplements",
+    "painkillers"
+   ]
+  },
+  {
+   "catalog_id": "product_325413",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Home test kits",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:325413/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "home test kits pregnancy covid glucose",
+   "state": "solid",
+   "subcategory": "product/325413",
+   "synonyms": [
+    "pregnancy test",
+    "covid test",
+    "glucose test"
+   ]
+  },
+  {
+   "catalog_id": "product_325510",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 40
+   },
+   "display_name": "Paint",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:325510/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "paint varnish primer coating",
+   "state": "solid",
+   "subcategory": "product/325510",
+   "synonyms": [
+    "paint",
+    "varnish",
+    "primer",
+    "coating"
+   ]
+  },
+  {
+   "catalog_id": "product_325520",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 8
+   },
+   "display_name": "Glue & adhesives",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:325520/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "glue & adhesives super epoxy adhesive",
+   "state": "solid",
+   "subcategory": "product/325520",
+   "synonyms": [
+    "glue",
+    "super glue",
+    "epoxy",
+    "adhesive"
+   ]
   },
   {
    "catalog_id": "product_325610",
@@ -10383,10 +11014,16 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "soap & cleaning products",
+   "search_tokens": "soap & cleaning products detergent cleaner bleach dish",
    "state": "solid",
    "subcategory": "product/325610",
-   "synonyms": []
+   "synonyms": [
+    "soap",
+    "detergent",
+    "cleaner",
+    "bleach",
+    "dish soap"
+   ]
   },
   {
    "catalog_id": "product_325620",
@@ -10410,10 +11047,173 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "toiletries & cosmetics",
+   "search_tokens": "toiletries & cosmetics shampoo toothpaste deodorant makeup lotion sunscreen",
    "state": "solid",
    "subcategory": "product/325620",
-   "synonyms": []
+   "synonyms": [
+    "shampoo",
+    "toothpaste",
+    "deodorant",
+    "makeup",
+    "lotion",
+    "sunscreen"
+   ]
+  },
+  {
+   "catalog_id": "product_325910",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 30
+   },
+   "display_name": "Printer ink & toner",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:325910/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "printer ink & toner cartridge",
+   "state": "solid",
+   "subcategory": "product/325910",
+   "synonyms": [
+    "ink cartridge",
+    "toner"
+   ]
+  },
+  {
+   "catalog_id": "product_3259a0",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 25
+   },
+   "display_name": "Pool & spa chemicals",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:3259A0/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "pool & spa chemicals chlorine",
+   "state": "solid",
+   "subcategory": "product/3259A0",
+   "synonyms": [
+    "chlorine",
+    "pool chemicals"
+   ]
+  },
+  {
+   "catalog_id": "product_326110",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 8
+   },
+   "display_name": "Plastic bags & wrap",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:326110/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "plastic bags & wrap bag cling ziplock trash",
+   "state": "solid",
+   "subcategory": "product/326110",
+   "synonyms": [
+    "plastic bag",
+    "cling wrap",
+    "ziplock",
+    "trash bag"
+   ]
+  },
+  {
+   "catalog_id": "product_326160",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 10
+   },
+   "display_name": "Plastic bottles & containers",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:326160/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "plastic bottles & containers bottle container tupperware water",
+   "state": "solid",
+   "subcategory": "product/326160",
+   "synonyms": [
+    "plastic bottle",
+    "container",
+    "tupperware",
+    "water bottle"
+   ]
+  },
+  {
+   "catalog_id": "product_326190",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 12
+   },
+   "display_name": "Plastic household goods",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:326190/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "plastic household goods bin hanger bucket storage box",
+   "state": "solid",
+   "subcategory": "product/326190",
+   "synonyms": [
+    "plastic bin",
+    "hanger",
+    "bucket",
+    "storage box"
+   ]
   },
   {
    "catalog_id": "product_326210",
@@ -10437,10 +11237,44 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "tires",
+   "search_tokens": "tires tire tyre",
    "state": "solid",
    "subcategory": "product/326210",
-   "synonyms": []
+   "synonyms": [
+    "tire",
+    "tyre"
+   ]
+  },
+  {
+   "catalog_id": "product_326290",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 10
+   },
+   "display_name": "Rubber gloves & household rubber goods",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:326290/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "rubber gloves & household goods latex eraser",
+   "state": "solid",
+   "subcategory": "product/326290",
+   "synonyms": [
+    "rubber gloves",
+    "latex gloves",
+    "eraser"
+   ]
   },
   {
    "catalog_id": "product_327100",
@@ -10464,10 +11298,16 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "ceramics & dishes",
+   "search_tokens": "ceramics & dishes plate bowl mug ceramic vase",
    "state": "solid",
    "subcategory": "product/327100",
-   "synonyms": []
+   "synonyms": [
+    "plate",
+    "bowl",
+    "mug",
+    "ceramic",
+    "vase"
+   ]
   },
   {
    "catalog_id": "product_327200",
@@ -10491,10 +11331,199 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "glassware",
+   "search_tokens": "glassware glass wine jar bottle",
    "state": "solid",
    "subcategory": "product/327200",
-   "synonyms": []
+   "synonyms": [
+    "glass",
+    "wine glass",
+    "jar",
+    "bottle"
+   ]
+  },
+  {
+   "catalog_id": "product_327310",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Cement & mortar",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:327310/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "cement & mortar grout",
+   "state": "solid",
+   "subcategory": "product/327310",
+   "synonyms": [
+    "cement",
+    "mortar",
+    "grout"
+   ]
+  },
+  {
+   "catalog_id": "product_327320",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 150
+   },
+   "display_name": "Ready-mix concrete",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:327320/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "ready-mix concrete",
+   "state": "solid",
+   "subcategory": "product/327320",
+   "synonyms": [
+    "concrete"
+   ]
+  },
+  {
+   "catalog_id": "product_327330",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 60
+   },
+   "display_name": "Bricks & concrete blocks",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:327330/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "bricks & concrete blocks cinder pavers",
+   "state": "solid",
+   "subcategory": "product/327330",
+   "synonyms": [
+    "bricks",
+    "cinder blocks",
+    "pavers"
+   ]
+  },
+  {
+   "catalog_id": "product_327400",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Drywall & plaster",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:327400/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "drywall & plaster sheetrock gypsum board",
+   "state": "solid",
+   "subcategory": "product/327400",
+   "synonyms": [
+    "drywall",
+    "plaster",
+    "sheetrock",
+    "gypsum board"
+   ]
+  },
+  {
+   "catalog_id": "product_327910",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 10
+   },
+   "display_name": "Sandpaper & abrasives",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:327910/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "sandpaper & abrasives grinding disc",
+   "state": "solid",
+   "subcategory": "product/327910",
+   "synonyms": [
+    "sandpaper",
+    "grinding disc"
+   ]
+  },
+  {
+   "catalog_id": "product_327993",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 50
+   },
+   "display_name": "Insulation",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:327993/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "insulation mineral wool fiberglass",
+   "state": "solid",
+   "subcategory": "product/327993",
+   "synonyms": [
+    "insulation",
+    "mineral wool",
+    "fiberglass insulation"
+   ]
   },
   {
    "catalog_id": "product_332200",
@@ -10518,10 +11547,147 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "cutlery & hand tools",
+   "search_tokens": "cutlery & hand tools knife fork spoon hammer screwdriver wrench",
    "state": "solid",
    "subcategory": "product/332200",
-   "synonyms": []
+   "synonyms": [
+    "knife",
+    "fork",
+    "spoon",
+    "hammer",
+    "screwdriver",
+    "wrench"
+   ]
+  },
+  {
+   "catalog_id": "product_332500",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15
+   },
+   "display_name": "Locks, hinges & hardware",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:332500/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "locks, hinges & hardware lock hinge doorknob handle padlock",
+   "state": "solid",
+   "subcategory": "product/332500",
+   "synonyms": [
+    "lock",
+    "hinge",
+    "doorknob",
+    "handle",
+    "padlock"
+   ]
+  },
+  {
+   "catalog_id": "product_332720",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 8
+   },
+   "display_name": "Screws, nuts & bolts",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:332720/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "screws, nuts & bolts screws nails fasteners",
+   "state": "solid",
+   "subcategory": "product/332720",
+   "synonyms": [
+    "screws",
+    "nails",
+    "bolts",
+    "fasteners"
+   ]
+  },
+  {
+   "catalog_id": "product_332913",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 60
+   },
+   "display_name": "Faucets & plumbing fittings",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:332913/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "faucets & plumbing fittings faucet tap shower head valve",
+   "state": "solid",
+   "subcategory": "product/332913",
+   "synonyms": [
+    "faucet",
+    "tap",
+    "shower head",
+    "valve"
+   ]
+  },
+  {
+   "catalog_id": "product_332999",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 30
+   },
+   "display_name": "Pots, pans & metal kitchenware",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:332999/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "pots, pans & metal kitchenware pot pan saucepan wok baking tray",
+   "state": "solid",
+   "subcategory": "product/332999",
+   "synonyms": [
+    "pot",
+    "pan",
+    "saucepan",
+    "wok",
+    "baking tray"
+   ]
   },
   {
    "catalog_id": "product_333112",
@@ -10545,10 +11711,174 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "lawn & garden equipment",
+   "search_tokens": "lawn & garden equipment lawnmower trimmer leaf blower chainsaw",
    "state": "solid",
    "subcategory": "product/333112",
-   "synonyms": []
+   "synonyms": [
+    "lawnmower",
+    "trimmer",
+    "leaf blower",
+    "chainsaw"
+   ]
+  },
+  {
+   "catalog_id": "product_333314",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 150
+   },
+   "display_name": "Camera lenses & optics",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:333314/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "camera lenses & optics lens binoculars telescope scope",
+   "state": "solid",
+   "subcategory": "product/333314",
+   "synonyms": [
+    "lens",
+    "binoculars",
+    "telescope",
+    "scope"
+   ]
+  },
+  {
+   "catalog_id": "product_333316",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 300
+   },
+   "display_name": "Cameras",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:333316/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "cameras camera gopro dslr mirrorless camcorder",
+   "state": "solid",
+   "subcategory": "product/333316",
+   "synonyms": [
+    "camera",
+    "gopro",
+    "dslr",
+    "mirrorless",
+    "camcorder"
+   ]
+  },
+  {
+   "catalog_id": "product_333413",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 120
+   },
+   "display_name": "Air purifiers & fans",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:333413/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "air purifiers & fans purifier fan humidifier dehumidifier",
+   "state": "solid",
+   "subcategory": "product/333413",
+   "synonyms": [
+    "air purifier",
+    "fan",
+    "humidifier",
+    "dehumidifier"
+   ]
+  },
+  {
+   "catalog_id": "product_333414",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 400
+   },
+   "display_name": "Water heaters",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:333414/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "water heaters heater boiler hot tank",
+   "state": "solid",
+   "subcategory": "product/333414",
+   "synonyms": [
+    "water heater",
+    "boiler",
+    "hot water tank"
+   ]
+  },
+  {
+   "catalog_id": "product_333415",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 350
+   },
+   "display_name": "Air conditioners",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:333415/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "air conditioners conditioner ac portable",
+   "state": "solid",
+   "subcategory": "product/333415",
+   "synonyms": [
+    "air conditioner",
+    "ac",
+    "portable ac"
+   ]
   },
   {
    "catalog_id": "product_333991",
@@ -10572,10 +11902,46 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "power tools",
+   "search_tokens": "power tools drill saw sander grinder impact driver",
    "state": "solid",
    "subcategory": "product/333991",
-   "synonyms": []
+   "synonyms": [
+    "drill",
+    "saw",
+    "sander",
+    "grinder",
+    "impact driver"
+   ]
+  },
+  {
+   "catalog_id": "product_33399a",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 120
+   },
+   "display_name": "Welding & soldering equipment",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:33399A/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "welding & soldering equipment welder iron",
+   "state": "solid",
+   "subcategory": "product/33399A",
+   "synonyms": [
+    "welder",
+    "soldering iron"
+   ]
   },
   {
    "catalog_id": "product_334111",
@@ -10599,10 +11965,50 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "computers & laptops",
+   "search_tokens": "computers & laptops laptop computer pc macbook tablet ipad",
    "state": "solid",
    "subcategory": "product/334111",
-   "synonyms": []
+   "synonyms": [
+    "laptop",
+    "computer",
+    "pc",
+    "macbook",
+    "tablet",
+    "ipad"
+   ]
+  },
+  {
+   "catalog_id": "product_334118",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 60
+   },
+   "display_name": "Computer accessories",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:334118/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "computer accessories keyboard mouse monitor webcam printer",
+   "state": "solid",
+   "subcategory": "product/334118",
+   "synonyms": [
+    "keyboard",
+    "mouse",
+    "monitor",
+    "webcam",
+    "printer"
+   ]
   },
   {
    "catalog_id": "product_334210",
@@ -10626,10 +12032,48 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "phones",
+   "search_tokens": "phones smartphone iphone android cell phone mobile",
    "state": "solid",
    "subcategory": "product/334210",
-   "synonyms": []
+   "synonyms": [
+    "smartphone",
+    "iphone",
+    "android",
+    "cell phone",
+    "mobile"
+   ]
+  },
+  {
+   "catalog_id": "product_334220",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 80
+   },
+   "display_name": "Wi-Fi routers & network gear",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:334220/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "wi-fi routers & network gear router wifi modem hotspot",
+   "state": "solid",
+   "subcategory": "product/334220",
+   "synonyms": [
+    "router",
+    "wifi",
+    "modem",
+    "hotspot"
+   ]
   },
   {
    "catalog_id": "product_334300",
@@ -10653,10 +12097,112 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "audio & video gear",
+   "search_tokens": "audio & video gear tv television headphones earbuds speaker soundbar",
    "state": "solid",
    "subcategory": "product/334300",
-   "synonyms": []
+   "synonyms": [
+    "tv",
+    "television",
+    "headphones",
+    "earbuds",
+    "speaker",
+    "soundbar"
+   ]
+  },
+  {
+   "catalog_id": "product_334510",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 150
+   },
+   "display_name": "Home medical devices",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:334510/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "home medical devices blood pressure monitor cpap glucose meter thermometer",
+   "state": "solid",
+   "subcategory": "product/334510",
+   "synonyms": [
+    "blood pressure monitor",
+    "cpap",
+    "glucose meter",
+    "thermometer"
+   ]
+  },
+  {
+   "catalog_id": "product_334512",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 80
+   },
+   "display_name": "Smart thermostats & home controls",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:334512/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "smart thermostats & home controls thermostat nest",
+   "state": "solid",
+   "subcategory": "product/334512",
+   "synonyms": [
+    "thermostat",
+    "nest",
+    "smart home"
+   ]
+  },
+  {
+   "catalog_id": "product_33451a",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 80
+   },
+   "display_name": "Watches & clocks",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:33451A/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "watches & clocks watch smartwatch clock apple",
+   "state": "solid",
+   "subcategory": "product/33451A",
+   "synonyms": [
+    "watch",
+    "smartwatch",
+    "clock",
+    "apple watch"
+   ]
   },
   {
    "catalog_id": "product_334610",
@@ -10680,10 +12226,16 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "hard drives & storage media",
+   "search_tokens": "hard drives & storage media drive ssd usb stick memory card sd",
    "state": "solid",
    "subcategory": "product/334610",
-   "synonyms": []
+   "synonyms": [
+    "hard drive",
+    "ssd",
+    "usb stick",
+    "memory card",
+    "sd card"
+   ]
   },
   {
    "catalog_id": "product_335110",
@@ -10707,10 +12259,46 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "light bulbs",
+   "search_tokens": "light bulbs bulb led lamp",
    "state": "solid",
    "subcategory": "product/335110",
-   "synonyms": []
+   "synonyms": [
+    "light bulb",
+    "led bulb",
+    "lamp bulb"
+   ]
+  },
+  {
+   "catalog_id": "product_335120",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 60
+   },
+   "display_name": "Lamps & light fixtures",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:335120/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "lamps & light fixtures lamp chandelier ceiling fixture",
+   "state": "solid",
+   "subcategory": "product/335120",
+   "synonyms": [
+    "lamp",
+    "chandelier",
+    "ceiling light",
+    "fixture"
+   ]
   },
   {
    "catalog_id": "product_335210",
@@ -10734,10 +12322,17 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "small kitchen appliances",
+   "search_tokens": "small kitchen appliances toaster blender coffee maker microwave kettle air fryer",
    "state": "solid",
    "subcategory": "product/335210",
-   "synonyms": []
+   "synonyms": [
+    "toaster",
+    "blender",
+    "coffee maker",
+    "microwave",
+    "kettle",
+    "air fryer"
+   ]
   },
   {
    "catalog_id": "product_335221",
@@ -10761,10 +12356,15 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "stoves & ovens",
+   "search_tokens": "stoves & ovens stove oven range cooktop",
    "state": "solid",
    "subcategory": "product/335221",
-   "synonyms": []
+   "synonyms": [
+    "stove",
+    "oven",
+    "range",
+    "cooktop"
+   ]
   },
   {
    "catalog_id": "product_335222",
@@ -10788,10 +12388,14 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "refrigerators & freezers",
+   "search_tokens": "refrigerators & freezers fridge refrigerator freezer",
    "state": "solid",
    "subcategory": "product/335222",
-   "synonyms": []
+   "synonyms": [
+    "fridge",
+    "refrigerator",
+    "freezer"
+   ]
   },
   {
    "catalog_id": "product_335224",
@@ -10815,10 +12419,76 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "washers & dryers",
+   "search_tokens": "washers & dryers washing machine dryer laundry",
    "state": "solid",
    "subcategory": "product/335224",
-   "synonyms": []
+   "synonyms": [
+    "washing machine",
+    "dryer",
+    "laundry machine"
+   ]
+  },
+  {
+   "catalog_id": "product_335228",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 500
+   },
+   "display_name": "Dishwashers & other major appliances",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:335228/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "dishwashers & other major appliances dishwasher appliance",
+   "state": "solid",
+   "subcategory": "product/335228",
+   "synonyms": [
+    "dishwasher",
+    "appliance"
+   ]
+  },
+  {
+   "catalog_id": "product_335911",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 30
+   },
+   "display_name": "Rechargeable batteries & power banks",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:335911/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "rechargeable batteries & power banks bank battery car charger pack",
+   "state": "solid",
+   "subcategory": "product/335911",
+   "synonyms": [
+    "power bank",
+    "rechargeable battery",
+    "car battery",
+    "charger pack"
+   ]
   },
   {
    "catalog_id": "product_335912",
@@ -10842,10 +12512,48 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "batteries",
+   "search_tokens": "batteries battery aa aaa alkaline",
    "state": "solid",
    "subcategory": "product/335912",
-   "synonyms": []
+   "synonyms": [
+    "battery",
+    "aa",
+    "aaa",
+    "alkaline"
+   ]
+  },
+  {
+   "catalog_id": "product_335930",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 12
+   },
+   "display_name": "Plugs, switches & extension cords",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:335930/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "plugs, switches & extension cords cord power strip plug outlet adapter",
+   "state": "solid",
+   "subcategory": "product/335930",
+   "synonyms": [
+    "extension cord",
+    "power strip",
+    "plug",
+    "outlet",
+    "adapter"
+   ]
   },
   {
    "catalog_id": "product_336111",
@@ -10869,10 +12577,14 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "cars (purchase)",
+   "search_tokens": "cars (purchase) car automobile sedan",
    "state": "solid",
    "subcategory": "product/336111",
-   "synonyms": []
+   "synonyms": [
+    "car",
+    "automobile",
+    "sedan"
+   ]
   },
   {
    "catalog_id": "product_336112",
@@ -10896,10 +12608,139 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "pickups, vans & suvs (purchase)",
+   "search_tokens": "pickups, vans & suvs (purchase) suv pickup truck van",
    "state": "solid",
    "subcategory": "product/336112",
-   "synonyms": []
+   "synonyms": [
+    "suv",
+    "pickup truck",
+    "van"
+   ]
+  },
+  {
+   "catalog_id": "product_336213",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 60000
+   },
+   "display_name": "Motorhomes & RVs",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:336213/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "motorhomes & rvs rv motorhome camper van",
+   "state": "solid",
+   "subcategory": "product/336213",
+   "synonyms": [
+    "rv",
+    "motorhome",
+    "camper van"
+   ]
+  },
+  {
+   "catalog_id": "product_336214",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 20000
+   },
+   "display_name": "Travel trailers & campers",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:336214/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "travel trailers & campers caravan camper trailer",
+   "state": "solid",
+   "subcategory": "product/336214",
+   "synonyms": [
+    "caravan",
+    "camper trailer"
+   ]
+  },
+  {
+   "catalog_id": "product_336390",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 80
+   },
+   "display_name": "Auto parts & accessories",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:336390/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "auto parts & accessories car brake pads wipers floor mats",
+   "state": "solid",
+   "subcategory": "product/336390",
+   "synonyms": [
+    "car parts",
+    "brake pads",
+    "wipers",
+    "floor mats"
+   ]
+  },
+  {
+   "catalog_id": "product_336612",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 15000
+   },
+   "display_name": "Boats",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:336612/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "boats boat kayak canoe jet ski",
+   "state": "solid",
+   "subcategory": "product/336612",
+   "synonyms": [
+    "boat",
+    "kayak",
+    "canoe",
+    "jet ski"
+   ]
   },
   {
    "catalog_id": "product_336991",
@@ -10923,10 +12764,78 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "bicycles & motorcycles",
+   "search_tokens": "bicycles & motorcycles bicycle bike motorcycle ebike scooter",
    "state": "solid",
    "subcategory": "product/336991",
-   "synonyms": []
+   "synonyms": [
+    "bicycle",
+    "bike",
+    "motorcycle",
+    "ebike",
+    "scooter"
+   ]
+  },
+  {
+   "catalog_id": "product_336999",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 2000
+   },
+   "display_name": "ATVs, scooters & golf carts",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:336999/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "atvs, scooters & golf carts atv quad cart moped",
+   "state": "solid",
+   "subcategory": "product/336999",
+   "synonyms": [
+    "atv",
+    "quad",
+    "golf cart",
+    "moped"
+   ]
+  },
+  {
+   "catalog_id": "product_337110",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 1500
+   },
+   "display_name": "Kitchen cabinets & countertops",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:337110/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "kitchen cabinets & countertops cabinet countertop",
+   "state": "solid",
+   "subcategory": "product/337110",
+   "synonyms": [
+    "kitchen cabinet",
+    "countertop"
+   ]
   },
   {
    "catalog_id": "product_337121",
@@ -10950,10 +12859,15 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "sofas & upholstered furniture",
+   "search_tokens": "sofas & upholstered furniture sofa couch armchair recliner",
    "state": "solid",
    "subcategory": "product/337121",
-   "synonyms": []
+   "synonyms": [
+    "sofa",
+    "couch",
+    "armchair",
+    "recliner"
+   ]
   },
   {
    "catalog_id": "product_337122",
@@ -10977,10 +12891,111 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "wooden furniture",
+   "search_tokens": "wooden furniture table chair dresser wardrobe bed frame nightstand",
    "state": "solid",
    "subcategory": "product/337122",
-   "synonyms": []
+   "synonyms": [
+    "table",
+    "chair",
+    "dresser",
+    "wardrobe",
+    "bed frame",
+    "nightstand"
+   ]
+  },
+  {
+   "catalog_id": "product_33712n",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 150
+   },
+   "display_name": "Metal & plastic furniture",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:33712N/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "metal & plastic furniture folding chair shelf",
+   "state": "solid",
+   "subcategory": "product/33712N",
+   "synonyms": [
+    "folding chair",
+    "metal shelf",
+    "plastic chair"
+   ]
+  },
+  {
+   "catalog_id": "product_337215",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 80
+   },
+   "display_name": "Shelving & storage units",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:337215/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "shelving & storage units shelf bookcase rack",
+   "state": "solid",
+   "subcategory": "product/337215",
+   "synonyms": [
+    "shelf",
+    "shelving",
+    "bookcase",
+    "storage rack"
+   ]
+  },
+  {
+   "catalog_id": "product_33721a",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 200
+   },
+   "display_name": "Desks & office furniture",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:33721A/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "desks & office furniture desk chair filing cabinet",
+   "state": "solid",
+   "subcategory": "product/33721A",
+   "synonyms": [
+    "desk",
+    "office chair",
+    "filing cabinet"
+   ]
   },
   {
    "catalog_id": "product_337900",
@@ -11004,10 +13019,78 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "mattresses & blinds",
+   "search_tokens": "mattresses & blinds mattress shades",
    "state": "solid",
    "subcategory": "product/337900",
-   "synonyms": []
+   "synonyms": [
+    "mattress",
+    "blinds",
+    "shades"
+   ]
+  },
+  {
+   "catalog_id": "product_339113",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 20
+   },
+   "display_name": "First aid & medical supplies",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:339113/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "first aid & medical supplies bandage brace crutches",
+   "state": "solid",
+   "subcategory": "product/339113",
+   "synonyms": [
+    "first aid",
+    "bandage",
+    "brace",
+    "crutches"
+   ]
+  },
+  {
+   "catalog_id": "product_339115",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 150
+   },
+   "display_name": "Eyeglasses & sunglasses",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:339115/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "eyeglasses & sunglasses glasses spectacles frames",
+   "state": "solid",
+   "subcategory": "product/339115",
+   "synonyms": [
+    "glasses",
+    "sunglasses",
+    "spectacles",
+    "frames"
+   ]
   },
   {
    "catalog_id": "product_339910",
@@ -11031,10 +13114,16 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "jewelry",
+   "search_tokens": "jewelry ring necklace earrings bracelet",
    "state": "solid",
    "subcategory": "product/339910",
-   "synonyms": []
+   "synonyms": [
+    "jewelry",
+    "ring",
+    "necklace",
+    "earrings",
+    "bracelet"
+   ]
   },
   {
    "catalog_id": "product_339920",
@@ -11058,10 +13147,16 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "sporting goods",
+   "search_tokens": "sporting goods dumbbell yoga mat tennis racket gym equipment golf clubs",
    "state": "solid",
    "subcategory": "product/339920",
-   "synonyms": []
+   "synonyms": [
+    "dumbbell",
+    "yoga mat",
+    "tennis racket",
+    "gym equipment",
+    "golf clubs"
+   ]
   },
   {
    "catalog_id": "product_339930",
@@ -11085,10 +13180,16 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "toys & games",
+   "search_tokens": "toys & games toy lego board game doll puzzle",
    "state": "solid",
    "subcategory": "product/339930",
-   "synonyms": []
+   "synonyms": [
+    "toy",
+    "lego",
+    "board game",
+    "doll",
+    "puzzle"
+   ]
   },
   {
    "catalog_id": "product_339940",
@@ -11112,10 +13213,49 @@
    },
    "off_category_tags": [],
    "recipe": null,
-   "search_tokens": "office supplies",
+   "search_tokens": "office supplies pen pencil stapler scissors tape",
    "state": "solid",
    "subcategory": "product/339940",
-   "synonyms": []
+   "synonyms": [
+    "pen",
+    "pencil",
+    "stapler",
+    "scissors",
+    "tape"
+   ]
+  },
+  {
+   "catalog_id": "product_339990",
+   "category": "product",
+   "default_quantity": {
+    "basis": "typical purchase price",
+    "unit": "usd",
+    "value": 200
+   },
+   "display_name": "Musical instruments",
+   "factor_links": {
+    "primary": null,
+    "proxy": null,
+    "secondary": [],
+    "spend": {
+     "factor_id": "useeio:339990/US",
+     "match_level": "proxy_sector",
+     "metric_type": "freshwater_withdrawal"
+    },
+    "typology": null
+   },
+   "off_category_tags": [],
+   "recipe": null,
+   "search_tokens": "musical instruments guitar piano keyboard violin drums",
+   "state": "solid",
+   "subcategory": "product/339990",
+   "synonyms": [
+    "guitar",
+    "piano",
+    "keyboard",
+    "violin",
+    "drums"
+   ]
   },
   {
    "catalog_id": "pumpkin",

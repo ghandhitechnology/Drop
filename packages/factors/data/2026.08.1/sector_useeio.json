@@ -82,6 +82,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Houseplants & cut flowers",
+    "synonyms": [
+     "plant",
+     "houseplant",
+     "flowers",
+     "bouquet",
+     "succulent"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:111400/US",
@@ -722,6 +733,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Lumber & wood boards",
+    "synonyms": [
+     "lumber",
+     "wood",
+     "boards",
+     "timber",
+     "planks"
+    ],
+    "typical_price_usd": 50
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:321100/US",
@@ -742,6 +764,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Plywood & panels",
+    "synonyms": [
+     "plywood",
+     "mdf",
+     "particle board"
+    ],
+    "typical_price_usd": 40
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:321200/US",
@@ -762,6 +793,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Wood flooring, windows & doors",
+    "synonyms": [
+     "hardwood floor",
+     "wooden door",
+     "window frame"
+    ],
+    "typical_price_usd": 200
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:321910/US",
@@ -804,6 +844,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Ceramics & dishes",
+    "synonyms": [
+     "plate",
+     "bowl",
+     "mug",
+     "ceramic",
+     "vase"
+    ],
     "typical_price_usd": 25
    },
    "dataset": "useeio_v2.0",
@@ -828,6 +875,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Glassware",
+    "synonyms": [
+     "glass",
+     "wine glass",
+     "jar",
+     "bottle"
+    ],
     "typical_price_usd": 15
    },
    "dataset": "useeio_v2.0",
@@ -850,6 +903,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Cement & mortar",
+    "synonyms": [
+     "cement",
+     "mortar",
+     "grout"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:327310/US",
@@ -870,6 +932,13 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Ready-mix concrete",
+    "synonyms": [
+     "concrete"
+    ],
+    "typical_price_usd": 150
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:327320/US",
@@ -890,6 +959,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Bricks & concrete blocks",
+    "synonyms": [
+     "bricks",
+     "cinder blocks",
+     "pavers"
+    ],
+    "typical_price_usd": 60
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:327330/US",
@@ -930,6 +1008,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Drywall & plaster",
+    "synonyms": [
+     "drywall",
+     "plaster",
+     "sheetrock",
+     "gypsum board"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:327400/US",
@@ -950,6 +1038,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Sandpaper & abrasives",
+    "synonyms": [
+     "sandpaper",
+     "grinding disc"
+    ],
+    "typical_price_usd": 10
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:327910/US",
@@ -1010,6 +1106,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Insulation",
+    "synonyms": [
+     "insulation",
+     "mineral wool",
+     "fiberglass insulation"
+    ],
+    "typical_price_usd": 50
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:327993/US",
@@ -1292,6 +1397,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Cutlery & hand tools",
+    "synonyms": [
+     "knife",
+     "fork",
+     "spoon",
+     "hammer",
+     "screwdriver",
+     "wrench"
+    ],
     "typical_price_usd": 20
    },
    "dataset": "useeio_v2.0",
@@ -1414,6 +1527,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Locks, hinges & hardware",
+    "synonyms": [
+     "lock",
+     "hinge",
+     "doorknob",
+     "handle",
+     "padlock"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:332500/US",
@@ -1474,6 +1598,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Screws, nuts & bolts",
+    "synonyms": [
+     "screws",
+     "nails",
+     "bolts",
+     "fasteners"
+    ],
+    "typical_price_usd": 8
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:332720/US",
@@ -1514,6 +1648,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Faucets & plumbing fittings",
+    "synonyms": [
+     "faucet",
+     "tap",
+     "shower head",
+     "valve"
+    ],
+    "typical_price_usd": 60
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:332913/US",
@@ -1614,6 +1758,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Pots, pans & metal kitchenware",
+    "synonyms": [
+     "pot",
+     "pan",
+     "saucepan",
+     "wok",
+     "baking tray"
+    ],
+    "typical_price_usd": 30
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:332999/US",
@@ -1656,6 +1811,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Lawn & garden equipment",
+    "synonyms": [
+     "lawnmower",
+     "trimmer",
+     "leaf blower",
+     "chainsaw"
+    ],
     "typical_price_usd": 150
    },
    "dataset": "useeio_v2.0",
@@ -1758,6 +1919,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Camera lenses & optics",
+    "synonyms": [
+     "lens",
+     "binoculars",
+     "telescope",
+     "scope"
+    ],
+    "typical_price_usd": 150
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:333314/US",
@@ -1778,6 +1949,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Cameras",
+    "synonyms": [
+     "camera",
+     "gopro",
+     "dslr",
+     "mirrorless",
+     "camcorder"
+    ],
+    "typical_price_usd": 300
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:333316/US",
@@ -1818,6 +2000,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Water heaters",
+    "synonyms": [
+     "water heater",
+     "boiler",
+     "hot water tank"
+    ],
+    "typical_price_usd": 400
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:333414/US",
@@ -1838,6 +2029,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Air conditioners",
+    "synonyms": [
+     "air conditioner",
+     "ac",
+     "portable ac"
+    ],
+    "typical_price_usd": 350
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:333415/US",
@@ -1858,6 +2058,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Air purifiers & fans",
+    "synonyms": [
+     "air purifier",
+     "fan",
+     "humidifier",
+     "dehumidifier"
+    ],
+    "typical_price_usd": 120
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:333413/US",
@@ -2100,6 +2310,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Power tools",
+    "synonyms": [
+     "drill",
+     "saw",
+     "sander",
+     "grinder",
+     "impact driver"
+    ],
     "typical_price_usd": 90
    },
    "dataset": "useeio_v2.0",
@@ -2162,6 +2379,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Welding & soldering equipment",
+    "synonyms": [
+     "welder",
+     "soldering iron"
+    ],
+    "typical_price_usd": 120
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:33399A/US",
@@ -2204,6 +2429,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Computers & laptops",
+    "synonyms": [
+     "laptop",
+     "computer",
+     "pc",
+     "macbook",
+     "tablet",
+     "ipad"
+    ],
     "typical_price_usd": 800
    },
    "dataset": "useeio_v2.0",
@@ -2246,6 +2479,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Computer accessories",
+    "synonyms": [
+     "keyboard",
+     "mouse",
+     "monitor",
+     "webcam",
+     "printer"
+    ],
+    "typical_price_usd": 60
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:334118/US",
@@ -2268,6 +2512,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Phones",
+    "synonyms": [
+     "smartphone",
+     "iphone",
+     "android",
+     "cell phone",
+     "mobile"
+    ],
     "typical_price_usd": 700
    },
    "dataset": "useeio_v2.0",
@@ -2290,6 +2541,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Wi-Fi routers & network gear",
+    "synonyms": [
+     "router",
+     "wifi",
+     "modem",
+     "hotspot"
+    ],
+    "typical_price_usd": 80
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:334220/US",
@@ -2390,6 +2651,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Home medical devices",
+    "synonyms": [
+     "blood pressure monitor",
+     "cpap",
+     "glucose meter",
+     "thermometer"
+    ],
+    "typical_price_usd": 150
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:334510/US",
@@ -2430,6 +2701,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Smart thermostats & home controls",
+    "synonyms": [
+     "thermostat",
+     "nest",
+     "smart home"
+    ],
+    "typical_price_usd": 80
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:334512/US",
@@ -2550,6 +2830,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Watches & clocks",
+    "synonyms": [
+     "watch",
+     "smartwatch",
+     "clock",
+     "apple watch"
+    ],
+    "typical_price_usd": 80
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:33451A/US",
@@ -2572,6 +2862,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Audio & video gear",
+    "synonyms": [
+     "tv",
+     "television",
+     "headphones",
+     "earbuds",
+     "speaker",
+     "soundbar"
+    ],
     "typical_price_usd": 150
    },
    "dataset": "useeio_v2.0",
@@ -2596,6 +2894,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Hard drives & storage media",
+    "synonyms": [
+     "hard drive",
+     "ssd",
+     "usb stick",
+     "memory card",
+     "sd card"
+    ],
     "typical_price_usd": 80
    },
    "dataset": "useeio_v2.0",
@@ -2620,6 +2925,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Light bulbs",
+    "synonyms": [
+     "light bulb",
+     "led bulb",
+     "lamp bulb"
+    ],
     "typical_price_usd": 8
    },
    "dataset": "useeio_v2.0",
@@ -2642,6 +2952,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Lamps & light fixtures",
+    "synonyms": [
+     "lamp",
+     "chandelier",
+     "ceiling light",
+     "fixture"
+    ],
+    "typical_price_usd": 60
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:335120/US",
@@ -2664,6 +2984,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Small kitchen appliances",
+    "synonyms": [
+     "toaster",
+     "blender",
+     "coffee maker",
+     "microwave",
+     "kettle",
+     "air fryer"
+    ],
     "typical_price_usd": 50
    },
    "dataset": "useeio_v2.0",
@@ -2688,6 +3016,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Stoves & ovens",
+    "synonyms": [
+     "stove",
+     "oven",
+     "range",
+     "cooktop"
+    ],
     "typical_price_usd": 600
    },
    "dataset": "useeio_v2.0",
@@ -2712,6 +3046,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Refrigerators & freezers",
+    "synonyms": [
+     "fridge",
+     "refrigerator",
+     "freezer"
+    ],
     "typical_price_usd": 900
    },
    "dataset": "useeio_v2.0",
@@ -2736,6 +3075,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Washers & dryers",
+    "synonyms": [
+     "washing machine",
+     "dryer",
+     "laundry machine"
+    ],
     "typical_price_usd": 700
    },
    "dataset": "useeio_v2.0",
@@ -2758,6 +3102,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Dishwashers & other major appliances",
+    "synonyms": [
+     "dishwasher",
+     "appliance"
+    ],
+    "typical_price_usd": 500
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:335228/US",
@@ -2858,6 +3210,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Rechargeable batteries & power banks",
+    "synonyms": [
+     "power bank",
+     "rechargeable battery",
+     "car battery",
+     "charger pack"
+    ],
+    "typical_price_usd": 30
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:335911/US",
@@ -2880,6 +3242,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Batteries",
+    "synonyms": [
+     "battery",
+     "aa",
+     "aaa",
+     "alkaline"
+    ],
     "typical_price_usd": 10
    },
    "dataset": "useeio_v2.0",
@@ -2922,6 +3290,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Plugs, switches & extension cords",
+    "synonyms": [
+     "extension cord",
+     "power strip",
+     "plug",
+     "outlet",
+     "adapter"
+    ],
+    "typical_price_usd": 12
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:335930/US",
@@ -2984,6 +3363,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Cars (purchase)",
+    "synonyms": [
+     "car",
+     "automobile",
+     "sedan"
+    ],
     "typical_price_usd": 30000
    },
    "dataset": "useeio_v2.0",
@@ -3008,6 +3392,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Pickups, vans & SUVs (purchase)",
+    "synonyms": [
+     "suv",
+     "pickup truck",
+     "van"
+    ],
     "typical_price_usd": 40000
    },
    "dataset": "useeio_v2.0",
@@ -3090,6 +3479,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Motorhomes & RVs",
+    "synonyms": [
+     "rv",
+     "motorhome",
+     "camper van"
+    ],
+    "typical_price_usd": 60000
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:336213/US",
@@ -3110,6 +3508,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Travel trailers & campers",
+    "synonyms": [
+     "caravan",
+     "camper trailer"
+    ],
+    "typical_price_usd": 20000
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:336214/US",
@@ -3230,6 +3636,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Auto parts & accessories",
+    "synonyms": [
+     "car parts",
+     "brake pads",
+     "wipers",
+     "floor mats"
+    ],
+    "typical_price_usd": 80
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:336390/US",
@@ -3410,6 +3826,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Boats",
+    "synonyms": [
+     "boat",
+     "kayak",
+     "canoe",
+     "jet ski"
+    ],
+    "typical_price_usd": 15000
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:336612/US",
@@ -3432,6 +3858,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Bicycles & motorcycles",
+    "synonyms": [
+     "bicycle",
+     "bike",
+     "motorcycle",
+     "ebike",
+     "scooter"
+    ],
     "typical_price_usd": 400
    },
    "dataset": "useeio_v2.0",
@@ -3474,6 +3907,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "ATVs, scooters & golf carts",
+    "synonyms": [
+     "atv",
+     "quad",
+     "golf cart",
+     "moped"
+    ],
+    "typical_price_usd": 2000
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:336999/US",
@@ -3494,6 +3937,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Kitchen cabinets & countertops",
+    "synonyms": [
+     "kitchen cabinet",
+     "countertop"
+    ],
+    "typical_price_usd": 1500
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:337110/US",
@@ -3516,6 +3967,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Sofas & upholstered furniture",
+    "synonyms": [
+     "sofa",
+     "couch",
+     "armchair",
+     "recliner"
+    ],
     "typical_price_usd": 500
    },
    "dataset": "useeio_v2.0",
@@ -3540,6 +3997,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Wooden furniture",
+    "synonyms": [
+     "table",
+     "chair",
+     "dresser",
+     "wardrobe",
+     "bed frame",
+     "nightstand"
+    ],
     "typical_price_usd": 250
    },
    "dataset": "useeio_v2.0",
@@ -3582,6 +4047,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Metal & plastic furniture",
+    "synonyms": [
+     "folding chair",
+     "metal shelf",
+     "plastic chair"
+    ],
+    "typical_price_usd": 150
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:33712N/US",
@@ -3602,6 +4076,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Shelving & storage units",
+    "synonyms": [
+     "shelf",
+     "shelving",
+     "bookcase",
+     "storage rack"
+    ],
+    "typical_price_usd": 80
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:337215/US",
@@ -3622,6 +4106,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Desks & office furniture",
+    "synonyms": [
+     "desk",
+     "office chair",
+     "filing cabinet"
+    ],
+    "typical_price_usd": 200
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:33721A/US",
@@ -3644,6 +4137,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Mattresses & blinds",
+    "synonyms": [
+     "mattress",
+     "blinds",
+     "shades"
+    ],
     "typical_price_usd": 400
    },
    "dataset": "useeio_v2.0",
@@ -3686,6 +4184,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "First aid & medical supplies",
+    "synonyms": [
+     "first aid",
+     "bandage",
+     "brace",
+     "crutches"
+    ],
+    "typical_price_usd": 20
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:339113/US",
@@ -3726,6 +4234,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Eyeglasses & sunglasses",
+    "synonyms": [
+     "glasses",
+     "sunglasses",
+     "spectacles",
+     "frames"
+    ],
+    "typical_price_usd": 150
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:339115/US",
@@ -3768,6 +4286,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Jewelry",
+    "synonyms": [
+     "jewelry",
+     "ring",
+     "necklace",
+     "earrings",
+     "bracelet"
+    ],
     "typical_price_usd": 100
    },
    "dataset": "useeio_v2.0",
@@ -3792,6 +4317,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Sporting goods",
+    "synonyms": [
+     "dumbbell",
+     "yoga mat",
+     "tennis racket",
+     "gym equipment",
+     "golf clubs"
+    ],
     "typical_price_usd": 50
    },
    "dataset": "useeio_v2.0",
@@ -3816,6 +4348,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Toys & games",
+    "synonyms": [
+     "toy",
+     "lego",
+     "board game",
+     "doll",
+     "puzzle"
+    ],
     "typical_price_usd": 25
    },
    "dataset": "useeio_v2.0",
@@ -3840,6 +4379,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Office supplies",
+    "synonyms": [
+     "pen",
+     "pencil",
+     "stapler",
+     "scissors",
+     "tape"
+    ],
     "typical_price_usd": 10
    },
    "dataset": "useeio_v2.0",
@@ -3882,6 +4428,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Musical instruments",
+    "synonyms": [
+     "guitar",
+     "piano",
+     "keyboard",
+     "violin",
+     "drums"
+    ],
+    "typical_price_usd": 200
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:339990/US",
@@ -3904,6 +4461,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Pet food",
+    "synonyms": [
+     "dog food",
+     "cat food",
+     "kibble"
+    ],
     "typical_price_usd": 20
    },
    "dataset": "useeio_v2.0",
@@ -4466,6 +5028,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Cigarettes & tobacco",
+    "synonyms": [
+     "cigarettes",
+     "tobacco",
+     "vape",
+     "cigars"
+    ],
+    "typical_price_usd": 10
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:312200/US",
@@ -4486,6 +5058,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Yarn & thread",
+    "synonyms": [
+     "yarn",
+     "thread",
+     "wool",
+     "knitting",
+     "crochet"
+    ],
+    "typical_price_usd": 8
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:313100/US",
@@ -4508,6 +5091,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Fabric",
+    "synonyms": [
+     "fabric",
+     "cloth",
+     "textile",
+     "material"
+    ],
     "typical_price_usd": 15
    },
    "dataset": "useeio_v2.0",
@@ -4552,6 +5141,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Carpets & rugs",
+    "synonyms": [
+     "carpet",
+     "rug",
+     "mat"
+    ],
     "typical_price_usd": 80
    },
    "dataset": "useeio_v2.0",
@@ -4576,6 +5170,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Curtains & bed linens",
+    "synonyms": [
+     "curtains",
+     "sheets",
+     "bedding",
+     "pillowcase",
+     "duvet",
+     "towels"
+    ],
     "typical_price_usd": 40
    },
    "dataset": "useeio_v2.0",
@@ -4598,6 +5200,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Bags & textile goods",
+    "synonyms": [
+     "tote bag",
+     "backpack",
+     "canvas bag",
+     "rope"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:314900/US",
@@ -4620,6 +5232,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Clothing",
+    "synonyms": [
+     "shirt",
+     "pants",
+     "jacket",
+     "dress",
+     "clothes",
+     "옷"
+    ],
     "typical_price_usd": 25
    },
    "dataset": "useeio_v2.0",
@@ -4644,6 +5264,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Shoes & leather goods",
+    "synonyms": [
+     "shoes",
+     "sneakers",
+     "boots",
+     "handbag",
+     "belt",
+     "wallet"
+    ],
     "typical_price_usd": 60
    },
    "dataset": "useeio_v2.0",
@@ -4688,6 +5316,11 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Paper",
+    "synonyms": [
+     "paper",
+     "printer paper",
+     "a4"
+    ],
     "typical_price_usd": 8
    },
    "dataset": "useeio_v2.0",
@@ -4730,6 +5363,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Cardboard boxes & packaging",
+    "synonyms": [
+     "cardboard box",
+     "moving box",
+     "shipping box"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:322210/US",
@@ -4750,6 +5392,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Paper bags & gift wrap",
+    "synonyms": [
+     "paper bag",
+     "gift wrap",
+     "wrapping paper"
+    ],
+    "typical_price_usd": 6
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:322220/US",
@@ -4772,6 +5423,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Stationery & notebooks",
+    "synonyms": [
+     "notebook",
+     "notepad",
+     "journal",
+     "envelope"
+    ],
     "typical_price_usd": 6
    },
    "dataset": "useeio_v2.0",
@@ -4796,6 +5453,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Tissues, napkins & diapers",
+    "synonyms": [
+     "tissues",
+     "napkins",
+     "diapers",
+     "toilet paper",
+     "wipes"
+    ],
     "typical_price_usd": 12
    },
    "dataset": "useeio_v2.0",
@@ -4818,6 +5482,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Disposable plates & cups",
+    "synonyms": [
+     "paper plate",
+     "paper cup",
+     "disposable cutlery",
+     "party supplies"
+    ],
+    "typical_price_usd": 8
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:322299/US",
@@ -4840,6 +5514,12 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Books, newspapers & magazines",
+    "synonyms": [
+     "book",
+     "magazine",
+     "newspaper",
+     "novel"
+    ],
     "typical_price_usd": 18
    },
    "dataset": "useeio_v2.0",
@@ -4922,6 +5602,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Roofing shingles",
+    "synonyms": [
+     "shingles",
+     "roofing"
+    ],
+    "typical_price_usd": 100
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:324122/US",
@@ -4942,6 +5630,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Motor oil & lubricants",
+    "synonyms": [
+     "motor oil",
+     "engine oil",
+     "lubricant",
+     "wd40"
+    ],
+    "typical_price_usd": 10
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:324190/US",
@@ -4982,6 +5680,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Propane & compressed gas",
+    "synonyms": [
+     "propane",
+     "gas canister",
+     "camping gas"
+    ],
+    "typical_price_usd": 40
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:325120/US",
@@ -5124,6 +5831,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Medicines",
+    "synonyms": [
+     "medicine",
+     "pills",
+     "vitamins",
+     "supplements",
+     "painkillers"
+    ],
     "typical_price_usd": 20
    },
    "dataset": "useeio_v2.0",
@@ -5146,6 +5860,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Home test kits",
+    "synonyms": [
+     "pregnancy test",
+     "covid test",
+     "glucose test"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:325413/US",
@@ -5186,6 +5909,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Fertilizer",
+    "synonyms": [
+     "fertilizer",
+     "plant food",
+     "compost"
+    ],
+    "typical_price_usd": 20
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:325310/US",
@@ -5206,6 +5938,17 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Pesticides & weed killers",
+    "synonyms": [
+     "pesticide",
+     "herbicide",
+     "insecticide",
+     "weed killer",
+     "bug spray"
+    ],
+    "typical_price_usd": 15
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:325320/US",
@@ -5226,6 +5969,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Paint",
+    "synonyms": [
+     "paint",
+     "varnish",
+     "primer",
+     "coating"
+    ],
+    "typical_price_usd": 40
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:325510/US",
@@ -5246,6 +5999,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Glue & adhesives",
+    "synonyms": [
+     "glue",
+     "super glue",
+     "epoxy",
+     "adhesive"
+    ],
+    "typical_price_usd": 8
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:325520/US",
@@ -5268,6 +6031,13 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Soap & cleaning products",
+    "synonyms": [
+     "soap",
+     "detergent",
+     "cleaner",
+     "bleach",
+     "dish soap"
+    ],
     "typical_price_usd": 8
    },
    "dataset": "useeio_v2.0",
@@ -5292,6 +6062,14 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Toiletries & cosmetics",
+    "synonyms": [
+     "shampoo",
+     "toothpaste",
+     "deodorant",
+     "makeup",
+     "lotion",
+     "sunscreen"
+    ],
     "typical_price_usd": 15
    },
    "dataset": "useeio_v2.0",
@@ -5314,6 +6092,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Printer ink & toner",
+    "synonyms": [
+     "ink cartridge",
+     "toner"
+    ],
+    "typical_price_usd": 30
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:325910/US",
@@ -5334,6 +6120,14 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Pool & spa chemicals",
+    "synonyms": [
+     "chlorine",
+     "pool chemicals"
+    ],
+    "typical_price_usd": 25
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:3259A0/US",
@@ -5354,6 +6148,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Plastic bags & wrap",
+    "synonyms": [
+     "plastic bag",
+     "cling wrap",
+     "ziplock",
+     "trash bag"
+    ],
+    "typical_price_usd": 8
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:326110/US",
@@ -5454,6 +6258,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Plastic bottles & containers",
+    "synonyms": [
+     "plastic bottle",
+     "container",
+     "tupperware",
+     "water bottle"
+    ],
+    "typical_price_usd": 10
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:326160/US",
@@ -5474,6 +6288,16 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Plastic household goods",
+    "synonyms": [
+     "plastic bin",
+     "hanger",
+     "bucket",
+     "storage box"
+    ],
+    "typical_price_usd": 12
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:326190/US",
@@ -5496,6 +6320,10 @@
    "confidence_cap": "very_low",
    "consumer": {
     "display": "Tires",
+    "synonyms": [
+     "tire",
+     "tyre"
+    ],
     "typical_price_usd": 150
    },
    "dataset": "useeio_v2.0",
@@ -5538,6 +6366,15 @@
   },
   {
    "confidence_cap": "very_low",
+   "consumer": {
+    "display": "Rubber gloves & household rubber goods",
+    "synonyms": [
+     "rubber gloves",
+     "latex gloves",
+     "eraser"
+    ],
+    "typical_price_usd": 10
+   },
    "dataset": "useeio_v2.0",
    "dataset_release": "USEEIO v2.0 (US EPA)",
    "factor_id": "useeio:326290/US",
