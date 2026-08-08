@@ -39,6 +39,7 @@
   },
   "scripts": {
     "test": "vitest run",
+    "dev": "expo start",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",

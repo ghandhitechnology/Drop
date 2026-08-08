@@ -34,10 +34,11 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Extrapolation,
   interpolate,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -59,7 +60,15 @@ import { copy, formatQuantity } from '../../lib/copy';
 import { tapConfirmed, tapSelection } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
-import { estimatesOf, keptItemsOf, plateItemsOf, type Estimate, type Rect } from '../capture/types';
+import {
+  estimatesOf,
+  keptIndicesOf,
+  pileIndicesOf,
+  plateItemsOf,
+  queuedCountOf,
+  type Estimate,
+  type Rect,
+} from '../capture/types';
 import { characterSideForAnchor } from '../capture/anchor';
 import { captureLayout, PULL_ROW, TEASER_HEIGHT } from '../capture/layout';
 import { RETICLE_HANDOFF, RETICLE_RELEASE } from '../capture/overlay';
@@ -72,11 +81,21 @@ import { ConfirmMark, PullChevron } from './Marks';
 import { pulseHistory } from '../history/pulse';
 import { MorphShape } from './MorphShape';
 import { PileEdges } from './PileEdges';
+import { QueueTray } from './QueueTray';
 import { ResultCard } from './ResultCard';
 import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
 import { beat, useExpansion } from './useExpansion';
-import { MAX_PEEKS, savableEstimates, useStackOrder } from './useStackOrder';
+import {
+  FLICK_VELOCITY,
+  MAX_PEEKS,
+  savableEstimates,
+  SWIPE_SAG,
+  SWIPE_TRAVEL,
+  SWIPE_TRIGGER,
+  useStackOrder,
+  type SwipeIntent,
+} from './useStackOrder';
 
 export type ResultStageProps = {
   /** The camera stage, in its own coordinates — the same space as the anchor. */
@@ -100,6 +119,11 @@ const DOCK_SIZE = 40;
 const SILHOUETTE_INSET = 0.02;
 /** Approximate centre of the measured History chip at the top-right door. */
 const HISTORY_CHIP_HALF_WIDTH = 54;
+/**
+ * The tray hangs this far under the History door — close enough to read as
+ * part of it, clear enough not to sit on the chip.
+ */
+const TRAY_DROP = 36;
 /** Keep the result legible for most of its trip, then tuck it away at the end. */
 const EXIT_SCALE = 0.08;
 /** Share of the window above the open card the print is allowed to fill. */
@@ -186,6 +210,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const reviseEstimate = useCaptureMachine((s) => s.reviseEstimate);
   const confirmEntry = useCaptureMachine((s) => s.confirm);
   const dismissCard = useCaptureMachine((s) => s.dismissCard);
+  const queueCard = useCaptureMachine((s) => s.queueCard);
   const confirmPlate = useCaptureMachine((s) => s.confirmPlate);
   const retake = useCaptureMachine((s) => s.retake);
 
@@ -199,15 +224,19 @@ export function ResultStage({ stage }: ResultStageProps) {
   const estimates = useMemo(() => estimatesOf(state), [state]);
   const estimate = 'estimate' in state ? state.estimate : estimates[0] ?? null;
   const anyFigure = estimates.some((entry) => entry.headline !== null);
-  const kept = useMemo(() => {
-    if (state.name === 'plating') {
-      return state.items
-        .map((_, index) => index)
-        .filter((index) => !state.dismissed.includes(index));
-    }
-    if (state.name === 'plateConfirmed') return [...state.kept];
-    return [];
-  }, [state]);
+  /**
+   * Two lists, and the difference between them is the whole feature.
+   *
+   * `kept` is what a save would write — everything not swiped away, tray
+   * included. `onPile` is what is still under the thumb. A card swiped right
+   * leaves the second and stays in the first.
+   */
+  const kept = useMemo(
+    () => (state.name === 'plateConfirmed' ? [...state.kept] : keptIndicesOf(state)),
+    [state],
+  );
+  const onPile = useMemo(() => pileIndicesOf(state), [state]);
+  const queuedCount = queuedCountOf(state);
   const seeds = useMemo(
     () => plateItems.map((entry) => entry.estimate.catalog_id),
     [plateItems],
@@ -533,9 +562,14 @@ export function ResultStage({ stage }: ResultStageProps) {
     retake();
   }, [retake]);
 
-  /** An unsaved result folds into the shutter instead of implying it reached History. */
+  /**
+   * An unsaved result folds into the shutter instead of implying it reached
+   * History. A full tray goes with it — nothing swiped across was ever written,
+   * so closing is the one place the queue is thrown away, and it says so.
+   */
   const handleDismiss = useCallback(() => {
     if (receding) return;
+    const discarding = queuedCount;
     exitTargetX.value = layout.bubble.x;
     exitTargetY.value = layout.bubble.y;
     setReceding(true);
@@ -547,12 +581,17 @@ export function ResultStage({ stage }: ResultStageProps) {
       () => {
         setDetailOpen(false);
         retake();
-        AccessibilityInfo.announceForAccessibility(copy.result.announce.collapsed);
+        AccessibilityInfo.announceForAccessibility(
+          discarding > 0
+            ? copy.result.announce.discarded(discarding)
+            : copy.result.announce.collapsed,
+        );
       },
       (motion.reduceMotion ? 120 : beat.recede) + 40,
     );
   }, [
     receding,
+    queuedCount,
     exitTargetX,
     exitTargetY,
     layout.bubble.x,
@@ -564,78 +603,135 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   /* ------------------------------------------------------------ the pile */
 
-  /** The print takes back a dismissed sheet with the same pulse Drop uses. */
+  /** Whatever catches a departing sheet greets it with the pulse Drop uses. */
   const printPulse = useSharedValue(1);
+  const trayPulse = useSharedValue(1);
 
-  const handleExitStart = useCallback(() => {
-    if (motion.reduceMotion) return;
-    printPulse.value = withSequence(
-      withTiming(1.05, { duration: 110 }),
-      withSpring(1, spring.drop),
-    );
-  }, [motion.reduceMotion, printPulse]);
-
-  /**
-   * A sheet has landed back in the print. The last one leaving is the person
-   * clearing the plate, which is a close, not a save — it takes the same door
-   * an unsaved single card takes.
-   */
-  const handleDismissed = useCallback(
-    (index: number, last: boolean) => {
-      if (last) {
-        handleDismiss();
-        return;
-      }
-      const label = plateItems[index]?.estimate.display_name ?? '';
-      dismissCard(index);
-      AccessibilityInfo.announceForAccessibility(
-        copy.result.announce.dismissed(label, Math.max(0, kept.length - 1)),
+  const handleExitStart = useCallback(
+    (_index: number, intent: SwipeIntent) => {
+      if (motion.reduceMotion) return;
+      const catcher = intent === 'queue' ? trayPulse : printPulse;
+      catcher.value = withSequence(
+        withTiming(1.05, { duration: 110 }),
+        withSpring(1, spring.drop),
       );
     },
-    [handleDismiss, dismissCard, plateItems, kept.length],
+    [motion.reduceMotion, printPulse, trayPulse],
+  );
+
+  /**
+   * The one write of a plate run.
+   *
+   * `indices` is decided by the caller because the last card of a run leaves
+   * the pile in the same tick as the save, and the machine has not heard about
+   * it yet. Everything queued has been waiting for exactly this call — the
+   * cards go in as one merged row, which is what they would have been if the
+   * person had pressed Save without swiping at all.
+   */
+  const finishPlate = useCallback(
+    async (indices: readonly number[]) => {
+      if (busy.current || state.name !== 'plating') return;
+      const chosen = indices
+        .map((index) => state.items[index]?.estimate)
+        .filter((entry): entry is Estimate => entry !== undefined);
+      const savable = savableEstimates(chosen);
+      if (savable.length === 0) return;
+      busy.current = true;
+      const entryId = newEntryId();
+      const storedPhotoUri = photoUri
+        ? await persistCapturedPhoto(photoUri, entryId).catch(() => null)
+        : null;
+      try {
+        const entry = await insertPlate(savable.map(toEngineEstimate), {
+          id: entryId,
+          inputMethod: photoUri ? 'camera' : 'search',
+          photoUri: storedPhotoUri,
+        });
+        tapConfirmed();
+        confirmPlate(entry.id, entry.estimate as unknown as Estimate, indices);
+        AccessibilityInfo.announceForAccessibility(
+          savable.length === 1
+            ? copy.result.announce.confirmed(entry.item_label)
+            : copy.result.announce.confirmedMany(savable.length, entry.item_label),
+        );
+      } catch (error) {
+        if (storedPhotoUri) discardCapturedPhoto(storedPhotoUri);
+        throw error;
+      } finally {
+        busy.current = false;
+      }
+    },
+    [state, photoUri, confirmPlate],
+  );
+
+  const handleConfirmMany = useCallback(() => {
+    void finishPlate(kept);
+  }, [finishPlate, kept]);
+
+  /**
+   * A sheet has landed, and which way it went decides everything.
+   *
+   * Left puts it back in the photo and forgets it. Right sends it to the tray,
+   * where it waits — unwritten — for the end of the run.
+   *
+   * The last sheet leaving is the end of the run either way, and that is the
+   * one place the two directions converge: whatever is in the tray gets
+   * written, even if the gesture that emptied the pile was a swipe away. The
+   * alternative is a single left-swipe silently destroying a tray full of
+   * deliberate right-swipes. Only the way out throws the tray away.
+   */
+  const handleResolved = useCallback(
+    (index: number, intent: SwipeIntent, last: boolean) => {
+      if (last) {
+        const saving =
+          intent === 'queue' ? kept : kept.filter((entry) => entry !== index);
+        const savable = savableEstimates(
+          saving
+            .map((entry) => plateItems[entry]?.estimate)
+            .filter((entry): entry is Estimate => entry !== undefined),
+        );
+        if (savable.length > 0) void finishPlate(saving);
+        else handleDismiss();
+        return;
+      }
+
+      const label = plateItems[index]?.estimate.display_name ?? '';
+      const left = Math.max(0, onPile.length - 1);
+
+      if (intent === 'queue') {
+        queueCard(index);
+        AccessibilityInfo.announceForAccessibility(
+          copy.result.announce.queued(label, queuedCount + 1, left),
+        );
+        return;
+      }
+
+      dismissCard(index);
+      AccessibilityInfo.announceForAccessibility(
+        copy.result.announce.dismissed(label, left),
+      );
+    },
+    [
+      kept,
+      onPile.length,
+      queuedCount,
+      plateItems,
+      finishPlate,
+      handleDismiss,
+      queueCard,
+      dismissCard,
+    ],
   );
 
   const stack = useStackOrder({
-    kept,
+    kept: onPile,
     seeds,
     expansion,
     enabled: state.name === 'plating' && open && !receding,
     onExitStart: handleExitStart,
-    onDismissed: handleDismissed,
+    onResolved: handleResolved,
     reduceMotion: motion.reduceMotion,
   });
-
-  const handleConfirmMany = useCallback(async () => {
-    if (busy.current || state.name !== 'plating') return;
-    const savable = savableEstimates(
-      keptItemsOf(state).map((entry) => entry.estimate),
-    );
-    if (savable.length === 0) return;
-    busy.current = true;
-    const entryId = newEntryId();
-    const storedPhotoUri = photoUri
-      ? await persistCapturedPhoto(photoUri, entryId).catch(() => null)
-      : null;
-    try {
-      const entry = await insertPlate(savable.map(toEngineEstimate), {
-        id: entryId,
-        inputMethod: photoUri ? 'camera' : 'search',
-        photoUri: storedPhotoUri,
-      });
-      tapConfirmed();
-      confirmPlate(entry.id, entry.estimate as unknown as Estimate);
-      AccessibilityInfo.announceForAccessibility(
-        savable.length === 1
-          ? copy.result.announce.confirmed(entry.item_label)
-          : copy.result.announce.confirmedMany(savable.length, entry.item_label),
-      );
-    } catch (error) {
-      if (storedPhotoUri) discardCapturedPhoto(storedPhotoUri);
-      throw error;
-    } finally {
-      busy.current = false;
-    }
-  }, [state, photoUri, confirmPlate]);
 
   /** The strip zone above the card. Constant per run, so the print sits still. */
   const pileZone = multi
@@ -664,16 +760,102 @@ export function ResultStage({ stage }: ResultStageProps) {
     };
   }, [insets.top, cardBox.y, pileZone, stage.width, layout.slot.width]);
 
-  /** Where a dismissed sheet flies home: the print, at its open resting spot. */
+  /** Where a swiped-away sheet flies home: the print, at its open resting spot. */
   const printCenter = useMemo(
     () => ({ x: slotCenter.x, y: printOpen.y }),
     [slotCenter.x, printOpen.y],
+  );
+
+  /**
+   * Where a swiped-across sheet lands: the tray, hanging under the History
+   * door. It sits on the route the saved card takes later, so a card queued
+   * now and the plate saved at the end travel the same line.
+   */
+  const trayCenter = useMemo(
+    () => ({
+      x: stage.width - space.lg - HISTORY_CHIP_HALF_WIDTH,
+      y: insets.top + space.md + 24 + TRAY_DROP,
+    }),
+    [stage.width, insets.top],
   );
 
   const cardCenter = useMemo(
     () => ({ x: cardBox.x + cardBox.width / 2, y: cardBox.y + cardBox.height / 2 }),
     [cardBox],
   );
+
+  /* -------------------------------------------------------- the one card */
+
+  /**
+   * A single result sorts the same way a pile does.
+   *
+   * There is no tray here — one card is its own plate, so the right swipe is
+   * simply the confirm and the left is the close. Both hand straight to the
+   * buttons underneath, which keeps one door into history rather than two, and
+   * means the celebration and the fold-away play exactly as they always have.
+   */
+  const singleSwipeX = useSharedValue(0);
+  const canConfirmSingle = Boolean(estimate?.headline);
+
+  const singleSwipe = useMemo(() => {
+    const release = () => {
+      'worklet';
+      singleSwipeX.value = motion.reduceMotion
+        ? withTiming(0, { duration: 120 })
+        : withSpring(0, spring.card);
+    };
+
+    return Gesture.Pan()
+      .enabled(!multi && open && !receding && Boolean(estimate))
+      .activeOffsetX([-12, 12])
+      .failOffsetY([-24, 24])
+      .onUpdate((event) => {
+        singleSwipeX.value = event.translationX;
+      })
+      .onEnd((event) => {
+        const flicked = Math.abs(event.velocityX) > FLICK_VELOCITY;
+        const direction = flicked
+          ? Math.sign(event.velocityX)
+          : Math.sign(event.translationX);
+        const committed =
+          direction !== 0 &&
+          (flicked || Math.abs(event.translationX) >= SWIPE_TRIGGER);
+
+        // The card always comes back to centre. What happens next is a whole
+        // beat of its own — the tick, or the fold into the shutter — and both
+        // want to start from where the card actually lives.
+        release();
+        if (!committed) return;
+        if (direction > 0) {
+          if (canConfirmSingle) runOnJS(handleConfirm)();
+          return;
+        }
+        runOnJS(handleDismiss)();
+      })
+      .onFinalize((_event, success) => {
+        if (!success) release();
+      });
+  }, [
+    multi,
+    open,
+    receding,
+    estimate,
+    canConfirmSingle,
+    handleConfirm,
+    handleDismiss,
+    motion.reduceMotion,
+    singleSwipeX,
+  ]);
+
+  const singleSwipeStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: singleSwipeX.value },
+      {
+        translateY:
+          SWIPE_SAG * Math.min(1, Math.abs(singleSwipeX.value) / SWIPE_TRAVEL),
+      },
+    ],
+  }));
 
   /* --------------------------------------------------------- the looks */
 
@@ -997,8 +1179,10 @@ export function ResultStage({ stage }: ResultStageProps) {
                         .filter((entry): entry is Estimate => entry !== undefined),
                     ).length
                   }
+                  queuedCount={queuedCount}
                   cardCenter={cardCenter}
                   printCenter={printCenter}
+                  trayCenter={trayCenter}
                   zoneHeight={pileZone}
                   maxHeight={stage.height * CARD_MAX_SHARE}
                   onCardHeight={(height) =>
@@ -1028,30 +1212,48 @@ export function ResultStage({ stage }: ResultStageProps) {
                   setCardHeight((current) => (current === height ? current : height));
                 }}
               >
-                <ScrollView
-                  contentContainerStyle={styles.cardContent}
-                  showsVerticalScrollIndicator={false}
-                  scrollEnabled={open}
-                >
-                  <ResultCard
-                    estimate={estimate}
-                    open={open}
-                    adjusting={state.name === 'adjusting'}
-                    confirmed={state.name === 'confirmed'}
-                    detailOpen={detailOpen}
-                    base={serving?.value ?? estimate.quantity.value}
-                    basis={serving?.basis ?? null}
-                    onToggleDetail={() => setDetailOpen((value) => !value)}
-                    onAdjust={adjust}
-                    onQuantity={handleQuantity}
-                    onConfirm={handleConfirm}
-                    onClose={handleDismiss}
-                    onRetake={handleRetake}
-                    onSearch={openSearch}
-                  />
-                </ScrollView>
+                <GestureDetector gesture={singleSwipe}>
+                  <Animated.View style={singleSwipeStyle}>
+                    <ScrollView
+                      contentContainerStyle={styles.cardContent}
+                      showsVerticalScrollIndicator={false}
+                      scrollEnabled={open}
+                    >
+                      <ResultCard
+                        estimate={estimate}
+                        open={open}
+                        adjusting={state.name === 'adjusting'}
+                        confirmed={state.name === 'confirmed'}
+                        detailOpen={detailOpen}
+                        base={serving?.value ?? estimate.quantity.value}
+                        basis={serving?.basis ?? null}
+                        onToggleDetail={() => setDetailOpen((value) => !value)}
+                        onAdjust={adjust}
+                        onQuantity={handleQuantity}
+                        onConfirm={handleConfirm}
+                        onClose={handleDismiss}
+                        onRetake={handleRetake}
+                        onSearch={openSearch}
+                      />
+                    </ScrollView>
+                  </Animated.View>
+                </GestureDetector>
               </Animated.View>
             )
+          )}
+
+          {/*
+            The tray sits above the card and below the celebration: cards land
+            in it while the pile is still being sorted, and it goes with
+            everything else when the result leaves.
+          */}
+          {multi && (
+            <QueueTray
+              count={queuedCount}
+              top={trayCenter.y}
+              pulse={trayPulse}
+              dissolve={dissolve}
+            />
           )}
 
           {(state.name === 'confirmed' || state.name === 'plateConfirmed') && (

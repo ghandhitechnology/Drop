@@ -16,8 +16,8 @@ import type { Estimate } from '../../capture/types';
 import {
   EXIT_SCALE,
   FAN_OUT_POINT,
-  LIFT_TRAVEL,
-  LIFT_TRIGGER,
+  SWIPE_TRAVEL,
+  SWIPE_TRIGGER,
   MAX_PEEKS,
   PEEK_STEP,
   PEEK_STEP_MAX,
@@ -66,6 +66,14 @@ describe('nextOrder', () => {
 
   it('lets the plate come back empty — the stage decides what that means', () => {
     expect(nextOrder([4], { type: 'dismiss', index: 4 })).toEqual([]);
+    expect(nextOrder([4], { type: 'queue', index: 4 })).toEqual([]);
+  });
+
+  it('closes the pile up the same way whichever direction the sheet went', () => {
+    // The paper does not care where a sheet was headed. Only the stage does.
+    expect(nextOrder([0, 1, 2, 3], { type: 'queue', index: 0 })).toEqual([1, 2, 3]);
+    expect(nextOrder([0, 1, 2, 3], { type: 'queue', index: 2 })).toEqual([0, 1, 3]);
+    expect(nextOrder([0, 1, 2], { type: 'queue', index: 9 })).toEqual([0, 1, 2]);
   });
 
   it('moves only the sheet that was tapped', () => {
@@ -270,7 +278,7 @@ describe('the seeded lean', () => {
 
 /* ------------------------------------------------------------ the exit -- */
 
-describe('the exit back into the print', () => {
+describe('the exit off the pile', () => {
   it('starts life-size and lands print-size', () => {
     expect(exitScale(0)).toBe(1);
     expect(exitScale(1)).toBeCloseTo(EXIT_SCALE, 10);
@@ -284,11 +292,19 @@ describe('the exit back into the print', () => {
   });
 
   it('throws the sheet three times its resting lean, and no further', () => {
-    expect(exitTilt(0, 1.2)).toBe(0);
-    expect(exitTilt(1, 1.2)).toBeCloseTo(3.6, 10);
-    expect(exitTilt(1, -1.6)).toBeCloseTo(-4.8, 10);
-    expect(exitTilt(1, 4)).toBe(5);
-    expect(exitTilt(1, -4)).toBe(-5);
+    expect(exitTilt(0, 1.2, 1)).toBe(0);
+    expect(exitTilt(1, 1.2, 1)).toBeCloseTo(3.6, 10);
+    expect(exitTilt(1, 4, 1)).toBe(5);
+  });
+
+  it('leans the sheet into the way it is travelling, whichever way that is', () => {
+    // The seeded lean is a resting wobble and has no opinion about the exit;
+    // the swipe does. A sheet thrown left leans left even if it was sitting
+    // tilted the other way.
+    expect(exitTilt(1, 1.2, -1)).toBeCloseTo(-3.6, 10);
+    expect(exitTilt(1, -1.2, -1)).toBeCloseTo(-3.6, 10);
+    expect(exitTilt(1, -1.2, 1)).toBeCloseTo(3.6, 10);
+    expect(exitTilt(1, -4, -1)).toBe(-5);
   });
 });
 
@@ -333,7 +349,7 @@ describe('savableEstimates', () => {
 
 describe('the constants hold their relationships', () => {
   it('asks for less travel to commit than the full journey', () => {
-    expect(LIFT_TRIGGER).toBeLessThan(LIFT_TRAVEL);
+    expect(SWIPE_TRIGGER).toBeLessThan(SWIPE_TRAVEL);
   });
 
   it('fans the pile out only once the card frame has room for it', () => {
