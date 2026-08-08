@@ -587,6 +587,9 @@ const ASSUMPTION_REWRITES: { match: RegExp; to: string | null }[] = [
   // Audit-trail notes. The source block carries the provenance instead.
   { match: /technosphere exchange/i, to: null },
   { match: /occupancy already embedded/i, to: null },
+  // The fallback line already says "Matched by food category"; the source
+  // block names the datasets.
+  { match: /supplies the food identity and portion/i, to: null },
 ];
 
 /** How many assumption lines a card shows before it stops being a card. */

@@ -619,8 +619,10 @@ export function estimate(input: EstimateInput, tables: Tables): Estimate {
   let fallbackReason = resolved.fallbackReason;
   if (link.match_level === 'category_match') {
     conf = minConfidence(conf, 'low');
+    const sourceRelease =
+      entry.catalog_source?.dataset_release ?? 'The source catalog';
     assumptions.push(
-      'USDA FNDDS supplies the food identity and portion; the water factor is a reviewed SU-EATABLE category match.',
+      `${sourceRelease} supplies the food identity and portion; the water factor is a reviewed category match.`,
     );
   }
   if (q.substituted) {
