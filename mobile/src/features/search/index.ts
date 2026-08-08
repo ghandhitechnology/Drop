@@ -4,6 +4,8 @@ export { SearchSheet, type SearchSheetProps } from './SearchSheet';
 export { SearchField, type SearchFieldProps } from './SearchField';
 export { ResultRow, type ResultRowProps } from './ResultRow';
 export { AmountStep, type AmountStepProps } from './AmountStep';
+export { BasketTray, type BasketTrayProps } from './BasketTray';
+export { CrayonAction, type CrayonActionProps } from './CrayonAction';
 export { CategoryGlyph, GLYPH_SIZE, type CategoryGlyphProps } from './CategoryGlyph';
 export { CandidateChips } from './CandidateChips';
 

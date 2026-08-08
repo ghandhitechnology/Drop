@@ -20,9 +20,10 @@ import {
   View,
   type TextInput,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../design/theme';
-import { radius, space } from '../../design/tokens';
+import { space } from '../../design/tokens';
 import { hydrateCatalog, useCatalogStore } from '../../data/catalogStore';
 import { clearSearchPicks, type SearchPick } from './pick';
 import type { CatalogItem } from '../../data/types';
@@ -32,6 +33,8 @@ import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
 import { MAX_PLATE_ITEMS } from '../capture/pipeline';
 import { AmountStep } from './AmountStep';
+import { BasketTray } from './BasketTray';
+import { CrayonAction } from './CrayonAction';
 import { servingFor } from './estimate';
 import { handOffAfterDismiss } from './handoff';
 import { ResultRow } from './ResultRow';
@@ -51,6 +54,7 @@ export type SearchSheetProps = {
 
 export function SearchSheet({ onDismiss }: SearchSheetProps) {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const fieldRef = useRef<TextInput>(null);
 
   const status = useCatalogStore((s) => s.status);
@@ -143,6 +147,18 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
     onDismiss();
   }, [basket, onDismiss]);
 
+  const handleRemoveFromBasket = useCallback(
+    (index: number) => {
+      const removed = basket[index];
+      if (!removed) return;
+      setBasket((current) => current.filter((_, currentIndex) => currentIndex !== index));
+      AccessibilityInfo.announceForAccessibility(
+        copy.search.announce.removed(removed.displayName),
+      );
+    },
+    [basket],
+  );
+
   const basisFor = useCallback(
     (item: CatalogItem) => servingFor(item.id)?.basis ?? null,
     [],
@@ -153,6 +169,25 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
   return (
     <View style={[styles.root, { backgroundColor: colors.bg }]}>
       <Grain />
+
+      <View style={styles.header}>
+        <Text variant="title" tone="ink">
+          {copy.search.title}
+        </Text>
+        {!chosen && (
+          <SearchField
+            ref={fieldRef}
+            value={query}
+            onChange={setQuery}
+            onSubmit={() => {
+              const first = results[0];
+              if (first) handlePick(first);
+            }}
+          />
+        )}
+      </View>
+
+      <BasketTray items={basket} onRemove={handleRemoveFromBasket} />
 
       {chosen ? (
         <View style={styles.amountBody}>
@@ -168,21 +203,6 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
         </View>
       ) : (
         <>
-          <View style={styles.header}>
-            <Text variant="title" tone="ink">
-              {copy.search.title}
-            </Text>
-            <SearchField
-              ref={fieldRef}
-              value={query}
-              onChange={setQuery}
-              onSubmit={() => {
-                const first = results[0];
-                if (first) handlePick(first);
-              }}
-            />
-          </View>
-
           <FlatList
             data={results}
             keyExtractor={(item) => item.id}
@@ -198,12 +218,6 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
                 <Text variant="label" tone="inkSoft">
                   {status === 'ready' ? heading : copy.search.opening}
                 </Text>
-                {basket.length > 0 && (
-                  <Text variant="chip" tone="accent">
-                    {copy.search.soFar(basket.length)} ·{' '}
-                    {basket.map((entry) => entry.displayName).join(' · ')}
-                  </Text>
-                )}
               </View>
             }
             ListEmptyComponent={
@@ -223,21 +237,21 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
             )}
           />
 
-          <View style={styles.footer}>
+          <View
+            style={[
+              styles.footer,
+              { marginBottom: -Math.min(insets.bottom, space.md) },
+            ]}
+          >
             {basket.length > 0 && (
-              <Touch
+              <CrayonAction
+                seed="search/show-water-many"
                 onPress={handleGoWithBasket}
-                style={[
-                  styles.goMany,
-                  { backgroundColor: colors.accentSoft, borderColor: colors.accent },
-                ]}
                 accessibilityLabel={copy.search.goMany(basket.length)}
                 accessibilityHint={copy.search.goManyHint}
               >
-                <Text variant="label" tone="accent">
-                  {copy.search.goMany(basket.length)}
-                </Text>
-              </Touch>
+                {copy.search.goMany(basket.length)}
+              </CrayonAction>
             )}
             <Touch
               onPress={onDismiss}
@@ -258,23 +272,15 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   header: { paddingHorizontal: space.lg, paddingTop: space.lg, gap: space.md },
-  /**
-   * The amount step is one item, one number and one button. The sheet keeps
-   * whatever height the list left it at, so the block is centred rather than
-   * left stranded at the top of an empty page.
-   */
-  amountBody: { flex: 1, paddingHorizontal: space.lg, paddingTop: space.lg },
+  /** The chosen row continues below the stable title instead of becoming a new page. */
+  amountBody: { flex: 1, paddingHorizontal: space.lg, paddingTop: space.sm },
   list: { flex: 1, marginTop: space.md },
   listContent: { paddingHorizontal: space.lg, paddingBottom: space.xl },
   listHeader: { paddingVertical: space.sm, gap: space.xs },
   empty: { paddingTop: space.xl, gap: space.sm },
-  footer: { paddingHorizontal: space.lg, paddingBottom: space.sm, gap: space.xs },
-  goMany: {
-    minHeight: 56,
-    borderWidth: 1,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  // The native sheet supplies a generous bottom safe area. The small measured
+  // overlap keeps the action visually attached to the edge without consuming
+  // the full inset or shrinking its touch target.
+  footer: { paddingHorizontal: space.lg, gap: space.xs },
   back: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });
