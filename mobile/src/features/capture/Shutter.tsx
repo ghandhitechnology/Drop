@@ -1,6 +1,10 @@
 import { Canvas, Circle, Skia } from '@shopify/react-native-skia';
-import { useCallback, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useMemo, useRef } from 'react';
+import {
+  StyleSheet,
+  View,
+  type AccessibilityActionEvent,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,7 +16,7 @@ import { seedFromString } from '../../drawing/seededRandom';
 import { HandPath } from '../../drawing/HandPath';
 import { Touch } from '../../ui/Touch';
 import { copy } from '../../lib/copy';
-import { tapShutter } from '../../lib/haptics';
+import { tapSelection, tapShutter } from '../../lib/haptics';
 import { overlayInk } from './overlay';
 
 /** Drawn size. Comfortably past the 48dp floor, and reachable with one thumb. */
@@ -24,6 +28,8 @@ const CENTER = SHUTTER_SIZE / 2;
 
 export type ShutterProps = {
   onPress: () => void;
+  onToggleFast: () => void;
+  fast: boolean;
   /** Quiet while the pipeline is working, so one photo does not become three. */
   disabled?: boolean;
 };
@@ -35,9 +41,15 @@ export type ShutterProps = {
  * the disc carries the contrast. Pressing gives a medium impact tick before the
  * shutter fires, so the frame feels taken the instant the thumb lands.
  */
-export function Shutter({ onPress, disabled = false }: ShutterProps) {
+export function Shutter({
+  onPress,
+  onToggleFast,
+  fast,
+  disabled = false,
+}: ShutterProps) {
   const motion = useMotion();
   const press = useSharedValue(0);
+  const didLongPress = useRef(false);
 
   const ring = useMemo(
     () => Skia.PathBuilder.Make().addCircle(CENTER, CENTER, RING_RADIUS).detach(),
@@ -49,6 +61,7 @@ export function Shutter({ onPress, disabled = false }: ShutterProps) {
   }));
 
   const handlePressIn = useCallback(() => {
+    didLongPress.current = false;
     press.value = withSpring(1, motion.springOf('card'));
   }, [press, motion]);
 
@@ -56,14 +69,33 @@ export function Shutter({ onPress, disabled = false }: ShutterProps) {
     press.value = withSpring(0, motion.springOf('card'));
   }, [press, motion]);
 
+  const toggleFast = useCallback(() => {
+    didLongPress.current = true;
+    tapSelection();
+    onToggleFast();
+  }, [onToggleFast]);
+
   const handlePress = useCallback(() => {
+    if (didLongPress.current) {
+      didLongPress.current = false;
+      return;
+    }
     tapShutter();
     onPress();
   }, [onPress]);
 
+  const handleAccessibilityAction = useCallback(
+    (event: AccessibilityActionEvent) => {
+      if (event.nativeEvent.actionName === 'toggleFast') toggleFast();
+    },
+    [toggleFast],
+  );
+
   return (
     <Touch
       onPress={handlePress}
+      onLongPress={toggleFast}
+      delayLongPress={500}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled}
@@ -74,7 +106,9 @@ export function Shutter({ onPress, disabled = false }: ShutterProps) {
       haptic="none"
       accessibilityLabel={copy.capture.shutter}
       accessibilityHint={copy.capture.shutterHint}
-      accessibilityState={{ disabled }}
+      accessibilityActions={[{ name: 'toggleFast', label: copy.capture.toggleFast }]}
+      onAccessibilityAction={handleAccessibilityAction}
+      accessibilityState={{ disabled, selected: fast }}
       style={[styles.touch, disabled ? styles.quiet : styles.full]}
     >
       <View style={styles.halo} />

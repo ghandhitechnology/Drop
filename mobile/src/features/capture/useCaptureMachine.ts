@@ -23,6 +23,7 @@ import { sameBarcode } from './barcode';
 import { getPipeline, type PipelineRun } from './pipeline';
 import type {
   BarcodeHint,
+  CaptureMode,
   CaptureState,
   Estimate,
   PlateItem,
@@ -63,6 +64,8 @@ export type CaptureActions = {
   noteBarcode: (hint: BarcodeHint) => void;
   /** No code has been seen for a while. */
   clearBarcode: () => void;
+  /** Switch recognition behavior while the live camera is waiting. */
+  toggleFastMode: () => void;
   /**
    * The shutter fired: the frame is frozen and the pipeline starts.
    * `anchor` is in capture-stage coordinates — barcode bounds when a code was
@@ -99,7 +102,10 @@ export type CaptureActions = {
   retake: () => void;
 };
 
-export type CaptureStore = { state: CaptureState } & CaptureActions;
+export type CaptureStore = {
+  state: CaptureState;
+  mode: CaptureMode;
+} & CaptureActions;
 
 export const useCaptureMachine = create<CaptureStore>((set, get) => {
   /** Guard a pipeline callback against a superseded or cancelled run. */
@@ -117,6 +123,7 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
 
   return {
     state: { name: 'idle' },
+    mode: 'normal',
 
     ready: () => {
       if (get().state.name !== 'idle') return;
@@ -143,6 +150,14 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
       set({ state: { name: 'framing' } });
     },
 
+    toggleFastMode: () => {
+      const state = get().state;
+      if (state.name !== 'framing' && state.name !== 'idle') return;
+      const mode = get().mode === 'fast' ? 'normal' : 'fast';
+      set({ mode });
+      announce(mode === 'fast' ? copy.capture.announce.fastOn : copy.capture.announce.fastOff);
+    },
+
     capture: (photoUri, anchor) => {
       const state = get().state;
       if (state.name !== 'framing' && state.name !== 'idle') return;
@@ -155,7 +170,7 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
       announce(copy.capture.announce.captured);
 
       run = getPipeline()(
-        { photoUri, barcode },
+        { photoUri, barcode, mode: get().mode },
         {
           onRecognizing: () =>
             forRun(token, (current) =>

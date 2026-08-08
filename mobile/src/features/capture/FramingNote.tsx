@@ -14,6 +14,9 @@
 import { Canvas, Skia } from '@shopify/react-native-skia';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
+
+import { useMotion } from '../../design/useMotion';
 
 import { space } from '../../design/tokens';
 import { HandPath } from '../../drawing/HandPath';
@@ -29,7 +32,7 @@ const RULE_INSET = 10;
 
 export type FramingNoteProps = { children: string };
 
-export function FramingNote({ children }: FramingNoteProps) {
+function FramingNoteLayer({ children }: FramingNoteProps) {
   const [width, setWidth] = useState(0);
 
   const onLayout = (event: LayoutChangeEvent) => {
@@ -54,7 +57,7 @@ export function FramingNote({ children }: FramingNoteProps) {
   }, [width]);
 
   return (
-    <View style={styles.root} pointerEvents="none">
+    <>
       {/*
         The stroke is measured from the words, and the words alone: measuring
         the container instead would make the stroke's own width part of what
@@ -95,6 +98,24 @@ export function FramingNote({ children }: FramingNoteProps) {
           />
         </Canvas>
       )}
+    </>
+  );
+}
+
+export function FramingNote({ children }: FramingNoteProps) {
+  const motion = useMotion();
+  const transitionMs = Math.max(1, motion.ms('settle'));
+
+  return (
+    <View style={styles.root} pointerEvents="none">
+      <Animated.View
+        key={children}
+        style={styles.layer}
+        entering={FadeInDown.duration(transitionMs)}
+        exiting={FadeOutUp.duration(transitionMs)}
+      >
+        <FramingNoteLayer>{children}</FramingNoteLayer>
+      </Animated.View>
     </View>
   );
 }
@@ -103,6 +124,7 @@ const styles = StyleSheet.create({
   // Stretched rather than content-sized, so the note's own width never depends
   // on what is drawn inside it.
   root: { alignSelf: 'stretch', alignItems: 'center', paddingHorizontal: space.xl },
+  layer: { alignItems: 'center' },
   words: {
     textAlign: 'center',
     textShadowColor: overlayInk.halo,

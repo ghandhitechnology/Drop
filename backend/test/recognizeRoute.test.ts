@@ -65,4 +65,23 @@ describe('POST /v1/recognize inference configuration', () => {
     expect(request.max_tokens).toBe(12_000);
     expect(request.temperature).toBe(0);
   });
+
+  it('uses low reasoning in fast mode without reducing the token budget', async () => {
+    const response = await app.request('/v1/recognize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_base64: 'unique-low-effort-recognition-fixture',
+        mime: 'image/jpeg',
+        mode: 'fast',
+      }),
+    });
+
+    expect(response.status).toBe(200);
+
+    const [, init] = vi.mocked(fetch).mock.calls[0]!;
+    const request = JSON.parse(String(init?.body));
+    expect(request.reasoning).toEqual({ effort: 'low', exclude: true });
+    expect(request.max_tokens).toBe(12_000);
+  });
 });
