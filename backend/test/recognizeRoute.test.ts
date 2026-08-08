@@ -84,4 +84,19 @@ describe('POST /v1/recognize inference configuration', () => {
     expect(request.reasoning).toEqual({ effort: 'low', exclude: true });
     expect(request.max_tokens).toBe(12_000);
   });
+
+  it('rejects an unknown mode instead of silently running at high effort', async () => {
+    const response = await app.request('/v1/recognize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_base64: 'unique-bad-mode-fixture',
+        mime: 'image/jpeg',
+        mode: 'Fast',
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  });
 });

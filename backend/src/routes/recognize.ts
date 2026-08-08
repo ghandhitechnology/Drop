@@ -133,6 +133,10 @@ recognize.post('/', async (c) => {
   if (!body.image_base64) {
     return c.json({ error: 'image_base64 required' }, 400);
   }
+  const mode = body.mode ?? 'normal';
+  if (mode !== 'normal' && mode !== 'fast') {
+    return c.json({ error: "mode must be 'normal' or 'fast'" }, 400);
+  }
   const mime = body.mime ?? 'image/jpeg';
   const hash = createHash('sha256').update(body.image_base64).digest('hex');
   if (cache.has(hash)) return c.json(cache.get(hash) as object);
@@ -141,7 +145,7 @@ recognize.post('/', async (c) => {
     schemaName: 'recognition',
     schema: RESPONSE_SCHEMA as unknown as Record<string, unknown>,
     timeoutMs: 25_000,
-    reasoningEffort: body.mode === 'fast' ? 'low' : 'high',
+    reasoningEffort: mode === 'fast' ? 'low' : 'high',
     maxTokens: 12_000,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
