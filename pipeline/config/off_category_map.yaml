@@ -1,0 +1,55 @@
+# Open Food Facts category tags -> catalog target factor_id (item or
+# typology). Powers the deterministic barcode path; the hierarchy walk in the
+# backend climbs OFF parents until one of these matches.
+mappings:
+  en:apple-juices: sel:item:apple_juice
+  en:orange-juices: sel:item:orange_juice
+  en:fruit-juices: sel:item:apple_juice
+  en:beers: sel:item:beer
+  en:wines: sel:item:wine
+  en:milks: sel:item:cow_milk
+  en:whole-milks: sel:item:cow_milk
+  en:semi-skimmed-milks: sel:item:cow_milk
+  en:skimmed-milks: sel:item:cow_milk
+  en:soy-milks: sel:item:soy_milk
+  en:plant-based-milk-alternatives: sel:item:soy_milk
+  en:cheeses: sel:item:cheese
+  en:yogurts: sel:item:yogurt_white
+  en:butters: sel:item:butter
+  en:eggs: sel:item:eggs
+  en:chicken-and-its-products: sel:item:chicken_bone_free_meat
+  en:chickens: sel:item:chicken_bone_free_meat
+  en:beef: sel:item:beef_bone_free_meat
+  en:beef-and-its-products: sel:item:beef_bone_free_meat
+  en:pork: sel:item:pork_bone_free_meat
+  en:pork-and-its-products: sel:item:pork_bone_free_meat
+  en:hams: sel:item:cured_ham_bone_free
+  en:sausages: sel:item:sausages
+  en:fishes: sel:typ:fishing__fish
+  en:canned-tunas: sel:typ:fishing__fish
+  en:breads: sel:item:bread
+  en:pastas: sel:item:pasta
+  en:dry-pastas: sel:item:pasta
+  en:rices: sel:item:rice
+  en:breakfast-cereals: sel:typ:agricultural_processed__breakfast_cereals
+  en:oat-flakes: sel:item:oat_flakes
+  en:biscuits: sel:typ:agricultural_processed__biscuits
+  en:chocolates: sel:item:chocolate
+  en:dark-chocolates: sel:item:chocolate
+  en:milk-chocolates: sel:item:chocolate
+  en:coffees: sel:item:coffee_roasted
+  en:instant-coffees: sel:item:coffee_soluble
+  en:teas: sel:item:black_tea
+  en:tomato-sauces: sel:item:tomato_puree
+  en:olive-oils: sel:item:olive_oil
+  en:sunflower-oils: sel:item:sunflower_oil
+  en:frozen-french-fries: sel:item:potatoes_frozen
+  en:sugars: sel:item:cane_sugar
+  en:tofu: sel:item:tofu
+  en:legumes: sel:typ:crops__legumes_dried
+  en:canned-tomatoes: sel:item:tomato_peeled
+  en:pizzas: recipe:pizza_margherita
+  en:nuts: sel:item:mixed_nuts
+  en:peanut-butters: sel:item:peanut
+  en:fresh-fruits: sel:typ:crops__fruit
+  en:fresh-vegetables: sel:typ:crops__vegetables

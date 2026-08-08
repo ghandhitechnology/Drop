@@ -1,0 +1,315 @@
+[
+ {
+  "catalog_id": "beef_bone_free_meat",
+  "display_name": "Beef (Boneless)",
+  "category": "food",
+  "factors_version": "2026.08.1",
+  "quantity": {
+   "value": 1,
+   "unit": "kg",
+   "source": "user_entered"
+  },
+  "headline": {
+   "value_l": 15139,
+   "range_l": [
+    13089,
+    20852
+   ],
+   "metric_type": "total_water_footprint",
+   "proxy_metric": false
+  },
+  "factor": {
+   "factor_id": "sel:typ:animal_husbandry__beef_bone_free_meat",
+   "dataset": "su_eatable_life",
+   "dataset_release": "SuEatableLife_Food_Footprint_database.xlsx (Petersson et al. 2021, Sci Data, doi:10.1038/s41597-021-00909-8)",
+   "geography": "GLO",
+   "system_boundary": "cradle-to-distribution-centre",
+   "functional_unit": "kg",
+   "metric_type": "total_water_footprint",
+   "rights": "CC BY 4.0"
+  },
+  "match_level": "typology",
+  "confidence": "medium",
+  "fallback_reason": "dataset_recommends_typology",
+  "assumptions": [
+   "Value uses the beef bone free meat group median, which is the figure the dataset recommends for this food."
+  ],
+  "secondary": [
+   {
+    "metric_type": "freshwater_withdrawal",
+    "label": "Freshwater withdrawal · global cross-check",
+    "value_l": 1451.2,
+    "geography": "GLO",
+    "proxy_metric": true,
+    "factor": {
+     "factor_id": "owid:beef_(beef_herd)",
+     "dataset": "owid_poore_nemecek",
+     "dataset_release": "Poore & Nemecek (2018), Science, via Our World in Data",
+     "geography": "GLO",
+     "system_boundary": "cradle-to-retail (global mean)",
+     "functional_unit": "kg",
+     "metric_type": "freshwater_withdrawal",
+     "rights": "CC BY (Our World in Data)"
+    }
+   }
+  ],
+  "unsupported": null
+ },
+ {
+  "catalog_id": "apple",
+  "display_name": "Apple",
+  "category": "food",
+  "factors_version": "2026.08.1",
+  "quantity": {
+   "value": 0.15,
+   "unit": "kg",
+   "source": "user_entered"
+  },
+  "headline": {
+   "value_l": 93.3,
+   "range_l": [
+    62.40234375,
+    132.9046875
+   ],
+   "metric_type": "total_water_footprint",
+   "proxy_metric": false
+  },
+  "factor": {
+   "factor_id": "sel:item:apple",
+   "dataset": "su_eatable_life",
+   "dataset_release": "SuEatableLife_Food_Footprint_database.xlsx (Petersson et al. 2021, Sci Data, doi:10.1038/s41597-021-00909-8)",
+   "geography": "GLO",
+   "system_boundary": "cradle-to-distribution-centre",
+   "functional_unit": "kg",
+   "metric_type": "total_water_footprint",
+   "rights": "CC BY 4.0"
+  },
+  "match_level": "exact_item",
+  "confidence": "high",
+  "fallback_reason": null,
+  "assumptions": [],
+  "secondary": [
+   {
+    "metric_type": "freshwater_withdrawal",
+    "label": "Freshwater withdrawal · global cross-check",
+    "value_l": 27.014999999999997,
+    "geography": "GLO",
+    "proxy_metric": true,
+    "factor": {
+     "factor_id": "owid:apples",
+     "dataset": "owid_poore_nemecek",
+     "dataset_release": "Poore & Nemecek (2018), Science, via Our World in Data",
+     "geography": "GLO",
+     "system_boundary": "cradle-to-retail (global mean)",
+     "functional_unit": "kg",
+     "metric_type": "freshwater_withdrawal",
+     "rights": "CC BY (Our World in Data)"
+    }
+   }
+  ],
+  "unsupported": null
+ },
+ {
+  "catalog_id": "cow_milk",
+  "display_name": "Milk",
+  "category": "drink",
+  "factors_version": "2026.08.1",
+  "quantity": {
+   "value": 1,
+   "unit": "l",
+   "source": "user_entered"
+  },
+  "headline": {
+   "value_l": 1260.5,
+   "range_l": [
+    1028.333333,
+    1590
+   ],
+   "metric_type": "total_water_footprint",
+   "proxy_metric": false
+  },
+  "factor": {
+   "factor_id": "sel:item:cow_milk",
+   "dataset": "su_eatable_life",
+   "dataset_release": "SuEatableLife_Food_Footprint_database.xlsx (Petersson et al. 2021, Sci Data, doi:10.1038/s41597-021-00909-8)",
+   "geography": "GLO",
+   "system_boundary": "cradle-to-distribution-centre",
+   "functional_unit": "l",
+   "metric_type": "total_water_footprint",
+   "rights": "CC BY 4.0"
+  },
+  "match_level": "exact_item",
+  "confidence": "high",
+  "fallback_reason": null,
+  "assumptions": [
+   "Secondary factors are published per kilogram; mass and volume treated 1:1 (the density of water)."
+  ],
+  "secondary": [
+   {
+    "metric_type": "freshwater_withdrawal",
+    "label": "Freshwater withdrawal · global cross-check",
+    "value_l": 628.2,
+    "geography": "GLO",
+    "proxy_metric": true,
+    "factor": {
+     "factor_id": "owid:milk",
+     "dataset": "owid_poore_nemecek",
+     "dataset_release": "Poore & Nemecek (2018), Science, via Our World in Data",
+     "geography": "GLO",
+     "system_boundary": "cradle-to-retail (global mean)",
+     "functional_unit": "kg",
+     "metric_type": "freshwater_withdrawal",
+     "rights": "CC BY (Our World in Data)"
+    }
+   }
+  ],
+  "unsupported": null
+ },
+ {
+  "catalog_id": "coffee_standard",
+  "display_name": "Coffee Standard",
+  "category": "drink",
+  "factors_version": "2026.08.1",
+  "quantity": {
+   "value": 0.125,
+   "unit": "l",
+   "source": "user_entered"
+  },
+  "headline": {
+   "value_l": 120,
+   "range_l": [
+    95,
+    155
+   ],
+   "metric_type": "total_water_footprint",
+   "proxy_metric": false
+  },
+  "factor": {
+   "factor_id": "sel:typ:agricultural_processed__coffee_liquid",
+   "dataset": "su_eatable_life",
+   "dataset_release": "SuEatableLife_Food_Footprint_database.xlsx (Petersson et al. 2021, Sci Data, doi:10.1038/s41597-021-00909-8)",
+   "geography": "GLO",
+   "system_boundary": "cradle-to-distribution-centre",
+   "functional_unit": "l",
+   "metric_type": "total_water_footprint",
+   "rights": "CC BY 4.0"
+  },
+  "match_level": "typology",
+  "confidence": "medium",
+  "fallback_reason": "dataset_recommends_typology",
+  "assumptions": [
+   "Value uses the coffee liquid group median, which is the figure the dataset recommends for this food."
+  ],
+  "secondary": [],
+  "unsupported": null
+ },
+ {
+  "catalog_id": "cheeseburger",
+  "display_name": "Cheeseburger",
+  "category": "food",
+  "factors_version": "2026.08.1",
+  "quantity": {
+   "value": 0.25,
+   "unit": "kg",
+   "source": "user_entered"
+  },
+  "headline": {
+   "value_l": 1541.6675,
+   "range_l": [
+    1294.8620208000002,
+    2144.80875
+   ],
+   "metric_type": "total_water_footprint",
+   "proxy_metric": false
+  },
+  "factor": null,
+  "match_level": "recipe_sum",
+  "confidence": "medium",
+  "fallback_reason": null,
+  "assumptions": [
+   "Computed from the dish recipe, ingredient by ingredient."
+  ],
+  "secondary": [],
+  "unsupported": null
+ },
+ {
+  "catalog_id": "transport_petrol_car",
+  "display_name": "Petrol Car",
+  "category": "transport",
+  "factors_version": "2026.08.1",
+  "quantity": {
+   "value": 10,
+   "unit": "km",
+   "source": "user_entered"
+  },
+  "headline": {
+   "value_l": 2.96108,
+   "range_l": [
+    0.25201,
+    4.15811
+   ],
+   "metric_type": "freshwater_consumption",
+   "proxy_metric": false
+  },
+  "factor": {
+   "factor_id": "drop:transport:petrol_car",
+   "dataset": "drop_transport",
+   "dataset_release": "activity: USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory; water intensity: Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+   "geography": "US",
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "functional_unit": "l_water_per_pkm",
+   "metric_type": "freshwater_consumption",
+   "rights": null
+  },
+  "match_level": "transport_mode",
+  "confidence": "low",
+  "fallback_reason": null,
+  "assumptions": [
+   "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+   "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+   "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+   "Freshwater consumption, not withdrawal.",
+   "Fuel water intensity is a U.S. literature constant (4.7 l water/l fuel, range 0.4-6.6); the range is wide because crude recovery method dominates.",
+   "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again"
+  ],
+  "secondary": [],
+  "unsupported": null
+ },
+ {
+  "catalog_id": "product_315000",
+  "display_name": "Clothing",
+  "category": "product",
+  "factors_version": "2026.08.1",
+  "quantity": {
+   "value": 20,
+   "unit": "usd",
+   "source": "user_entered"
+  },
+  "headline": {
+   "value_l": 148.99214,
+   "range_l": null,
+   "metric_type": "freshwater_withdrawal",
+   "proxy_metric": true
+  },
+  "factor": {
+   "factor_id": "useeio:315000/US",
+   "dataset": "useeio_v2.0",
+   "dataset_release": "USEEIO v2.0 (US EPA)",
+   "geography": "US",
+   "system_boundary": "cradle-to-producer-gate, US economy with import proxy",
+   "functional_unit": "USD (2018 purchaser price)",
+   "metric_type": "freshwater_withdrawal",
+   "rights": "US EPA, public domain"
+  },
+  "match_level": "proxy_sector",
+  "confidence": "very_low",
+  "fallback_reason": "spend_proxy",
+  "assumptions": [
+   "Metric: US freshwater withdrawal, estimated from the purchase price.",
+   "Price basis: 2018 US purchaser dollars.",
+   "A sector average carries no published spread, so no range is shown."
+  ],
+  "secondary": [],
+  "unsupported": null
+ }
+]

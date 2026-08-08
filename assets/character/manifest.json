@@ -1,0 +1,194 @@
+[
+  {
+    "file": "pose_01.png",
+    "width": 140,
+    "height": 190,
+    "tag": "idle_front"
+  },
+  {
+    "file": "pose_02.png",
+    "width": 130,
+    "height": 192,
+    "tag": "back"
+  },
+  {
+    "file": "pose_03.png",
+    "width": 181,
+    "height": 192,
+    "tag": "side_right"
+  },
+  {
+    "file": "pose_04.png",
+    "width": 127,
+    "height": 193,
+    "tag": "side_left"
+  },
+  {
+    "file": "pose_05.png",
+    "width": 140,
+    "height": 191,
+    "tag": "hands_hip"
+  },
+  {
+    "file": "pose_06.png",
+    "width": 133,
+    "height": 192,
+    "tag": "shy"
+  },
+  {
+    "file": "pose_07.png",
+    "width": 163,
+    "height": 188,
+    "tag": "wave"
+  },
+  {
+    "file": "pose_08.png",
+    "width": 153,
+    "height": 183,
+    "tag": "point_right"
+  },
+  {
+    "file": "pose_09.png",
+    "width": 131,
+    "height": 191,
+    "tag": "walk"
+  },
+  {
+    "file": "pose_10.png",
+    "width": 133,
+    "height": 193,
+    "tag": "walk_worried"
+  },
+  {
+    "file": "pose_11.png",
+    "width": 145,
+    "height": 224,
+    "tag": "run"
+  },
+  {
+    "file": "pose_12.png",
+    "width": 178,
+    "height": 180,
+    "tag": "run_fast"
+  },
+  {
+    "file": "pose_13.png",
+    "width": 181,
+    "height": 224,
+    "tag": "jump"
+  },
+  {
+    "file": "pose_14.png",
+    "width": 181,
+    "height": 217,
+    "tag": "cheer_arms_up"
+  },
+  {
+    "file": "pose_15.png",
+    "width": 144,
+    "height": 179,
+    "tag": "excited_sparkle"
+  },
+  {
+    "file": "pose_16.png",
+    "width": 170,
+    "height": 226,
+    "tag": "sing_dance"
+  },
+  {
+    "file": "pose_17.png",
+    "width": 142,
+    "height": 166,
+    "tag": "hunched_back"
+  },
+  {
+    "file": "pose_18.png",
+    "width": 136,
+    "height": 186,
+    "tag": "sneak_shh"
+  },
+  {
+    "file": "pose_19.png",
+    "width": 155,
+    "height": 181,
+    "tag": "stretch_arms_up"
+  },
+  {
+    "file": "pose_20.png",
+    "width": 122,
+    "height": 158,
+    "tag": "sit_front"
+  },
+  {
+    "file": "pose_21.png",
+    "width": 159,
+    "height": 168,
+    "tag": "sit_sad"
+  },
+  {
+    "file": "pose_22.png",
+    "width": 181,
+    "height": 140,
+    "tag": "lying_belly"
+  },
+  {
+    "file": "pose_23.png",
+    "width": 165,
+    "height": 158,
+    "tag": "sleeping"
+  },
+  {
+    "file": "pose_24.png",
+    "width": 166,
+    "height": 180,
+    "tag": "celebrate_wave"
+  },
+  {
+    "file": "pose_25.png",
+    "width": 125,
+    "height": 184,
+    "tag": "thinking_chin"
+  },
+  {
+    "file": "pose_26.png",
+    "width": 127,
+    "height": 187,
+    "tag": "surprised_gasp"
+  },
+  {
+    "file": "pose_27.png",
+    "width": 175,
+    "height": 189,
+    "tag": "laughing"
+  },
+  {
+    "file": "pose_28.png",
+    "width": 133,
+    "height": 175,
+    "tag": "crying"
+  },
+  {
+    "file": "pose_29.png",
+    "width": 174,
+    "height": 191,
+    "tag": "angry"
+  },
+  {
+    "file": "pose_30.png",
+    "width": 124,
+    "height": 177,
+    "tag": "embarrassed_squeeze"
+  },
+  {
+    "file": "pose_31.png",
+    "width": 177,
+    "height": 189,
+    "tag": "dizzy"
+  },
+  {
+    "file": "pose_32.png",
+    "width": 173,
+    "height": 195,
+    "tag": "cheer_sparkle"
+  }
+]

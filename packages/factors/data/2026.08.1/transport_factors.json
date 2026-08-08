@@ -1,0 +1,894 @@
+{
+ "skipped": [],
+ "transport_activity": [
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:passenger_car_gasoline",
+   "fuel_amount": 0.063002,
+   "fuel_amount_l": 0.063002,
+   "fuel_flow": "Gasoline, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4859: Other Transit and Ground Passenger Transportation",
+   "process_name": "Transport, passenger car, gasoline powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "553fff99-b003-39a4-b53e-a9b3da050c71",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, passenger car, gasoline powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "data_note": "USLCI reports the identical fuel volume per p*km for the diesel and gasoline passenger car (0.0630015993522655 l). Treat the diesel car coefficient as a gasoline-derived placeholder, not an independent measurement.",
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:passenger_car_diesel",
+   "fuel_amount": 0.063002,
+   "fuel_amount_l": 0.063002,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4859: Other Transit and Ground Passenger Transportation",
+   "process_name": "Transport, passenger car, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "c01e63be-688d-36c6-ba41-07d900691186",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, passenger car, diesel powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:passenger_truck_gasoline",
+   "fuel_amount": 0.078407,
+   "fuel_amount_l": 0.078407,
+   "fuel_flow": "Gasoline, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4859: Other Transit and Ground Passenger Transportation",
+   "process_name": "Transport, passenger truck, gasoline powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "77b42094-983d-38b5-bb10-90ae9b5f598c",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, passenger truck, gasoline powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:passenger_truck_diesel",
+   "fuel_amount": 0.093306,
+   "fuel_amount_l": 0.093306,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4859: Other Transit and Ground Passenger Transportation",
+   "process_name": "Transport, passenger truck, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "cef0fa12-65ae-3672-a989-49e304c7ba53",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, passenger truck, diesel powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "data_note": "USLCI reports more fuel per p*km for the motorcycle than for the passenger car; the difference is an occupancy assumption (~1 rider vs ~1.5 car occupants), not engine efficiency.",
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:motorcycle_gasoline",
+   "fuel_amount": 0.088328,
+   "fuel_amount_l": 0.088328,
+   "fuel_flow": "Gasoline, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4859: Other Transit and Ground Passenger Transportation",
+   "process_name": "Transport, motorcycle, gasoline powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "22dfa934-0329-347b-be34-e638548f4ae0",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, motorcycle, gasoline powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:transit_bus_diesel",
+   "fuel_amount": 0.034099,
+   "fuel_amount_l": 0.034099,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4851: Urban Transit Systems",
+   "process_name": "Transport, transit bus, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "ab489078-bfc7-3ff7-9af9-aaca6b225cfd",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, transit bus, diesel powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:intercity_bus_diesel",
+   "fuel_amount": 0.015238,
+   "fuel_amount_l": 0.015238,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4852: Interurban and Rural Bus Transportation",
+   "process_name": "Transport, intercity bus, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "2087543e-37d4-3a37-b351-e134cbe3e538",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, intercity bus, diesel powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:school_bus_diesel",
+   "fuel_amount": 0.004277,
+   "fuel_amount_l": 0.004277,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "Northern America",
+   "is_copyright_protected": false,
+   "occupancy_note": "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+   "process_category": "48-49: Transportation and Warehousing/4854: School and Employee Bus Transportation",
+   "process_name": "Transport, school bus, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "0a67401f-bc99-3993-adbb-3b9ccfeb1c42",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, school bus, diesel powered",
+    "unit": "p*km"
+   },
+   "rights": "All information can be accessed by everybody.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": null,
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:train_diesel",
+   "fuel_amount": 0.006482,
+   "fuel_amount_l": 0.006482,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "United States of America (the)",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4821: Rail Transportation",
+   "process_name": "Transport, train, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "7de9c230-fd0f-3478-be87-f80181132faa",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, train, diesel powered",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\r\n\r\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\r\n\r\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This unit process is representative of freight train operation and fuel consumption in the year 2012.",
+   "valid_from": "2012-01-01",
+   "valid_until": "2012-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:aircraft_freight",
+   "fuel_amount": 0.41992,
+   "fuel_amount_l": 0.41992,
+   "fuel_flow": "Kerosene, at refinery",
+   "fuel_unit": "l",
+   "geography": "United States of America (the)",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4811: Scheduled Air Transportation",
+   "process_name": "Transport, aircraft, freight",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "61ff7eba-1846-30cb-9840-33939ee0dc26",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, aircraft, freight",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\r\n\r\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\r\n\r\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This unit process is representative of 2010 emissions data and 2021 average trip distance and fuel consumption data.",
+   "valid_from": "2010-01-01",
+   "valid_until": "2021-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:combination_truck_diesel",
+   "fuel_amount": 888.365551,
+   "fuel_amount_l": 0.025368,
+   "fuel_flow": "Diesel, dispensed at pump",
+   "fuel_unit": "btu",
+   "geography": "United States of America (the)",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4841: General Freight Trucking",
+   "process_name": "Transport, combination truck, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "34156f3c-28ef-33db-9ad0-6293a2aa0d52",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, combination truck, diesel powered",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.\n",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This process reflects the vehicle fleet as estimated in 2024. MOVES calculates an age distribution by vehicle type, where age is defined as the difference between a vehicle's model year and the year of analysis. MOVES employs a number of different age dependent factors, including deterioration of engine and emission after-treatment technology due to tampering and mal-maintenance, vehicle scrappage and fleet turnover and mileage accumulation over the lifetime of the vehicle.\n",
+   "unit_conversion": "fuel exchange is 888.3655506717417 btu; converted to 0.02536803733211381 l using the USLCI flow's own Energy/Volume/Mass flow-property factors for 'Diesel, dispensed at pump' (no external energy density assumed)",
+   "valid_from": "2024-01-01",
+   "valid_until": "2024-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:single_unit_truck_diesel",
+   "fuel_amount": 1134.786341,
+   "fuel_amount_l": 0.032405,
+   "fuel_flow": "Diesel, dispensed at pump",
+   "fuel_unit": "btu",
+   "geography": "United States of America (the)",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4841: General Freight Trucking",
+   "process_name": "Transport, single unit truck, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "45b70b50-20a0-341b-8e2f-c196974d1541",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, single unit truck, diesel powered",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.\n",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This process reflects the vehicle fleet as estimated in 2024. MOVES calculates an age distribution by vehicle type, where age is defined as the difference between a vehicle's model year and the year of analysis. MOVES employs a number of different age dependent factors, including deterioration of engine and emission after-treatment technology due to tampering and mal-maintenance, vehicle scrappage and fleet turnover and mileage accumulation over the lifetime of the vehicle.\n",
+   "unit_conversion": "fuel exchange is 1134.7863406969286 btu; converted to 0.03240479353685525 l using the USLCI flow's own Energy/Volume/Mass flow-property factors for 'Diesel, dispensed at pump' (no external energy density assumed)",
+   "valid_from": "2024-01-01",
+   "valid_until": "2024-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:light_commercial_truck_diesel",
+   "fuel_amount": 4929.55296,
+   "fuel_amount_l": 0.140768,
+   "fuel_flow": "Diesel, dispensed at pump",
+   "fuel_unit": "btu",
+   "geography": "United States of America (the)",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4841: General Freight Trucking",
+   "process_name": "Transport, light commercial truck, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "bf6e7378-4e08-3698-a3a7-c9cc90fcbc07",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, light commercial truck, diesel powered",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.\n",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This process reflects the vehicle fleet as estimated in 2024. MOVES calculates an age distribution by vehicle type, where age is defined as the difference between a vehicle's model year and the year of analysis. MOVES employs a number of different age dependent factors, including deterioration of engine and emission after-treatment technology due to tampering and mal-maintenance, vehicle scrappage and fleet turnover and mileage accumulation over the lifetime of the vehicle.\n",
+   "unit_conversion": "fuel exchange is 4929.552960018555 btu; converted to 0.14076759665638022 l using the USLCI flow's own Energy/Volume/Mass flow-property factors for 'Diesel, dispensed at pump' (no external energy density assumed)",
+   "valid_from": "2024-01-01",
+   "valid_until": "2024-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:light_commercial_truck_gasoline",
+   "fuel_amount": 4026.665403,
+   "fuel_amount_l": 0.12388,
+   "fuel_flow": "Gasoline, dispensed at pump",
+   "fuel_unit": "btu",
+   "geography": "United States of America (the)",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4841: General Freight Trucking",
+   "process_name": "Transport, light commercial truck, gasoline powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "6d0fc48d-a8d0-3d87-b337-d7fabf9767bc",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, light commercial truck, gasoline powered",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.\n",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This process reflects the vehicle fleet as estimated in 2024. MOVES calculates an age distribution by vehicle type, where age is defined as the difference between a vehicle's model year and the year of analysis. MOVES employs a number of different age dependent factors, including deterioration of engine and emission after-treatment technology due to tampering and mal-maintenance, vehicle scrappage and fleet turnover and mileage accumulation over the lifetime of the vehicle.\n",
+   "unit_conversion": "fuel exchange is 4026.6654026977853 btu; converted to 0.12387988976806712 l using the USLCI flow's own Energy/Volume/Mass flow-property factors for 'Gasoline, dispensed at pump' (no external energy density assumed)",
+   "valid_from": "2024-01-01",
+   "valid_until": "2024-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:ocean_freighter_diesel",
+   "fuel_amount": 0.004926,
+   "fuel_amount_l": 0.004926,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "Global",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4831: Deep Sea, Coastal, and Great Lakes Water Transportation",
+   "process_name": "Transport, ocean freighter, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "da0f5501-f4ab-32d1-80b7-b70d143608f6",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, ocean freighter, diesel powered",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\r\n\r\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\r\n\r\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This unit process is representative of several years of primary data. Vessel type and characteristics data are from 2011; trip data is from 2013; engine power data is from 2013; payload data from 2010 and 2011 reports; load factors and emission factor assumptions were adapted from a 2005 report.",
+   "valid_from": "2005-01-01",
+   "valid_until": "2013-12-31"
+  },
+  {
+   "dataset": "uslci",
+   "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+   "dataset_url": "https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/datasets",
+   "factor_id": "uslci:act:barge_diesel",
+   "fuel_amount": 0.009593,
+   "fuel_amount_l": 0.009593,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "geography": "United States of America (the)",
+   "is_copyright_protected": false,
+   "process_category": "48-49: Transportation and Warehousing/4832: Inland Water Transportation",
+   "process_name": "Transport, barge, diesel powered",
+   "process_type": "UNIT_PROCESS",
+   "process_uuid": "c2300fc3-5496-3d12-9135-67dc0ef740c9",
+   "reference_flow": {
+    "amount": 1.0,
+    "name": "Transport, barge, diesel powered",
+    "unit": "t*km"
+   },
+   "rights": "These U.S. LCI Database Project data (\"Data\") are provided by the National Renewable Energy Laboratory (\"NREL\"), operated by the Alliance for Sustainable Energy, LLC (\"Alliance\") for the US Department of Energy (\"DOE\") under Contract No. DE-AC36-08GO28308. The United States Government (the \"Government\") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.\r\n\r\nAccess to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement. The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data. Any modification, alteration or enhancement of these data shall be identified and documented by the user. Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data. The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance. The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.\r\n\r\nYOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA. THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.",
+   "rights_note": "USLCI record; retain process UUID, release and restriction text with any redistribution of this factor.",
+   "time_description": "This unit process is representative of several years of primary data. Vessel type and characteristics data are from 2011; trip data is from 2013; engine power data is from 2013; payload data from 2010 and 2011 reports; load factors and emission factor assumptions were adapted from a 2005 report.",
+   "valid_from": "2005-01-01",
+   "valid_until": "2013-12-31"
+  }
+ ],
+ "transport_factors": [
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.7 l water/l fuel, range 0.4-6.6); the range is wide because crude recovery method dominates.",
+    "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again"
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:petrol_car",
+   "functional_unit": "l_water_per_pkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "petrol_car",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:passenger_car_gasoline",
+     "fuel_amount_l": 0.063002,
+     "fuel_flow": "Gasoline, at refinery",
+     "process_name": "Transport, passenger car, gasoline powered",
+     "process_uuid": "553fff99-b003-39a4-b53e-a9b3da050c71",
+     "reference_unit": "p*km",
+     "source": "uslci",
+     "valid_from": "2009-12-31",
+     "valid_until": "2009-12-31"
+    },
+    "water_intensity": {
+     "basis": "Central value is the midpoint of the well-to-pump consumptive range reported by Wu et al. (2009) for U.S. petroleum gasoline (2.8-6.6 L/L). The range is widened downward to 0.4 L/L to cover studies that count refining plus primary extraction only (King & Webber 2008, corroborated by the refinery unit processes in Grubert & Sanders 2018).",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "gasoline",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.6,
+      "low": 0.4
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "King, C.W. and Webber, M.E. (2008). \"Water Intensity of Transportation.\" Environmental Science & Technology 42(21): 7866-7872. doi:10.1021/es800367m",
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.7,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 0.415811,
+    "low": 0.025201
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_pkm": 0.296108
+  },
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.4 l water/l fuel, range 0.35-6.2); the range is wide because crude recovery method dominates.",
+    "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again",
+    "USLCI reports the identical fuel volume per p*km for the diesel and gasoline passenger car (0.0630015993522655 l). Treat the diesel car coefficient as a gasoline-derived placeholder, not an independent measurement."
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:diesel_car",
+   "functional_unit": "l_water_per_pkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "diesel_car",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:passenger_car_diesel",
+     "fuel_amount_l": 0.063002,
+     "fuel_flow": "Diesel, at refinery",
+     "process_name": "Transport, passenger car, diesel powered",
+     "process_uuid": "c01e63be-688d-36c6-ba41-07d900691186",
+     "reference_unit": "p*km",
+     "source": "uslci",
+     "valid_from": "2009-12-31",
+     "valid_until": "2009-12-31"
+    },
+    "water_intensity": {
+     "basis": "Diesel and gasoline share the same crude-production water burden, which is the dominant term, so diesel tracks gasoline closely. Set ~6% below gasoline because distillate requires less hydro-processing and reforming per litre than finished gasoline, and the refinery step is the part of the chain where the two fuels genuinely differ (Wu et al. 2009 refinery breakdown; Grubert & Sanders 2018 refinery unit processes). The range is scaled from the gasoline range on the same reasoning.",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "diesel",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.2,
+      "low": 0.35
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.4,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 0.39061,
+    "low": 0.022051
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_pkm": 0.277207
+  },
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.7 l water/l fuel, range 0.4-6.6); the range is wide because crude recovery method dominates.",
+    "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again"
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:petrol_light_truck",
+   "functional_unit": "l_water_per_pkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "petrol_light_truck",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:passenger_truck_gasoline",
+     "fuel_amount_l": 0.078407,
+     "fuel_flow": "Gasoline, at refinery",
+     "process_name": "Transport, passenger truck, gasoline powered",
+     "process_uuid": "77b42094-983d-38b5-bb10-90ae9b5f598c",
+     "reference_unit": "p*km",
+     "source": "uslci",
+     "valid_from": "2009-12-31",
+     "valid_until": "2009-12-31"
+    },
+    "water_intensity": {
+     "basis": "Central value is the midpoint of the well-to-pump consumptive range reported by Wu et al. (2009) for U.S. petroleum gasoline (2.8-6.6 L/L). The range is widened downward to 0.4 L/L to cover studies that count refining plus primary extraction only (King & Webber 2008, corroborated by the refinery unit processes in Grubert & Sanders 2018).",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "gasoline",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.6,
+      "low": 0.4
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "King, C.W. and Webber, M.E. (2008). \"Water Intensity of Transportation.\" Environmental Science & Technology 42(21): 7866-7872. doi:10.1021/es800367m",
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.7,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 0.517483,
+    "low": 0.031363
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_pkm": 0.368511
+  },
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.4 l water/l fuel, range 0.35-6.2); the range is wide because crude recovery method dominates.",
+    "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again"
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:bus",
+   "functional_unit": "l_water_per_pkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "bus",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:transit_bus_diesel",
+     "fuel_amount_l": 0.034099,
+     "fuel_flow": "Diesel, at refinery",
+     "process_name": "Transport, transit bus, diesel powered",
+     "process_uuid": "ab489078-bfc7-3ff7-9af9-aaca6b225cfd",
+     "reference_unit": "p*km",
+     "source": "uslci",
+     "valid_from": "2009-12-31",
+     "valid_until": "2009-12-31"
+    },
+    "water_intensity": {
+     "basis": "Diesel and gasoline share the same crude-production water burden, which is the dominant term, so diesel tracks gasoline closely. Set ~6% below gasoline because distillate requires less hydro-processing and reforming per litre than finished gasoline, and the refinery step is the part of the chain where the two fuels genuinely differ (Wu et al. 2009 refinery breakdown; Grubert & Sanders 2018 refinery unit processes). The range is scaled from the gasoline range on the same reasoning.",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "diesel",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.2,
+      "low": 0.35
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.4,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 0.211415,
+    "low": 0.011935
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_pkm": 0.150036
+  },
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.4 l water/l fuel, range 0.35-6.2); the range is wide because crude recovery method dominates.",
+    "reference is passenger-km; occupancy already embedded — do NOT divide by occupancy again"
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:bus_intercity",
+   "functional_unit": "l_water_per_pkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "bus_intercity",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:intercity_bus_diesel",
+     "fuel_amount_l": 0.015238,
+     "fuel_flow": "Diesel, at refinery",
+     "process_name": "Transport, intercity bus, diesel powered",
+     "process_uuid": "2087543e-37d4-3a37-b351-e134cbe3e538",
+     "reference_unit": "p*km",
+     "source": "uslci",
+     "valid_from": "2009-12-31",
+     "valid_until": "2009-12-31"
+    },
+    "water_intensity": {
+     "basis": "Diesel and gasoline share the same crude-production water burden, which is the dominant term, so diesel tracks gasoline closely. Set ~6% below gasoline because distillate requires less hydro-processing and reforming per litre than finished gasoline, and the refinery step is the part of the chain where the two fuels genuinely differ (Wu et al. 2009 refinery breakdown; Grubert & Sanders 2018 refinery unit processes). The range is scaled from the gasoline range on the same reasoning.",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "diesel",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.2,
+      "low": 0.35
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.4,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 0.094473,
+    "low": 0.005333
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_pkm": 0.067045
+  },
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.4 l water/l fuel, range 0.35-6.2); the range is wide because crude recovery method dominates.",
+    "fuel exchange is 888.3655506717417 btu; converted to 0.02536803733211381 l using the USLCI flow's own Energy/Volume/Mass flow-property factors for 'Diesel, dispensed at pump' (no external energy density assumed)"
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:truck_tkm",
+   "functional_unit": "l_water_per_tkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "truck_tkm",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:combination_truck_diesel",
+     "fuel_amount_l": 0.025368,
+     "fuel_flow": "Diesel, dispensed at pump",
+     "process_name": "Transport, combination truck, diesel powered",
+     "process_uuid": "34156f3c-28ef-33db-9ad0-6293a2aa0d52",
+     "reference_unit": "t*km",
+     "source": "uslci",
+     "valid_from": "2024-01-01",
+     "valid_until": "2024-12-31"
+    },
+    "water_intensity": {
+     "basis": "Diesel and gasoline share the same crude-production water burden, which is the dominant term, so diesel tracks gasoline closely. Set ~6% below gasoline because distillate requires less hydro-processing and reforming per litre than finished gasoline, and the refinery step is the part of the chain where the two fuels genuinely differ (Wu et al. 2009 refinery breakdown; Grubert & Sanders 2018 refinery unit processes). The range is scaled from the gasoline range on the same reasoning.",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "diesel",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.2,
+      "low": 0.35
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.4,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 0.157282,
+    "low": 0.008879
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_tkm": 0.111619
+  },
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.4 l water/l fuel, range 0.35-6.2); the range is wide because crude recovery method dominates."
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:rail_freight_tkm",
+   "functional_unit": "l_water_per_tkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "rail_freight_tkm",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:train_diesel",
+     "fuel_amount_l": 0.006482,
+     "fuel_flow": "Diesel, at refinery",
+     "process_name": "Transport, train, diesel powered",
+     "process_uuid": "7de9c230-fd0f-3478-be87-f80181132faa",
+     "reference_unit": "t*km",
+     "source": "uslci",
+     "valid_from": "2012-01-01",
+     "valid_until": "2012-12-31"
+    },
+    "water_intensity": {
+     "basis": "Diesel and gasoline share the same crude-production water burden, which is the dominant term, so diesel tracks gasoline closely. Set ~6% below gasoline because distillate requires less hydro-processing and reforming per litre than finished gasoline, and the refinery step is the part of the chain where the two fuels genuinely differ (Wu et al. 2009 refinery breakdown; Grubert & Sanders 2018 refinery unit processes). The range is scaled from the gasoline range on the same reasoning.",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "diesel",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.2,
+      "low": 0.35
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.4,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 0.040188,
+    "low": 0.002269
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_tkm": 0.028521
+  },
+  {
+   "assumptions": [
+    "Fuel-cycle water only (crude production, crude transport, refining, distribution to pump).",
+    "Vehicle manufacture, maintenance, and road/rail/airport infrastructure are excluded.",
+    "Activity coefficient is a USLCI FY2025 Q2 technosphere exchange; USLCI water exchanges are deliberately not used (see uslci_audit.json).",
+    "Freshwater consumption, not withdrawal.",
+    "Fuel water intensity is a U.S. literature constant (4.0 l water/l fuel, range 0.3-6.0); the range is wide because crude recovery method dominates."
+   ],
+   "confidence": "low",
+   "factor_id": "drop:transport:air_freight_tkm",
+   "functional_unit": "l_water_per_tkm",
+   "geography": "US",
+   "metric_type": "freshwater_consumption",
+   "mode": "air_freight_tkm",
+   "provenance": {
+    "activity": {
+     "dataset_release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+     "factor_id": "uslci:act:aircraft_freight",
+     "fuel_amount_l": 0.41992,
+     "fuel_flow": "Kerosene, at refinery",
+     "process_name": "Transport, aircraft, freight",
+     "process_uuid": "61ff7eba-1846-30cb-9840-33939ee0dc26",
+     "reference_unit": "t*km",
+     "source": "uslci",
+     "valid_from": "2010-01-01",
+     "valid_until": "2021-12-31"
+    },
+    "water_intensity": {
+     "basis": "Same crude-production water burden as gasoline and diesel, with a lighter refining step per litre. Derived by analogy within the refinery slate from Wu et al. (2009) and Grubert & Sanders (2018); no jet-fuel specific consumptive water study is cited because none of the sources above disaggregates it.",
+     "citation": "Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+     "fuel": "jet_fuel",
+     "geography": "US",
+     "metric_type": "freshwater_consumption",
+     "range_l_per_l_fuel": {
+      "high": 6.0,
+      "low": 0.3
+     },
+     "source": "literature",
+     "supporting_citations": [
+      "Grubert, E. and Sanders, K.T. (2018). \"Water Use in the United States Energy System: A National Assessment and Unit Process Inventory of Water Consumption and Withdrawals.\" Environmental Science & Technology 52(11): 6695-6703. doi:10.1021/acs.est.8b00139"
+     ],
+     "value_l_per_l_fuel": 4.0,
+     "year": 2009
+    }
+   },
+   "range_l": {
+    "high": 2.519518,
+    "low": 0.125976
+   },
+   "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
+   "unsupported": false,
+   "value_l_per_tkm": 1.679679
+  },
+  {
+   "factor_id": "drop:transport:ev_car",
+   "mode": "ev_car",
+   "reason": "USLCI electricity processes carry no water data; grid water intensity unavailable in v1",
+   "unsupported": true
+  },
+  {
+   "factor_id": "drop:transport:rail",
+   "mode": "rail",
+   "reason": "USLCI has no passenger-km rail process; only freight rail (Transport, train, diesel powered, t*km) exists. Use rail_freight_tkm or a non-USLCI passenger-rail source.",
+   "unsupported": true
+  },
+  {
+   "factor_id": "drop:transport:air_short",
+   "mode": "air_short",
+   "reason": "USLCI has no passenger-km aircraft process; only Transport, aircraft, freight (t*km) exists.",
+   "unsupported": true
+  },
+  {
+   "factor_id": "drop:transport:air_long",
+   "mode": "air_long",
+   "reason": "USLCI has no passenger-km aircraft process; only Transport, aircraft, freight (t*km) exists.",
+   "unsupported": true
+  }
+ ]
+}

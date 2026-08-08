@@ -1,0 +1,54 @@
+{
+ "files": [
+  {
+   "bytes": 328062,
+   "path": "catalog.json",
+   "rows": 463,
+   "sha256": "87d74c5f9d02d560afc1eef68935a9d41b1c8463de942dbdf4f28b903be83f89"
+  },
+  {
+   "bytes": 21985,
+   "path": "catalog.prompt.txt",
+   "sha256": "8526668c3fa38afbfa28f4cc3c90b120d0ed9bd344c11ba1ec9c3386ba75f948"
+  },
+  {
+   "bytes": 115627,
+   "path": "food_hestia_country.json",
+   "rows": 140,
+   "sha256": "409b113eeddb40b3cc36c05b4d6739e73befb0816c29834dd88ffc0aa759a360"
+  },
+  {
+   "bytes": 17009,
+   "path": "food_owid_proxy.json",
+   "rows": 38,
+   "sha256": "58db33f3b7ee3a1951d7d2b7f4e0ba1fc7a228fc451e71f4803a15166e21c9d4"
+  },
+  {
+   "bytes": 1005357,
+   "path": "food_sueatable.json",
+   "rows": 1338,
+   "sha256": "7d8b7c86d92ff65b6246c16bc9e060c46e04ff39d5e5c0ca9162e1222f9d5737"
+  },
+  {
+   "bytes": 263379,
+   "path": "sector_useeio.json",
+   "rows": 411,
+   "sha256": "b699e1053e85572e63470ba2829412b65adfdcf2e4b0a2d6a78bb668f8a47c6a"
+  },
+  {
+   "bytes": 69947,
+   "path": "transport_factors.json",
+   "rows": 28,
+   "sha256": "aa5e388ba90865beeac51c67b0953d4481bb7dd180b6511e3d4a3217409b0320"
+  },
+  {
+   "bytes": 16116,
+   "path": "uslci_audit.json",
+   "rows": 16,
+   "sha256": "16165c3e1f0252de1feee973b9128685071588fe1f837f45ed35de9f9c4d677d"
+  }
+ ],
+ "generated_at": "2026-08-07T16:51:55+00:00",
+ "git_commit": "6b132a5c2f448e74c919a13d1fe1571c4ba0d093",
+ "version": "2026.08.1"
+}

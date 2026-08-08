@@ -1,0 +1,14 @@
+# Items whose SU-EATABLE factor is L water per LITRE of product (the sheet
+# does not distinguish). Typology-level rules plus per-item additions;
+# solid_item_overrides wins over a liquid typology (e.g. powders).
+liquid_typologies:
+  - JUICE
+  - BEER
+  - WINE
+  - MILK
+  - VEGETAL MILK
+  - COFFEE LIQUID
+  - TEA LIQUID
+liquid_items: []
+solid_item_overrides:
+  - MILK POWDER

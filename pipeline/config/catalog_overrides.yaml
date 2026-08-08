@@ -1,0 +1,987 @@
+# Hand-curated catalog overrides for Drop's SU-EATABLE food catalog.
+#
+# typology_defaults: default purchase/serving quantity per SU-EATABLE typology.
+# item_overrides:    per-item quantity/unit/basis overrides where the typology
+#                    default is a poor fit (e.g. a whole watermelon wedge vs a
+#                    generic piece of fruit).
+# synonyms:          everyday search words/phrases (incl. Korean for top items)
+#                    that should resolve to a given catalog item.
+# recipes:           composite dishes built from catalog items, with as-consumed
+#                    mass/volume fractions that sum to 1.0.
+# display_overrides: friendlier display names for awkward auto-title-cased items.
+
+typology_defaults:
+  BEEF BONE FREE MEAT*:
+    quantity: 0.2
+    unit: kg
+    basis: steak or mince serving
+  BEEF CURED MEAT:
+    quantity: 0.03
+    unit: kg
+    basis: few slices of cured beef
+  BEEF MEAT WITH BONE:
+    quantity: 0.25
+    unit: kg
+    basis: bone-in cut serving
+  BEER*:
+    quantity: 0.5
+    unit: l
+    basis: bottle or pint
+  BISCUITS:
+    quantity: 0.03
+    unit: kg
+    basis: handful of cookies
+  BREAD:
+    quantity: 0.08
+    unit: kg
+    basis: a few slices
+  BREAKFAST CEREALS:
+    quantity: 0.04
+    unit: kg
+    basis: bowl of cereal
+  BUTTER*:
+    quantity: 0.01
+    unit: kg
+    basis: pat of butter
+  CHEESE:
+    quantity: 0.03
+    unit: kg
+    basis: cheese portion or slice
+  COCOA DERIVATES:
+    quantity: 0.02
+    unit: kg
+    basis: cocoa/chocolate serving
+  COFFEE (GREEN):
+    quantity: 0.008
+    unit: kg
+    basis: green beans for one cup
+  COFFEE GROUND & PARCHMENT* (coffee roasted):
+    quantity: 0.007
+    unit: kg
+    basis: roasted grounds for one cup
+  COFFEE LIQUID:
+    quantity: 0.125
+    unit: l
+    basis: cup of brewed coffee
+  CRACKERS:
+    quantity: 0.02
+    unit: kg
+    basis: handful of crackers
+  CRISPBREAD**:
+    quantity: 0.02
+    unit: kg
+    basis: a few crispbread slices
+  DRESSING:
+    quantity: 0.015
+    unit: kg
+    basis: condiment serving
+  DRIED FRUIT:
+    quantity: 0.03
+    unit: kg
+    basis: small handful
+  EDIBLE INSECTS* (mealworms):
+    quantity: 0.05
+    unit: kg
+    basis: snack portion
+  EGG PASTA*:
+    quantity: 0.08
+    unit: kg
+    basis: dry pasta serving
+  EGGS & DERIVATES:
+    quantity: 0.12
+    unit: kg
+    basis: two eggs
+  EQUINE MEAT:
+    quantity: 0.2
+    unit: kg
+    basis: meat serving
+  FISH:
+    quantity: 0.15
+    unit: kg
+    basis: fillet serving
+  FRUIT:
+    quantity: 0.15
+    unit: kg
+    basis: one piece of fruit
+  GOAT BONE FREE MEAT*:
+    quantity: 0.2
+    unit: kg
+    basis: meat serving
+  GRAIN FLOUR:
+    quantity: 0.1
+    unit: kg
+    basis: flour for one baking portion
+  GRAINS:
+    quantity: 0.08
+    unit: kg
+    basis: dry grain serving
+  JUICE:
+    quantity: 0.25
+    unit: l
+    basis: glass of juice
+  JUICE CONCENTRATED* (tomato):
+    quantity: 0.03
+    unit: kg
+    basis: concentrate spoonful
+  LAMB BONE FREE MEAT*:
+    quantity: 0.2
+    unit: kg
+    basis: meat serving
+  LAMB MEAT WITH BONE*:
+    quantity: 0.25
+    unit: kg
+    basis: bone-in cut serving
+  LEGUME FLOUR:
+    quantity: 0.05
+    unit: kg
+    basis: flour portion
+  LEGUMES DRIED:
+    quantity: 0.08
+    unit: kg
+    basis: dry serving (cooked portion base)
+  LEGUMES FRESH:
+    quantity: 0.1
+    unit: kg
+    basis: side serving
+  MARGARINE*:
+    quantity: 0.01
+    unit: kg
+    basis: spread portion
+  MILK:
+    quantity: 0.25
+    unit: l
+    basis: glass of milk
+  MILK POWDER:
+    quantity: 0.03
+    unit: kg
+    basis: reconstituted serving
+  NUTS SHELLED:
+    quantity: 0.03
+    unit: kg
+    basis: small handful
+  NUTS WITH SHELL:
+    quantity: 0.05
+    unit: kg
+    basis: handful with shell
+  OFFAL, FAT, LIVER:
+    quantity: 0.1
+    unit: kg
+    basis: offal serving
+  OIL:
+    quantity: 0.014
+    unit: kg
+    basis: cooking oil, about a tablespoon
+  PASTA*:
+    quantity: 0.08
+    unit: kg
+    basis: dry pasta serving
+  PESTO:
+    quantity: 0.02
+    unit: kg
+    basis: pasta sauce portion
+  PORK BONE FREE MEAT*:
+    quantity: 0.2
+    unit: kg
+    basis: meat serving
+  PORK CURED MEAT:
+    quantity: 0.03
+    unit: kg
+    basis: a few slices
+  PORK MEAT WITH BONE:
+    quantity: 0.25
+    unit: kg
+    basis: bone-in cut serving
+  POULTRY BONE FREE MEAT:
+    quantity: 0.15
+    unit: kg
+    basis: breast or fillet serving
+  POULTRY MEAT WITH BONE* (chicken):
+    quantity: 0.2
+    unit: kg
+    basis: bone-in piece serving
+  PROCESSED GRAINS (grouts, malt):
+    quantity: 0.05
+    unit: kg
+    basis: side serving
+  SEEDS:
+    quantity: 0.015
+    unit: kg
+    basis: sprinkle portion
+  SHEEP BONE FREE MEAT*:
+    quantity: 0.2
+    unit: kg
+    basis: meat serving
+  SHEEP MEAT WITH BONE:
+    quantity: 0.25
+    unit: kg
+    basis: bone-in cut serving
+  SHELLFISH* (crustacean):
+    quantity: 0.15
+    unit: kg
+    basis: shellfish serving
+  SPICIES:
+    quantity: 0.002
+    unit: kg
+    basis: seasoning pinch
+  STARCH:
+    quantity: 0.02
+    unit: kg
+    basis: thickener portion
+  STARCHY ROOT FLOUR:
+    quantity: 0.05
+    unit: kg
+    basis: flour portion
+  STARCHY TUBER:
+    quantity: 0.05
+    unit: kg
+    basis: processed tuber serving
+  STARCHY TUBERS:
+    quantity: 0.15
+    unit: kg
+    basis: side serving
+  SUGAR:
+    quantity: 0.01
+    unit: kg
+    basis: spoonful of sugar
+  SUGAR CROPS:
+    quantity: 0.05
+    unit: kg
+    basis: raw crop serving
+  SWEETS:
+    quantity: 0.06
+    unit: kg
+    basis: pastry or cake slice
+  TEA:
+    quantity: 0.002
+    unit: kg
+    basis: tea leaves/bag for one cup
+  TOMATO PUREE,PEELED, CHOPPED:
+    quantity: 0.08
+    unit: kg
+    basis: sauce base portion
+  TOMATO SAUCE:
+    quantity: 0.08
+    unit: kg
+    basis: pasta sauce serving
+  VEGETABLES:
+    quantity: 0.1
+    unit: kg
+    basis: side serving
+  VEGETABLES CANNED:
+    quantity: 0.08
+    unit: kg
+    basis: canned side serving
+  VEGETABLES DRIED* (tomato):
+    quantity: 0.02
+    unit: kg
+    basis: dried vegetable portion
+  VEGETABLES FROZEN:
+    quantity: 0.1
+    unit: kg
+    basis: frozen side serving
+  VEGETAL MILK* (soy milk):
+    quantity: 0.25
+    unit: l
+    basis: glass of plant milk
+  VEGETAL PROTEINS:
+    quantity: 0.1
+    unit: kg
+    basis: protein serving
+  WINE*:
+    quantity: 0.15
+    unit: l
+    basis: glass of wine
+  YEAST COMPRESSED*:
+    quantity: 0.01
+    unit: kg
+    basis: baking portion
+  YOGURT:
+    quantity: 0.15
+    unit: kg
+    basis: yogurt cup
+item_overrides:
+  sel:item:watermelon:
+    quantity: 0.3
+    unit: kg
+    basis: large wedge slice, much heavier than a generic fruit piece
+  sel:item:eggs_shelled:
+    quantity: 0.05
+    unit: kg
+    basis: single shelled egg, not a two-egg serving
+  sel:item:egg_yolks:
+    quantity: 0.017
+    unit: kg
+    basis: single egg yolk
+  sel:item:cane_sugar:
+    quantity: 0.005
+    unit: kg
+    basis: teaspoon of sugar
+  sel:item:rice:
+    quantity: 0.075
+    unit: kg
+    basis: dry rice for one serving
+  sel:item:tomato:
+    quantity: 0.12
+    unit: kg
+    basis: one whole tomato
+  sel:item:banana:
+    quantity: 0.12
+    unit: kg
+    basis: one banana
+  sel:item:potato:
+    quantity: 0.17
+    unit: kg
+    basis: one medium potato
+  sel:item:avocado:
+    quantity: 0.2
+    unit: kg
+    basis: half a large avocado
+  sel:item:pineapple:
+    quantity: 0.5
+    unit: kg
+    basis: a few slices from a whole pineapple
+  sel:item:coconut:
+    quantity: 0.3
+    unit: kg
+    basis: coconut flesh serving
+  sel:item:lemon:
+    quantity: 0.06
+    unit: kg
+    basis: one lemon
+  sel:item:garlic:
+    quantity: 0.005
+    unit: kg
+    basis: one clove
+  sel:item:onion:
+    quantity: 0.11
+    unit: kg
+    basis: one onion
+  sel:item:ginger:
+    quantity: 0.01
+    unit: kg
+    basis: a knob of ginger
+  sel:item:chocolate:
+    quantity: 0.025
+    unit: kg
+    basis: a few squares
+  sel:item:mozzarella:
+    quantity: 0.125
+    unit: kg
+    basis: fresh mozzarella ball
+  sel:item:cream:
+    quantity: 0.02
+    unit: kg
+    basis: splash of cream
+  sel:item:lettuce:
+    quantity: 0.03
+    unit: kg
+    basis: handful of lettuce leaves
+  sel:item:spinach:
+    quantity: 0.03
+    unit: kg
+    basis: handful of spinach
+  sel:item:carrot:
+    quantity: 0.08
+    unit: kg
+    basis: one medium carrot
+  sel:item:grapes:
+    quantity: 0.08
+    unit: kg
+    basis: small bunch of grapes
+  sel:item:butter:
+    quantity: 0.01
+    unit: kg
+    basis: pat of butter for toast
+  sel:item:olive_oil:
+    quantity: 0.01
+    unit: kg
+    basis: a single drizzle for salad or cooking
+  sel:item:wine:
+    quantity: 0.125
+    unit: l
+    basis: small glass of wine
+  sel:item:cheese:
+    quantity: 0.02
+    unit: kg
+    basis: single cheese slice
+synonyms:
+  sel:item:beef_bone_free_meat:
+  - beef steak
+  - beef mince
+  - ground beef
+  - steak
+  - 소고기
+  - beef fillet
+  sel:item:beef_meat_with_bone:
+  - t-bone steak
+  - beef ribs
+  - bone-in beef
+  sel:item:beef_cured_meat:
+  - beef jerky
+  - corned beef
+  sel:item:pork_meat_with_bone:
+  - pork chop
+  - pork ribs
+  - 돼지고기
+  sel:item:pork_bone_free_meat:
+  - pork loin
+  - pork tenderloin
+  - pork cutlet
+  sel:item:bacon:
+  - bacon
+  - crispy bacon
+  - bacon strips
+  sel:item:cured_ham_bone_free:
+  - ham
+  - deli ham
+  - sliced ham
+  sel:item:sausages:
+  - sausage
+  - hot dog
+  - bratwurst
+  sel:item:chicken_meat_with_bone:
+  - chicken
+  - chicken leg
+  - chicken thigh
+  - 닭고기
+  sel:item:chicken_bone_free_meat:
+  - chicken breast
+  - chicken fillet
+  - boneless chicken
+  sel:item:cow_milk:
+  - milk
+  - whole milk
+  - 우유
+  - dairy milk
+  sel:item:buttered_milk:
+  - buttermilk
+  sel:item:cheese:
+  - cheese
+  - 치즈
+  sel:item:mozzarella:
+  - mozzarella
+  - pizza cheese
+  sel:item:parmigiano_reggiano:
+  - parmesan
+  - parmigiano
+  sel:item:cheese_grated:
+  - shredded cheese
+  - grated cheese
+  sel:item:cream:
+  - cream
+  - heavy cream
+  - whipping cream
+  sel:item:mascarpone:
+  - mascarpone
+  sel:item:eggs:
+  - eggs
+  - egg
+  - 달걀
+  - 계란
+  sel:item:coffee_standard:
+  - coffee
+  - cup of coffee
+  - 커피
+  sel:item:coffee_soluble:
+  - instant coffee
+  sel:item:coffee_roasted:
+  - ground coffee
+  - roasted coffee beans
+  sel:item:coffee_bean:
+  - coffee beans
+  - raw coffee
+  sel:item:black_tea:
+  - black tea
+  - tea
+  - 차
+  sel:item:green_tea:
+  - green tea
+  - matcha
+  sel:item:beer:
+  - beer
+  - lager
+  - 맥주
+  - pint
+  sel:item:wine:
+  - wine
+  - red wine
+  - white wine
+  sel:item:apple:
+  - apple
+  - 사과
+  sel:item:banana:
+  - banana
+  - 바나나
+  sel:item:orange:
+  - orange
+  - 오렌지
+  sel:item:strawberry:
+  - strawberry
+  - strawberries
+  sel:item:grapes:
+  - grapes
+  sel:item:watermelon:
+  - watermelon
+  sel:item:mango:
+  - mango
+  sel:item:pineapple:
+  - pineapple
+  sel:item:avocado:
+  - avocado
+  sel:item:lemon:
+  - lemon
+  sel:item:blueberry:
+  - blueberry
+  - blueberries
+  sel:item:peach:
+  - peach
+  sel:item:pear:
+  - pear
+  sel:item:kiwi:
+  - kiwi
+  sel:item:rice:
+  - rice
+  - white rice
+  - 쌀
+  - 밥
+  sel:item:pasta:
+  - pasta
+  - spaghetti
+  - noodles
+  sel:item:wheat_flour:
+  - flour
+  - wheat flour
+  sel:item:bread:
+  - bread
+  - toast
+  - 빵
+  sel:item:bread_whole:
+  - whole wheat bread
+  - wholegrain bread
+  sel:item:oat_flakes:
+  - oats
+  - oatmeal
+  - rolled oats
+  sel:item:barley_flakes:
+  - barley flakes
+  sel:item:potato:
+  - potato
+  - fries
+  - french fries
+  - 감자
+  sel:item:sweet_potato:
+  - sweet potato
+  sel:item:tomato:
+  - tomato
+  - 토마토
+  sel:item:lettuce:
+  - lettuce
+  - salad greens
+  sel:item:spinach:
+  - spinach
+  sel:item:onion:
+  - onion
+  sel:item:garlic:
+  - garlic
+  sel:item:carrot:
+  - carrot
+  sel:item:cucumber:
+  - cucumber
+  sel:item:broccoli:
+  - broccoli
+  sel:item:pepper:
+  - bell pepper
+  - pepper
+  sel:item:zucchini:
+  - zucchini
+  - courgette
+  sel:item:mixed_vegetables_frozen:
+  - frozen veggies
+  - mixed vegetables
+  sel:item:corn_canned:
+  - canned corn
+  - sweet corn
+  sel:item:soy_milk:
+  - soy milk
+  - soymilk
+  sel:item:yogurt_white:
+  - yogurt
+  - plain yogurt
+  sel:item:yogurt_flavored:
+  - flavored yogurt
+  sel:item:butter:
+  - butter
+  sel:item:margarine:
+  - margarine
+  sel:item:cane_sugar:
+  - sugar
+  - white sugar
+  sel:item:chocolate:
+  - chocolate
+  - chocolate bar
+  sel:item:cocoa_powder:
+  - cocoa powder
+  - cacao powder
+  sel:item:olive_oil:
+  - olive oil
+  sel:item:sunflower_oil:
+  - sunflower oil
+  - cooking oil
+  sel:item:tofu:
+  - tofu
+  - bean curd
+  sel:item:soy_burger:
+  - veggie burger
+  - soy burger
+  sel:item:salmon:
+  - salmon
+  sel:item:cod:
+  - cod
+  - white fish
+  sel:item:trout:
+  - trout
+  sel:item:crustacean:
+  - shrimp
+  - prawns
+  - crab
+  sel:item:chickpea:
+  - chickpeas
+  - garbanzo beans
+  - hummus base
+  sel:item:lentil:
+  - lentils
+  sel:item:orange_juice:
+  - orange juice
+  - OJ
+  sel:item:apple_juice:
+  - apple juice
+  sel:item:tomato_juice:
+  - tomato juice
+recipes:
+  cheeseburger:
+    display: Cheeseburger
+    quantity: 0.25
+    unit: kg
+    components:
+    - item: sel:item:bread
+      fraction: 0.3
+    - item: sel:item:beef_bone_free_meat
+      fraction: 0.35
+    - item: sel:item:cheese
+      fraction: 0.12
+    - item: sel:item:tomato
+      fraction: 0.1
+    - item: sel:item:lettuce
+      fraction: 0.08
+    - item: sel:item:onion
+      fraction: 0.05
+  pizza_margherita:
+    display: Margherita Pizza
+    quantity: 0.3
+    unit: kg
+    components:
+    - item: sel:item:wheat_flour
+      fraction: 0.45
+    - item: sel:item:tomato_puree
+      fraction: 0.2
+    - item: sel:item:mozzarella
+      fraction: 0.3
+    - item: sel:item:olive_oil
+      fraction: 0.05
+  chicken_curry:
+    display: Chicken Curry
+    quantity: 0.35
+    unit: kg
+    components:
+    - item: sel:item:chicken_bone_free_meat
+      fraction: 0.35
+    - item: sel:item:rice
+      fraction: 0.3
+    - item: sel:item:onion
+      fraction: 0.15
+    - item: sel:item:tomato
+      fraction: 0.15
+    - item: sel:item:sunflower_oil
+      fraction: 0.05
+  spaghetti_bolognese:
+    display: Spaghetti Bolognese
+    quantity: 0.35
+    unit: kg
+    components:
+    - item: sel:item:pasta
+      fraction: 0.35
+    - item: sel:item:beef_bone_free_meat
+      fraction: 0.3
+    - item: sel:item:tomato_puree
+      fraction: 0.25
+    - item: sel:item:onion
+      fraction: 0.05
+    - item: sel:item:olive_oil
+      fraction: 0.05
+  fried_rice:
+    display: Fried Rice
+    quantity: 0.3
+    unit: kg
+    components:
+    - item: sel:item:rice
+      fraction: 0.55
+    - item: sel:item:eggs
+      fraction: 0.15
+    - item: sel:item:carrot
+      fraction: 0.1
+    - item: sel:item:onion
+      fraction: 0.1
+    - item: sel:item:sunflower_oil
+      fraction: 0.05
+    - item: sel:item:soy_sauce
+      fraction: 0.05
+  sandwich_ham_cheese:
+    display: Ham & Cheese Sandwich
+    quantity: 0.18
+    unit: kg
+    components:
+    - item: sel:item:bread
+      fraction: 0.45
+    - item: sel:item:cured_ham_bone_free
+      fraction: 0.3
+    - item: sel:item:cheese
+      fraction: 0.2
+    - item: sel:item:butter
+      fraction: 0.05
+  caesar_salad:
+    display: Caesar Salad
+    quantity: 0.25
+    unit: kg
+    components:
+    - item: sel:item:lettuce
+      fraction: 0.55
+    - item: sel:item:chicken_bone_free_meat
+      fraction: 0.25
+    - item: sel:item:parmigiano_reggiano
+      fraction: 0.1
+    - item: sel:item:bread
+      fraction: 0.05
+    - item: sel:item:olive_oil
+      fraction: 0.05
+  burrito:
+    display: Burrito
+    quantity: 0.35
+    unit: kg
+    components:
+    - item: sel:item:wheat_flour
+      fraction: 0.25
+    - item: sel:item:rice
+      fraction: 0.2
+    - item: sel:item:bean
+      fraction: 0.2
+    - item: sel:item:chicken_bone_free_meat
+      fraction: 0.2
+    - item: sel:item:cheese
+      fraction: 0.1
+    - item: sel:item:tomato
+      fraction: 0.05
+  sushi_set:
+    display: Sushi Set
+    quantity: 0.25
+    unit: kg
+    components:
+    - item: sel:item:rice
+      fraction: 0.55
+    - item: sel:item:salmon
+      fraction: 0.3
+    - item: sel:item:soy_sauce
+      fraction: 0.1
+    - item: sel:item:avocado
+      fraction: 0.05
+  pancakes:
+    display: Pancakes
+    quantity: 0.2
+    unit: kg
+    components:
+    - item: sel:item:wheat_flour
+      fraction: 0.45
+    - item: sel:item:eggs
+      fraction: 0.2
+    - item: sel:item:cow_milk
+      fraction: 0.25
+    - item: sel:item:butter
+      fraction: 0.05
+    - item: sel:item:cane_sugar
+      fraction: 0.05
+  omelette:
+    display: Omelette
+    quantity: 0.15
+    unit: kg
+    components:
+    - item: sel:item:eggs
+      fraction: 0.7
+    - item: sel:item:cheese
+      fraction: 0.15
+    - item: sel:item:cow_milk
+      fraction: 0.1
+    - item: sel:item:butter
+      fraction: 0.05
+  latte:
+    display: Latte
+    quantity: 0.25
+    unit: l
+    components:
+    - item: sel:item:cow_milk
+      fraction: 0.65
+    - item: sel:item:coffee_standard
+      fraction: 0.35
+  cappuccino:
+    display: Cappuccino
+    quantity: 0.18
+    unit: l
+    components:
+    - item: sel:item:cow_milk
+      fraction: 0.55
+    - item: sel:item:coffee_standard
+      fraction: 0.45
+  oatmeal_bowl:
+    display: Oatmeal Bowl
+    quantity: 0.25
+    unit: kg
+    components:
+    - item: sel:item:oat_flakes
+      fraction: 0.45
+    - item: sel:item:cow_milk
+      fraction: 0.4
+    - item: sel:item:banana
+      fraction: 0.1
+    - item: sel:item:cane_sugar
+      fraction: 0.05
+  fruit_smoothie:
+    display: Fruit Smoothie
+    quantity: 0.3
+    unit: l
+    components:
+    - item: sel:item:banana
+      fraction: 0.3
+    - item: sel:item:cow_milk
+      fraction: 0.4
+    - item: sel:item:strawberry
+      fraction: 0.2
+    - item: sel:item:yogurt_white
+      fraction: 0.1
+  greek_salad:
+    display: Greek Salad
+    quantity: 0.3
+    unit: kg
+    components:
+    - item: sel:item:tomato
+      fraction: 0.35
+    - item: sel:item:cucumber
+      fraction: 0.25
+    - item: sel:item:cheese
+      fraction: 0.15
+    - item: sel:item:onion
+      fraction: 0.1
+    - item: sel:item:olive_oil
+      fraction: 0.1
+    - item: sel:item:olives
+      fraction: 0.05
+  beef_taco:
+    display: Beef Taco
+    quantity: 0.2
+    unit: kg
+    components:
+    - item: sel:item:wheat_flour
+      fraction: 0.3
+    - item: sel:item:beef_bone_free_meat
+      fraction: 0.35
+    - item: sel:item:cheese
+      fraction: 0.15
+    - item: sel:item:tomato
+      fraction: 0.1
+    - item: sel:item:lettuce
+      fraction: 0.1
+  chicken_soup:
+    display: Chicken Soup
+    quantity: 0.35
+    unit: kg
+    components:
+    - item: sel:item:chicken_meat_with_bone
+      fraction: 0.3
+    - item: sel:item:carrot
+      fraction: 0.2
+    - item: sel:item:onion
+      fraction: 0.15
+    - item: sel:item:potato
+      fraction: 0.25
+    - item: sel:item:pea_fresh
+      fraction: 0.1
+  veggie_stir_fry:
+    display: Veggie Stir Fry
+    quantity: 0.3
+    unit: kg
+    components:
+    - item: sel:item:broccoli
+      fraction: 0.3
+    - item: sel:item:carrot
+      fraction: 0.2
+    - item: sel:item:pepper
+      fraction: 0.2
+    - item: sel:item:tofu
+      fraction: 0.2
+    - item: sel:item:sunflower_oil
+      fraction: 0.05
+    - item: sel:item:soy_sauce
+      fraction: 0.05
+  grilled_cheese:
+    display: Grilled Cheese
+    quantity: 0.15
+    unit: kg
+    components:
+    - item: sel:item:bread
+      fraction: 0.55
+    - item: sel:item:cheese
+      fraction: 0.35
+    - item: sel:item:butter
+      fraction: 0.1
+display_overrides:
+  sel:item:cow_milk: Milk
+  sel:item:buttered_milk: Buttermilk
+  sel:item:milk_acid: Cultured Milk
+  sel:item:milk_creamy: Creamy Milk
+  sel:item:kephir: Kefir
+  sel:item:beef_bone_free_meat: Beef (Boneless)
+  sel:item:beef_meat_with_bone: Beef (Bone-in)
+  sel:item:pork_bone_free_meat: Pork (Boneless)
+  sel:item:pork_meat_with_bone: Pork (Bone-in)
+  sel:item:goat_bone_free_meat: Goat (Boneless)
+  sel:item:lamb_bone_free_meat: Lamb (Boneless)
+  sel:item:lamb_meat_with_bone: Lamb (Bone-in)
+  sel:item:sheep_bone_free_meat: Mutton (Boneless)
+  sel:item:sheep_carcasse_with_bone: Mutton (Whole Carcass)
+  sel:item:sheep_cuts_with_bone: Mutton Cuts (Bone-in)
+  sel:item:chicken_bone_free_meat: Chicken Breast (Boneless)
+  sel:item:chicken_meat_with_bone: Chicken (Bone-in)
+  sel:item:duck_bone_free_meat: Duck (Boneless)
+  sel:item:turkey_bone_free_meat: Turkey (Boneless)
+  sel:item:goose_bone_free_meat: Goose (Boneless)
+  sel:item:guinea_bone_free_meat: Guinea Fowl (Boneless)
+  sel:item:cured_ham_bone_free: Cured Ham (Boneless)
+  sel:item:cured_ham_with_bone: Cured Ham (Bone-in)
+  sel:item:cured_pork_bone_free: Cured Pork (Boneless)
+  sel:item:cured_shoulders_with_bone: Cured Pork Shoulder (Bone-in)
+  sel:item:fresh_ham_with_bone: Fresh Ham (Bone-in)
+  sel:item:fresh_shoulders_with_bone: Pork Shoulder (Bone-in)
+  sel:item:pork_cuts_with_bone: Pork Cuts (Bone-in)
+  sel:item:ass_meat: Donkey Meat
+  sel:item:ass_offal: Donkey Offal
+  sel:item:cahsew_apple: Cashew Apple
+  sel:item:cahsew_nut: Cashew Nut
+  sel:item:tangerin: Tangerine
+  sel:item:gran_moravia: Grana-Style Hard Cheese
+  sel:item:cakes_and_croissant: Cakes & Croissants
+  sel:item:cocoa_cakes_and_croissant: Chocolate Cakes & Croissants
+  sel:item:pepper_piper_spp: Black Pepper
+  sel:item:maize_hulled_pearled_sliced_or_kibbled: Hulled/Pearled Maize
+  # DRIED FRUIT typology — the plural workbook names are the dried forms and
+  # carry ~11x (apple) and ~1.1x (coconut) the fresh factor. Never let these
+  # read as plain "Apples"/"Coconuts"; the fresh items are sel:item:apple and
+  # sel:item:coconut.
+  sel:item:apples: Apples (dried)
+  sel:item:coconuts: Coconut (dried)

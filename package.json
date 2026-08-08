@@ -1,0 +1,11 @@
+{
+  "name": "drop",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "backend"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present"
+  }
+}

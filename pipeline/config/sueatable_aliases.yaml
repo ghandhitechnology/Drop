@@ -1,0 +1,6 @@
+# Cross-sheet name overrides (users sheet name -> statistics sheet name),
+# applied after normalization. Populated from build failures; the build
+# refuses to run with unjoined names.
+aliases:
+  SEABASS: SEA-BASS
+  STARCHY TUBER: STARCHY TUBERS

@@ -1,0 +1,147 @@
+# Water intensity of liquid transport fuels — hand-curated literature constants.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# USLCI supplies clean technosphere activity coefficients (how many litres of
+# fuel a passenger-km or tonne-km consumes) but its water inventory is NOT
+# usable as a water footprint: refinery water is a single 1.68 l "Water"
+# elementary input allocated across the whole product slate, the 13 electricity
+# processes carry no water exchanges at all (they resolve to an external
+# openLCA library that is not shipped in the JSON-LD package), and a full
+# recursive solve of the passenger-car chain returns ~0.0027 L/p*km — two to
+# three orders of magnitude below every published estimate.
+#
+# So Drop multiplies the USLCI *activity* coefficient by a *literature* water
+# intensity taken from the peer-reviewed sources below. No transport water
+# number in Drop is ever derived from USLCI water exchanges alone.
+#
+# UNITS AND METRIC
+# ----------------
+# value / range_low / range_high are litres of freshwater CONSUMED per litre of
+# finished fuel. Consumption (evaporated, transpired, incorporated into product,
+# or otherwise not returned to the same catchment) — not withdrawal. Withdrawal
+# figures for the same fuels are roughly an order of magnitude larger and must
+# never be mixed into this table.
+#
+# HONESTY NOTE ON THE RANGES
+# --------------------------
+# The published range for petroleum fuels spans more than an order of
+# magnitude, and the spread is real, not noise. The dominant driver is crude
+# production: primary/offshore recovery consumes very little water, while
+# mature onshore fields under waterflood or steam-assisted recovery consume a
+# great deal. Studies that report only refining plus primary extraction land
+# near the bottom of the range; studies that carry full well-to-pump water for
+# U.S. conventional onshore crude land near the top. Both bounds below are
+# real published numbers, not padding.
+
+schema_version: 1
+metric_type: freshwater_consumption
+functional_unit: l_water_per_l_fuel
+system_boundary: >-
+  Fuel cycle only: crude production/recovery, crude transport, refining, and
+  distribution to the pump (well-to-pump). Excludes vehicle manufacture,
+  vehicle maintenance, road/rail/airport infrastructure, and end-of-life.
+
+sources:
+  king_webber_2008:
+    citation: >-
+      King, C.W. and Webber, M.E. (2008). "Water Intensity of Transportation."
+      Environmental Science & Technology 42(21): 7866-7872.
+      doi:10.1021/es800367m
+    reported: >-
+      Approximately 0.36-0.78 gal water consumed per gal of gasoline for
+      conventional petroleum extraction plus refining (1 gal/gal == 1 L/L).
+      This is the low end of the literature because it does not carry the
+      enhanced-recovery waterflood burden of mature onshore fields.
+    geography: US
+    year: 2008
+  wu_et_al_2009:
+    citation: >-
+      Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). "Water Consumption in
+      the Production of Ethanol and Petroleum Gasoline." Environmental
+      Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0
+      (Argonne National Laboratory ANL/ESD/09-1, the water analysis that
+      underpins the GREET water module.)
+    reported: >-
+      Well-to-pump consumptive water for U.S. petroleum gasoline of roughly
+      2.8-6.6 gal water per gal of gasoline depending on crude source, of which
+      refining alone contributes on the order of 1.5 gal/gal. Crude recovery
+      dominates and drives the spread.
+    geography: US
+    year: 2009
+  grubert_sanders_2018:
+    citation: >-
+      Grubert, E. and Sanders, K.T. (2018). "Water Use in the United States
+      Energy System: A National Assessment and Unit Process Inventory of Water
+      Consumption and Withdrawals." Environmental Science & Technology 52(11):
+      6695-6703. doi:10.1021/acs.est.8b00139
+    reported: >-
+      Unit-process consumption and withdrawal inventory for the whole U.S.
+      energy system. Petroleum refining consumptive water is small per litre of
+      product; oil and gas extraction water consumption is highly variable and
+      is where most of the fuel-cycle water sits. Used here to corroborate the
+      low bound and to confirm that refining alone cannot explain the high
+      bound.
+    geography: US
+    year: 2018
+
+fuels:
+  gasoline:
+    label: Motor gasoline (finished, conventional U.S. crude)
+    value: 4.7
+    range_low: 0.4
+    range_high: 6.6
+    metric_type: freshwater_consumption
+    geography: US
+    year: 2009
+    basis: >-
+      Central value is the midpoint of the well-to-pump consumptive range
+      reported by Wu et al. (2009) for U.S. petroleum gasoline (2.8-6.6 L/L).
+      The range is widened downward to 0.4 L/L to cover studies that count
+      refining plus primary extraction only (King & Webber 2008, corroborated
+      by the refinery unit processes in Grubert & Sanders 2018).
+    primary_source: wu_et_al_2009
+    supporting_sources: [king_webber_2008, grubert_sanders_2018]
+
+  diesel:
+    label: Distillate diesel fuel (finished, conventional U.S. crude)
+    value: 4.4
+    range_low: 0.35
+    range_high: 6.2
+    metric_type: freshwater_consumption
+    geography: US
+    year: 2009
+    basis: >-
+      Diesel and gasoline share the same crude-production water burden, which
+      is the dominant term, so diesel tracks gasoline closely. Set ~6% below
+      gasoline because distillate requires less hydro-processing and reforming
+      per litre than finished gasoline, and the refinery step is the part of
+      the chain where the two fuels genuinely differ (Wu et al. 2009 refinery
+      breakdown; Grubert & Sanders 2018 refinery unit processes). The range
+      is scaled from the gasoline range on the same reasoning.
+    primary_source: wu_et_al_2009
+    supporting_sources: [grubert_sanders_2018]
+
+  jet_fuel:
+    label: Jet fuel / kerosene (Jet A-1 equivalent, conventional U.S. crude)
+    value: 4.0
+    range_low: 0.3
+    range_high: 6.0
+    metric_type: freshwater_consumption
+    geography: US
+    year: 2009
+    confidence_note: >-
+      Least well characterised of the three. No study in this list reports jet
+      fuel separately; the value is assigned by position in the refinery
+      product slate — kerosene is a middle distillate that needs less
+      processing water per litre than gasoline — on top of the same crude
+      production burden. Treat the range, not the central value, as the
+      real claim.
+    basis: >-
+      Same crude-production water burden as gasoline and diesel, with a
+      lighter refining step per litre. Derived by analogy within the refinery
+      slate from Wu et al. (2009) and Grubert & Sanders (2018); no jet-fuel
+      specific consumptive water study is cited because none of the sources
+      above disaggregates it.
+    primary_source: wu_et_al_2009
+    supporting_sources: [grubert_sanders_2018]

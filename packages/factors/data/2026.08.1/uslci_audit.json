@@ -1,0 +1,452 @@
+{
+ "activities_not_found": [],
+ "activity_coefficients_used": [
+  {
+   "fuel_amount": 0.063002,
+   "fuel_amount_l": 0.063002,
+   "fuel_flow": "Gasoline, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, passenger car, gasoline powered",
+   "process_uuid": "553fff99-b003-39a4-b53e-a9b3da050c71",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.063002,
+   "fuel_amount_l": 0.063002,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, passenger car, diesel powered",
+   "process_uuid": "c01e63be-688d-36c6-ba41-07d900691186",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.078407,
+   "fuel_amount_l": 0.078407,
+   "fuel_flow": "Gasoline, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, passenger truck, gasoline powered",
+   "process_uuid": "77b42094-983d-38b5-bb10-90ae9b5f598c",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.093306,
+   "fuel_amount_l": 0.093306,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, passenger truck, diesel powered",
+   "process_uuid": "cef0fa12-65ae-3672-a989-49e304c7ba53",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.088328,
+   "fuel_amount_l": 0.088328,
+   "fuel_flow": "Gasoline, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, motorcycle, gasoline powered",
+   "process_uuid": "22dfa934-0329-347b-be34-e638548f4ae0",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.034099,
+   "fuel_amount_l": 0.034099,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, transit bus, diesel powered",
+   "process_uuid": "ab489078-bfc7-3ff7-9af9-aaca6b225cfd",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.015238,
+   "fuel_amount_l": 0.015238,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, intercity bus, diesel powered",
+   "process_uuid": "2087543e-37d4-3a37-b351-e134cbe3e538",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.004277,
+   "fuel_amount_l": 0.004277,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, school bus, diesel powered",
+   "process_uuid": "0a67401f-bc99-3993-adbb-3b9ccfeb1c42",
+   "reference_unit": "p*km"
+  },
+  {
+   "fuel_amount": 0.006482,
+   "fuel_amount_l": 0.006482,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, train, diesel powered",
+   "process_uuid": "7de9c230-fd0f-3478-be87-f80181132faa",
+   "reference_unit": "t*km"
+  },
+  {
+   "fuel_amount": 0.41992,
+   "fuel_amount_l": 0.41992,
+   "fuel_flow": "Kerosene, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, aircraft, freight",
+   "process_uuid": "61ff7eba-1846-30cb-9840-33939ee0dc26",
+   "reference_unit": "t*km"
+  },
+  {
+   "fuel_amount": 888.365551,
+   "fuel_amount_l": 0.025368,
+   "fuel_flow": "Diesel, dispensed at pump",
+   "fuel_unit": "btu",
+   "process_name": "Transport, combination truck, diesel powered",
+   "process_uuid": "34156f3c-28ef-33db-9ad0-6293a2aa0d52",
+   "reference_unit": "t*km"
+  },
+  {
+   "fuel_amount": 1134.786341,
+   "fuel_amount_l": 0.032405,
+   "fuel_flow": "Diesel, dispensed at pump",
+   "fuel_unit": "btu",
+   "process_name": "Transport, single unit truck, diesel powered",
+   "process_uuid": "45b70b50-20a0-341b-8e2f-c196974d1541",
+   "reference_unit": "t*km"
+  },
+  {
+   "fuel_amount": 4929.55296,
+   "fuel_amount_l": 0.140768,
+   "fuel_flow": "Diesel, dispensed at pump",
+   "fuel_unit": "btu",
+   "process_name": "Transport, light commercial truck, diesel powered",
+   "process_uuid": "bf6e7378-4e08-3698-a3a7-c9cc90fcbc07",
+   "reference_unit": "t*km"
+  },
+  {
+   "fuel_amount": 4026.665403,
+   "fuel_amount_l": 0.12388,
+   "fuel_flow": "Gasoline, dispensed at pump",
+   "fuel_unit": "btu",
+   "process_name": "Transport, light commercial truck, gasoline powered",
+   "process_uuid": "6d0fc48d-a8d0-3d87-b337-d7fabf9767bc",
+   "reference_unit": "t*km"
+  },
+  {
+   "fuel_amount": 0.004926,
+   "fuel_amount_l": 0.004926,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, ocean freighter, diesel powered",
+   "process_uuid": "da0f5501-f4ab-32d1-80b7-b70d143608f6",
+   "reference_unit": "t*km"
+  },
+  {
+   "fuel_amount": 0.009593,
+   "fuel_amount_l": 0.009593,
+   "fuel_flow": "Diesel, at refinery",
+   "fuel_unit": "l",
+   "process_name": "Transport, barge, diesel powered",
+   "process_uuid": "c2300fc3-5496-3d12-9135-67dc0ef740c9",
+   "reference_unit": "t*km"
+  }
+ ],
+ "agricultural_normalization_warning": {
+  "note": "USLCI agricultural processes are mis-normalized for consumer use (e.g. 'Cotton, whole plant, at field' reports 1,307,000 kg water per 1 kg reference output). No USLCI agricultural water value is used anywhere in Drop."
+ },
+ "counts": {
+  "counting_rule": "An input exchange counts as a water resource when its flow name starts with 'Water' and its category is under 'Elementary flows/resource/water'. Freshwater additionally excludes anything marked saline. Broader scans that also count 'Water' under resource/air or 'Raw material, unspecified' report a higher process count.",
+  "flows": 4081,
+  "freshwater_input_units_seen": {
+   "cu ft": 1,
+   "g": 3,
+   "gal (US liq)": 2,
+   "kg": 1176,
+   "l": 7,
+   "m3": 468
+  },
+  "processes": 962,
+  "processes_with_freshwater_resource_inputs": 160,
+  "processes_with_water_resource_inputs": 160
+ },
+ "electricity_processes": {
+  "all_zero_water_inputs": true,
+  "count": 13,
+  "explanation": "openlca.json declares the external openLCA library U.S._electricity_baseline_v1.2025-06.0, which is not shipped inside this JSON-LD package. The grid mix and its water inventory live in that library, so every electricity process in the package resolves to zero water. This is why ev_car cannot be supported from USLCI alone.",
+  "processes": [
+   {
+    "exchange_count": 7,
+    "process_name": "Electricity, alumina refining regions",
+    "process_uuid": "a6260670-e98e-3917-98bd-c14acb79fdf7",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 6,
+    "process_name": "Electricity, aluminum smelting and ingot casting regions",
+    "process_uuid": "4d21df14-9a73-31ce-9a5f-dee0cd2a2aed",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 2,
+    "process_name": "Electricity, at cogen, for natural gas turbine",
+    "process_uuid": "e6586e69-95a4-3396-a934-f379fbdd28f4",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 10,
+    "process_name": "Electricity, at grid",
+    "process_uuid": "ab7f18b8-9e1b-4efc-a690-5d9ffe6e0cc1",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 4,
+    "process_name": "Electricity, at grid",
+    "process_uuid": "81ab92da-bf0e-4b32-9ba8-404854a9b8bb",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 7,
+    "process_name": "Electricity, bauxite mining regions",
+    "process_uuid": "6023a2bf-2d42-348b-bee7-caae15319edb",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 48,
+    "process_name": "Electricity, biomass, at power plant",
+    "process_uuid": "dfdb7eba-dfc4-3d24-9683-58b8b0ee1346",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 60,
+    "process_name": "Electricity, bituminous coal, at power plant",
+    "process_uuid": "66280f03-b26f-35c4-bda2-3d4a8652943a",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 38,
+    "process_name": "Electricity, diesel, at power plant",
+    "process_uuid": "4b3de918-4d30-3184-bdaa-60d8575c5af4",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 57,
+    "process_name": "Electricity, lignite coal, at power plant",
+    "process_uuid": "5b26dd62-5ab0-3822-b39c-6aa187efc9e5",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 27,
+    "process_name": "Electricity, natural gas, at power plant",
+    "process_uuid": "fa379f16-c09a-4e70-8595-45c69162215c",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 2,
+    "process_name": "Electricity, nuclear, at power plant",
+    "process_uuid": "2b091e0d-d0de-31a1-89db-3f51a9c5cf12",
+    "water_input_exchanges": 0
+   },
+   {
+    "exchange_count": 38,
+    "process_name": "Electricity, residual fuel oil, at power plant",
+    "process_uuid": "e391a117-69ae-3550-987a-8f28a1444eb9",
+    "water_input_exchanges": 0
+   }
+  ]
+ },
+ "emitted": {
+  "transport_activity_rows": 16,
+  "transport_factor_rows": 8,
+  "unsupported_mode_rows": 4
+ },
+ "naive_recursive_walk": {
+  "consequence": "No USLCI-only water number is emitted as a Drop factor. transport_factors[] multiplies the USLCI activity coefficient by a literature water intensity from config/fuel_water_intensity.yaml.",
+  "method": "Recursive expansion of technosphere inputs to a producing process, with PHYSICAL_ALLOCATION factors applied to multi-output processes, summing elementary freshwater resource inputs (saline excluded). Run under four modelling choices: whether co-product outputs are resolved at all, and a depth cap of 6 vs 12.",
+  "prior_inspection_reference": "An earlier hand-run solve of this same process reported ~0.00266 L/p*km. That sits in the same band as the reference-provider-only variants here (~0.0016-0.026 L/p*km), i.e. it is one particular point in a spread that the modelling choices, not the data, determine.",
+  "reference_unit": "p*km",
+  "rejected": true,
+  "rejection_reasons": [
+   "The answer is not stable. Across four defensible modelling choices the same process yields 0.00155 to 1.3917 L/p*km, a spread of about 898x. A factor Drop ships cannot depend that strongly on a depth cap.",
+   "The restrictive variants land two orders of magnitude below every published estimate of gasoline-car fuel-cycle water (literature: roughly 0.3-1.1 L freshwater per vehicle-km).",
+   "Crude production water — the dominant term in the real fuel cycle — is absent: 'Crude oil, production mixture, at extraction' declares no freshwater resource input, so the whole upstream oilfield burden is simply missing.",
+   "The permissive variants are dominated not by fuel at all but by USLCI's mis-normalized agricultural processes ('Soybean grains, at field', 'Forest residue, processed and loaded'), which leak irrigation water into the chain through biofuel blending and swamp the refinery term.",
+   "Electricity inputs anywhere in the chain contribute zero water because the grid library is external to this package.",
+   "Product inputs with no provider in the package are silently cut off, so every variant is a truncated lower bound of a model that is already computing the wrong metric.",
+   "USLCI water exchanges mix withdrawal, process water and irrigation semantics with no exchange-level data-quality score, so even a complete solve would not yield consumptive freshwater."
+  ],
+  "result_l_freshwater_per_pkm_high": 1.391687,
+  "result_l_freshwater_per_pkm_low": 0.00155,
+  "root_process": "Transport, passenger car, gasoline powered",
+  "root_uuid": "553fff99-b003-39a4-b53e-a9b3da050c71",
+  "spread_factor": 898.045288,
+  "variants": [
+   {
+    "follow_coproducts": false,
+    "max_depth": 6,
+    "result_l_freshwater_per_pkm": 0.00155,
+    "top_contributors": [
+     {
+      "l_per_pkm": 0.001523,
+      "process_name": "Petroleum refining, at refinery"
+     },
+     {
+      "l_per_pkm": 2e-05,
+      "process_name": "Hydrogen, liquid, synthesis gas, at plant"
+     },
+     {
+      "l_per_pkm": 2e-06,
+      "process_name": "Natural gas, at processing, conventional, kg"
+     },
+     {
+      "l_per_pkm": 1e-06,
+      "process_name": "Ethanol, denatured, corn dry mill"
+     },
+     {
+      "l_per_pkm": 1e-06,
+      "process_name": "Natural gas, at processing, shale, kg"
+     }
+    ],
+    "truncation_examples": {
+     "cycle": "Natural gas, combusted in industrial equipment -> Transport, pipeline, natural gas",
+     "max_depth": "Transport, combination truck, average fuel mix",
+     "missing_provider": "Gasoline, at refinery"
+    },
+    "truncations": {
+     "cycle": 234,
+     "max_depth": 651,
+     "missing_provider": 231
+    }
+   },
+   {
+    "follow_coproducts": false,
+    "max_depth": 12,
+    "result_l_freshwater_per_pkm": 0.026265,
+    "top_contributors": [
+     {
+      "l_per_pkm": 0.01781,
+      "process_name": "Soybean grains, at field"
+     },
+     {
+      "l_per_pkm": 0.006696,
+      "process_name": "Forest residue, processed and loaded, at landing system"
+     },
+     {
+      "l_per_pkm": 0.001523,
+      "process_name": "Petroleum refining, at refinery"
+     },
+     {
+      "l_per_pkm": 0.000171,
+      "process_name": "Soybean oil, crude, degummed, at plant"
+     },
+     {
+      "l_per_pkm": 2.1e-05,
+      "process_name": "Natural gas, Marcellus Shale, at extraction"
+     }
+    ],
+    "truncation_examples": {
+     "cycle": "Natural gas, combusted in industrial equipment -> Transport, pipeline, natural gas",
+     "max_depth": "Diesel, dispensed at pump",
+     "missing_provider": "Gasoline, at refinery"
+    },
+    "truncations": {
+     "cycle": 8216,
+     "max_depth": 4813,
+     "missing_provider": 5093
+    }
+   },
+   {
+    "follow_coproducts": true,
+    "max_depth": 6,
+    "result_l_freshwater_per_pkm": 0.091902,
+    "top_contributors": [
+     {
+      "l_per_pkm": 0.08067,
+      "process_name": "Petroleum refining, at refinery"
+     },
+     {
+      "l_per_pkm": 0.008799,
+      "process_name": "Soybean oil, crude, degummed, at plant"
+     },
+     {
+      "l_per_pkm": 0.001058,
+      "process_name": "Hydrogen, liquid, synthesis gas, at plant"
+     },
+     {
+      "l_per_pkm": 0.000328,
+      "process_name": "Ethanol, denatured, corn dry mill"
+     },
+     {
+      "l_per_pkm": 0.000232,
+      "process_name": "Natural gas, at processing, conventional, kg"
+     }
+    ],
+    "truncation_examples": {
+     "cycle": "Natural gas, combusted in industrial equipment -> Transport, pipeline, natural gas",
+     "max_depth": "Diesel, dispensed at pump",
+     "missing_provider": "Electricity, AC, 120 V"
+    },
+    "truncations": {
+     "cycle": 647,
+     "max_depth": 1425,
+     "missing_provider": 357
+    }
+   },
+   {
+    "follow_coproducts": true,
+    "max_depth": 12,
+    "result_l_freshwater_per_pkm": 1.391687,
+    "top_contributors": [
+     {
+      "l_per_pkm": 0.94354,
+      "process_name": "Soybean grains, at field"
+     },
+     {
+      "l_per_pkm": 0.354954,
+      "process_name": "Forest residue, processed and loaded, at landing system"
+     },
+     {
+      "l_per_pkm": 0.08067,
+      "process_name": "Petroleum refining, at refinery"
+     },
+     {
+      "l_per_pkm": 0.009074,
+      "process_name": "Soybean oil, crude, degummed, at plant"
+     },
+     {
+      "l_per_pkm": 0.001125,
+      "process_name": "Natural gas, Marcellus Shale, at extraction"
+     }
+    ],
+    "truncation_examples": {
+     "cycle": "Natural gas, combusted in industrial equipment -> Transport, pipeline, natural gas",
+     "max_depth": "Transport, barge, residual fuel oil powered",
+     "missing_provider": "Electricity, AC, 120 V"
+    },
+    "truncations": {
+     "cycle": 36286,
+     "max_depth": 50611,
+     "missing_provider": 25449
+    }
+   }
+  ]
+ },
+ "refinery_water_evidence": {
+  "default_allocation_method": "PHYSICAL_ALLOCATION",
+  "gasoline_output": {
+   "amount": 0.570087,
+   "unit": "l"
+  },
+  "gasoline_physical_allocation_factor": 0.4213,
+  "note": "A whole refinery is represented by one 1.68 l 'Water' resource input, allocated across the full product slate. That is a process-water placeholder, not a fuel-cycle water footprint: it carries no crude-production water and no exchange-level data-quality score.",
+  "process_name": "Petroleum refining, at refinery",
+  "process_uuid": "0aaf1e13-5d80-37f9-b7bb-81a6b8965c71",
+  "water_elementary_input": {
+   "amount": 1.68,
+   "flow_category": "Elementary flows/resource/water",
+   "unit": "l"
+  }
+ },
+ "source": {
+  "declared_external_libraries": [
+   "U.S._electricity_baseline_v1.2025-06.0"
+  ],
+  "file": "uslci_fy25_q2_01_json_ld.zip",
+  "release": "USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory",
+  "schema_version": 5
+ }
+}

@@ -79,6 +79,10 @@ flowchart TD
 6. **OWID/Poore-Nemecek match:** use only as a labelled freshwater-withdrawal proxy.
 7. **Broad group median:** return a very-low-confidence estimate and request better identification.
 
+## v1 implementation notes
+
+The engine ships steps 1, 2, and 4 through 7 of the fallback order above. The regional-median step (step 3) arrives in a later release, once enough origin-tagged observations are in the tables to make a regional median stand on its own. Today a known origin drives the country-specific HESTIA freshwater-withdrawal line shown alongside the headline.
+
 ## Calculations
 
 Solid product:

@@ -1,0 +1,36 @@
+# OWID entity -> catalog target (SU-EATABLE item or typology factor_id).
+# These attach as labelled freshwater-withdrawal PROXY factors (fallback
+# step 6). Category entities without a clean counterpart stay unmapped.
+mappings:
+  Apples: sel:item:apple
+  Bananas: sel:item:banana
+  Barley: sel:item:barley
+  Beef (beef herd): sel:item:beef_bone_free_meat
+  Beet Sugar: sel:item:beet_sugar
+  Brassicas: sel:item:brassicas
+  Cane Sugar: sel:item:cane_sugar
+  Cassava: sel:item:manioc
+  Cheese: sel:item:cheese
+  Citrus Fruit: sel:item:citrus
+  Coffee: sel:item:coffee_roasted
+  Dark Chocolate: sel:item:chocolate
+  Eggs: sel:item:eggs
+  Fish (farmed): sel:typ:fishing__fish
+  Groundnuts: sel:item:peanut
+  Lamb & Mutton: sel:item:lamb_bone_free_meat
+  Maize: sel:item:maize
+  Milk: sel:item:cow_milk
+  Nuts: sel:item:mixed_nuts
+  Oatmeal: sel:item:oat_meal
+  Onions & Leeks: sel:item:onion
+  Peas: sel:item:pea
+  Pig Meat: sel:item:pork_bone_free_meat
+  Potatoes: sel:item:potato
+  Poultry Meat: sel:item:chicken_bone_free_meat
+  Prawns (farmed): sel:item:prawns_giant
+  Rice: sel:item:rice
+  Soy milk: sel:item:soy_milk
+  Tofu: sel:item:tofu
+  Tomatoes: sel:item:tomato
+  Wheat & Rye: sel:item:wheat
+  Wine: sel:item:wine

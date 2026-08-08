@@ -1,0 +1,44 @@
+# Curated USEEIO v2.0 commodity sectors a consumer can actually name.
+# Everyday non-food products only; food is covered by SU-EATABLE.
+# display: consumer-facing name; typical_price_usd: rough default purchase
+# price used only to seed the quantity prompt (user can edit).
+sectors:
+  315000: {display: "Clothing", typical_price_usd: 25}
+  316000: {display: "Shoes & leather goods", typical_price_usd: 60}
+  313200: {display: "Fabric", typical_price_usd: 15}
+  314110: {display: "Carpets & rugs", typical_price_usd: 80}
+  314120: {display: "Curtains & bed linens", typical_price_usd: 40}
+  334111: {display: "Computers & laptops", typical_price_usd: 800}
+  334210: {display: "Phones", typical_price_usd: 700}
+  334300: {display: "Audio & video gear", typical_price_usd: 150}
+  334610: {display: "Hard drives & storage media", typical_price_usd: 80}
+  335110: {display: "Light bulbs", typical_price_usd: 8}
+  335210: {display: "Small kitchen appliances", typical_price_usd: 50}
+  335221: {display: "Stoves & ovens", typical_price_usd: 600}
+  335222: {display: "Refrigerators & freezers", typical_price_usd: 900}
+  335224: {display: "Washers & dryers", typical_price_usd: 700}
+  335912: {display: "Batteries", typical_price_usd: 10}
+  337121: {display: "Sofas & upholstered furniture", typical_price_usd: 500}
+  337122: {display: "Wooden furniture", typical_price_usd: 250}
+  337900: {display: "Mattresses & blinds", typical_price_usd: 400}
+  339910: {display: "Jewelry", typical_price_usd: 100}
+  339920: {display: "Sporting goods", typical_price_usd: 50}
+  339930: {display: "Toys & games", typical_price_usd: 25}
+  339940: {display: "Office supplies", typical_price_usd: 10}
+  322120: {display: "Paper", typical_price_usd: 8}
+  322230: {display: "Stationery & notebooks", typical_price_usd: 6}
+  322291: {display: "Tissues, napkins & diapers", typical_price_usd: 12}
+  323110: {display: "Books, newspapers & magazines", typical_price_usd: 18}
+  325610: {display: "Soap & cleaning products", typical_price_usd: 8}
+  325620: {display: "Toiletries & cosmetics", typical_price_usd: 15}
+  325412: {display: "Medicines", typical_price_usd: 20}
+  326210: {display: "Tires", typical_price_usd: 150}
+  311111: {display: "Pet food", typical_price_usd: 20}
+  336111: {display: "Cars (purchase)", typical_price_usd: 30000}
+  336112: {display: "Pickups, vans & SUVs (purchase)", typical_price_usd: 40000}
+  336991: {display: "Bicycles & motorcycles", typical_price_usd: 400}
+  332200: {display: "Cutlery & hand tools", typical_price_usd: 20}
+  327100: {display: "Ceramics & dishes", typical_price_usd: 25}
+  327200: {display: "Glassware", typical_price_usd: 15}
+  333112: {display: "Lawn & garden equipment", typical_price_usd: 150}
+  333991: {display: "Power tools", typical_price_usd: 90}

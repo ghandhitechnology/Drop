@@ -1,0 +1,463 @@
+almond_shelled|Almond Shelled||food|0.03kg
+almond_with_shell|Almond With Shell||food|0.05kg
+anise|Anise||food|0.002kg
+apple|Apple|apple,사과|food|0.15kg
+apple_juice|Apple Juice|apple juice|drink|0.25l
+apples|Apples (dried)||food|0.03kg
+apricot|Apricot||food|0.15kg
+areca_nut|Areca Nut||food|0.03kg
+artichoke|Artichoke||food|0.1kg
+asparagus|Asparagus||food|0.1kg
+ass_meat|Donkey Meat||food|0.2kg
+ass_offal|Donkey Offal||food|0.1kg
+avocado|Avocado|avocado|food|0.2kg
+bacon|Bacon|bacon,crispy bacon,bacon strips|food|0.03kg
+badian|Badian||food|0.002kg
+banana|Banana|banana,바나나|food|0.12kg
+barley|Barley||food|0.08kg
+barley_flakes|Barley Flakes|barley flakes|food|0.04kg
+bean|Bean||food|0.08kg
+bean_fresh|Bean (Fresh)||food|0.1kg
+beans_frozen|Beans||food|0.1kg
+beef_bone_free_meat|Beef (Boneless)|beef steak,beef mince,ground beef,steak,소고기,beef fillet|food|0.2kg
+beef_cured_meat|Beef Cured Meat|beef jerky,corned beef|food|0.03kg
+beef_liver|Beef Liver||food|0.1kg
+beef_meat_with_bone|Beef (Bone-in)|t-bone steak,beef ribs,bone-in beef|food|0.25kg
+beef_offal|Beef Offal||food|0.1kg
+beef_taco|Beef Taco||food|0.2kg
+beer|Beer|beer,lager,맥주,pint|drink|0.5l
+beet_sugar|Beet Sugar||food|0.01kg
+black_carp|Black Carp||food|0.15kg
+black_tea|Black Tea|black tea,tea,차|food|0.002kg
+blackberry|Blackberry||food|0.15kg
+blueberry|Blueberry|blueberry,blueberries|food|0.15kg
+brassicas|Brassicas||food|0.015kg
+bread|Bread|bread,toast,빵|food|0.08kg
+bread_multicereal|Bread Multicereal||food|0.08kg
+bread_plain|Bread Plain||food|0.08kg
+bread_whole|Bread Whole|whole wheat bread,wholegrain bread|food|0.08kg
+broccoli|Broccoli|broccoli|food|0.1kg
+brussel_sprout|Brussel Sprout||food|0.1kg
+burrito|Burrito||food|0.35kg
+butter|Butter|butter|food|0.01kg
+buttered_milk|Buttermilk|buttermilk|drink|0.25l
+cabagge|Cabagge||food|0.1kg
+caesar_salad|Caesar Salad||food|0.25kg
+cahsew_apple|Cashew Apple||food|0.15kg
+cahsew_nut|Cashew Nut||food|0.03kg
+cakes_and_croissant|Cakes & Croissants||food|0.06kg
+cane_molasse|Cane Molasse||food|0.01kg
+cane_sugar|Cane Sugar|sugar,white sugar|food|0.005kg
+cappuccino|Cappuccino||food|0.18l
+cardamom|Cardamom||food|0.002kg
+carp|Carp||food|0.15kg
+carrot|Carrot|carrot|food|0.08kg
+cassava_flour|Cassava Flour||food|0.05kg
+cauliflower|Cauliflower||food|0.1kg
+cheese|Cheese|cheese,치즈|food|0.02kg
+cheese_blue_veined|Cheese Blue-Veined||food|0.03kg
+cheese_grated|Cheese Grated|shredded cheese,grated cheese|food|0.03kg
+cheeseburger|Cheeseburger||food|0.25kg
+cherry_sour|Cherry Sour||food|0.15kg
+cherry_sweet|Cherry Sweet||food|0.15kg
+chestnut|Chestnut||food|0.05kg
+chicken_bone_free_meat|Chicken Breast (Boneless)|chicken breast,chicken fillet,boneless chicken|food|0.15kg
+chicken_curry|Chicken Curry||food|0.35kg
+chicken_meat_with_bone|Chicken (Bone-in)|chicken,chicken leg,chicken thigh,닭고기|food|0.2kg
+chicken_soup|Chicken Soup||food|0.35kg
+chickpea|Chickpea|chickpeas,garbanzo beans,hummus base|food|0.08kg
+chilly|Chilly||food|0.002kg
+chilly_fresh|Chilly Fresh||food|0.1kg
+chocolate|Chocolate|chocolate,chocolate bar|food|0.025kg
+chocolate_or_cream_filled_cookies|Chocolate Or Cream Filled Cookies||food|0.03kg
+cinnamon|Cinnamon||food|0.002kg
+citrus|Citrus||food|0.15kg
+clementine|Clementine||food|0.15kg
+clove|Clove||food|0.002kg
+cocoa_butter|Cocoa Butter||food|0.02kg
+cocoa_cakes_and_croissant|Chocolate Cakes & Croissants||food|0.06kg
+cocoa_paste|Cocoa Paste||food|0.02kg
+cocoa_powder|Cocoa Powder|cocoa powder,cacao powder|food|0.02kg
+coconut|Coconut||food|0.3kg
+coconut_oil|Coconut Oil||food|0.014kg
+coconuts|Coconut (dried)||food|0.03kg
+cod|Cod|cod,white fish|food|0.15kg
+coffee_bean|Coffee Bean|coffee beans,raw coffee|food|0.008kg
+coffee_green|Coffee Green||food|0.008kg
+coffee_roasted|Coffee Roasted|ground coffee,roasted coffee beans|food|0.007kg
+coffee_soluble|Coffee Soluble|instant coffee|drink|0.125l
+coffee_standard|Coffee Standard|coffee,cup of coffee,커피|drink|0.125l
+coffee_strong|Coffee Strong||drink|0.125l
+coffee_weak|Coffee Weak||drink|0.125l
+coriander|Coriander||food|0.002kg
+corn_canned|Corn Canned|canned corn,sweet corn|food|0.08kg
+cow_milk|Milk|milk,whole milk,우유,dairy milk|drink|0.25l
+cowpea|Cowpea||food|0.08kg
+cranberry|Cranberry||food|0.15kg
+cream|Cream|cream,heavy cream,whipping cream|food|0.02kg
+crispbread|Crispbread||food|0.02kg
+crustacean|Crustacean|shrimp,prawns,crab|food|0.15kg
+cucumber|Cucumber|cucumber|food|0.1kg
+cured_ham_bone_free|Cured Ham (Boneless)|ham,deli ham,sliced ham|food|0.03kg
+cured_ham_with_bone|Cured Ham (Bone-in)||food|0.03kg
+cured_pork_bone_free|Cured Pork (Boneless)||food|0.03kg
+cured_shoulders_with_bone|Cured Pork Shoulder (Bone-in)||food|0.03kg
+currant|Currant||food|0.15kg
+dates|Dates||food|0.03kg
+dried_cassava|Dried Cassava||food|0.05kg
+duck_bone_free_meat|Duck (Boneless)||food|0.15kg
+egg_pasta|Egg Pasta||food|0.08kg
+egg_yolks|Egg Yolks||food|0.017kg
+eggplant|Eggplant||food|0.1kg
+eggs|Eggs|eggs,egg,달걀,계란|food|0.12kg
+eggs_shelled|Eggs Shelled||food|0.05kg
+faba_bean|Faba Bean||food|0.08kg
+fennel_seeds|Fennel Seeds||food|0.002kg
+fig|Fig||food|0.15kg
+flavored_crackers|Flavored Crackers||food|0.02kg
+flounder|Flounder||food|0.15kg
+fresh_ham_with_bone|Fresh Ham (Bone-in)||food|0.25kg
+fresh_shoulders_with_bone|Pork Shoulder (Bone-in)||food|0.25kg
+fried_rice|Fried Rice||food|0.3kg
+fructose|Fructose||food|0.01kg
+fruit_smoothie|Fruit Smoothie||food|0.3l
+garlic|Garlic|garlic|food|0.005kg
+garlic_powder|Garlic Powder||food|0.002kg
+generic_agricultural_processed_beer|Beer (general)||drink|0.5l
+generic_agricultural_processed_biscuits|Biscuits (general)||food|0.1kg
+generic_agricultural_processed_bread|Bread (general)||food|0.1kg
+generic_agricultural_processed_breakfast_cereals|Breakfast Cereals (general)||food|0.1kg
+generic_agricultural_processed_cocoa_derivates|Cocoa Derivates (general)||food|0.1kg
+generic_agricultural_processed_coffee_ground_parchment|Coffee Ground Parchment (general)||food|0.1kg
+generic_agricultural_processed_coffee_liquid|Coffee Liquid (general)||drink|0.125l
+generic_agricultural_processed_crackers|Crackers (general)||food|0.1kg
+generic_agricultural_processed_crispbread|Crispbread (general)||food|0.1kg
+generic_agricultural_processed_dressing|Dressing (general)||food|0.1kg
+generic_agricultural_processed_egg_pasta|Egg Pasta (general)||food|0.1kg
+generic_agricultural_processed_grain_flour|Grain Flour (general)||food|0.1kg
+generic_agricultural_processed_juice|Juice (general)||drink|0.25l
+generic_agricultural_processed_juice_concentrated|Juice Concentrated (general)||food|0.1kg
+generic_agricultural_processed_legume_flour|Legume Flour (general)||food|0.1kg
+generic_agricultural_processed_margarine|Margarine (general)||food|0.1kg
+generic_agricultural_processed_oil|Oil (general)||food|0.1kg
+generic_agricultural_processed_pasta|Pasta (general)||food|0.1kg
+generic_agricultural_processed_pesto|Pesto (general)||food|0.1kg
+generic_agricultural_processed_processed_grains|Processed Grains (general)||food|0.1kg
+generic_agricultural_processed_starch|Starch (general)||food|0.1kg
+generic_agricultural_processed_starchy_root_flour|Starchy Root Flour (general)||food|0.1kg
+generic_agricultural_processed_starchy_tubers|Starchy Tubers (general)||food|0.1kg
+generic_agricultural_processed_sugar|Sugar (general)||food|0.1kg
+generic_agricultural_processed_sweets|Sweets (general)||food|0.1kg
+generic_agricultural_processed_tomato_puree_peeled_chopped|Tomato Puree Peeled Chopped (general)||food|0.1kg
+generic_agricultural_processed_tomato_sauce|Tomato Sauce (general)||food|0.1kg
+generic_agricultural_processed_vegetables_canned|Vegetables Canned (general)||food|0.1kg
+generic_agricultural_processed_vegetables_frozen|Vegetables Frozen (general)||food|0.1kg
+generic_agricultural_processed_vegetal_milk|Vegetal Milk (general)||drink|0.25l
+generic_agricultural_processed_vegetal_proteins|Vegetal Proteins (general)||food|0.1kg
+generic_agricultural_processed_wine|Wine (general)||drink|0.125l
+generic_agricultural_processed_yeast_compressed|Yeast Compressed (general)||food|0.1kg
+generic_animal_husbandry_beef_bone_free_meat|Beef Bone Free Meat (general)||food|0.1kg
+generic_animal_husbandry_beef_cured_meat|Beef Cured Meat (general)||food|0.1kg
+generic_animal_husbandry_beef_meat_with_bone|Beef Meat With Bone (general)||food|0.1kg
+generic_animal_husbandry_butter|Butter (general)||food|0.1kg
+generic_animal_husbandry_cheese|Cheese (general)||food|0.1kg
+generic_animal_husbandry_edible_insects|Edible Insects (general)||food|0.1kg
+generic_animal_husbandry_eggs_derivates|Eggs Derivates (general)||food|0.1kg
+generic_animal_husbandry_equine_meat|Equine Meat (general)||food|0.1kg
+generic_animal_husbandry_goat_bone_free_meat|Goat Bone Free Meat (general)||food|0.1kg
+generic_animal_husbandry_lamb_bone_free_meat|Lamb Bone Free Meat (general)||food|0.1kg
+generic_animal_husbandry_lamb_meat_with_bone|Lamb Meat With Bone (general)||food|0.1kg
+generic_animal_husbandry_milk|Milk (general)||drink|0.25l
+generic_animal_husbandry_milk_powder|Milk Powder (general)||food|0.1kg
+generic_animal_husbandry_offal_fat_liver|Offal Fat Liver (general)||food|0.1kg
+generic_animal_husbandry_pork_bone_free_meat|Pork Bone Free Meat (general)||food|0.1kg
+generic_animal_husbandry_pork_cured_meat|Pork Cured Meat (general)||food|0.1kg
+generic_animal_husbandry_pork_meat_with_bone|Pork Meat With Bone (general)||food|0.1kg
+generic_animal_husbandry_poultry_bone_free_meat|Poultry Bone Free Meat (general)||food|0.1kg
+generic_animal_husbandry_poultry_meat_with_bone|Poultry Meat With Bone (general)||food|0.1kg
+generic_animal_husbandry_sheep_bone_free_meat|Sheep Bone Free Meat (general)||food|0.1kg
+generic_animal_husbandry_sheep_meat_with_bone|Sheep Meat With Bone (general)||food|0.1kg
+generic_animal_husbandry_yogurt|Yogurt (general)||food|0.1kg
+generic_crops_coffee|Coffee (general)||food|0.1kg
+generic_crops_dried_fruit|Dried Fruit (general)||food|0.1kg
+generic_crops_fruit|Fruit (general)||food|0.1kg
+generic_crops_grains|Grains (general)||food|0.1kg
+generic_crops_legumes_dried|Legumes Dried (general)||food|0.1kg
+generic_crops_legumes_fresh|Legumes Fresh (general)||food|0.1kg
+generic_crops_nuts_shelled|Nuts Shelled (general)||food|0.1kg
+generic_crops_nuts_with_shell|Nuts With Shell (general)||food|0.1kg
+generic_crops_seeds|Seeds (general)||food|0.1kg
+generic_crops_spicies|Spicies (general)||food|0.1kg
+generic_crops_starchy_tubers|Starchy Tubers (general)||food|0.1kg
+generic_crops_sugar_crops|Sugar Crops (general)||food|0.1kg
+generic_crops_tea|Tea (general)||food|0.1kg
+generic_crops_vegetables|Vegetables (general)||food|0.1kg
+generic_crops_vegetables_dried|Vegetables Dried (general)||food|0.1kg
+generic_fishing_fish|Fish (general)||food|0.1kg
+generic_fishing_shellfish|Shellfish (general)||food|0.1kg
+gilsthead_seabream|Gilsthead Seabream||food|0.15kg
+ginger|Ginger||food|0.01kg
+goat_bone_free_meat|Goat (Boneless)||food|0.2kg
+goat_offal|Goat Offal||food|0.1kg
+goose_bone_free_meat|Goose (Boneless)||food|0.15kg
+gooseberry|Gooseberry||food|0.15kg
+gran_moravia|Grana-Style Hard Cheese||food|0.03kg
+grapefruit_juice|Grapefruit Juice||drink|0.25l
+grapes|Grapes|grapes|food|0.08kg
+grass_carp|Grass Carp||food|0.15kg
+greek_salad|Greek Salad||food|0.3kg
+green_tea|Green Tea|green tea,matcha|food|0.002kg
+grilled_cheese|Grilled Cheese||food|0.15kg
+grouper|Grouper||food|0.15kg
+guava|Guava||food|0.15kg
+guinea_bone_free_meat|Guinea Fowl (Boneless)||food|0.15kg
+hard_and_semi_hard_cheese|Hard And Semi-Hard Cheese||food|0.03kg
+hazelnut_shelled|Hazelnut Shelled||food|0.03kg
+hazelnut_with_shell|Hazelnut With Shell||food|0.05kg
+hempseed|Hempseed||food|0.015kg
+hinny_meat|Hinny Meat||food|0.2kg
+hinny_offal|Hinny Offal||food|0.1kg
+hop_cone|Hop Cone||food|0.002kg
+hop_extract|Hop Extract||food|0.002kg
+horse_meat|Horse Meat||food|0.2kg
+horse_offal|Horse Offal||food|0.1kg
+kephir|Kefir||drink|0.25l
+ketchup|Ketchup||food|0.015kg
+kiwi|Kiwi|kiwi|food|0.15kg
+kola_nut|Kola Nut||food|0.03kg
+lamb_bone_free_meat|Lamb (Boneless)||food|0.2kg
+lamb_meat_with_bone|Lamb (Bone-in)||food|0.25kg
+latte|Latte||food|0.25l
+lemon|Lemon|lemon|food|0.06kg
+lentil|Lentil|lentils|food|0.08kg
+lettuce|Lettuce|lettuce,salad greens|food|0.03kg
+lime|Lime||food|0.15kg
+linseed|Linseed||food|0.015kg
+linseed_oil|Linseed Oil||food|0.014kg
+longaberry|Longaberry||food|0.15kg
+mace|Mace||food|0.002kg
+maize|Maize||food|0.08kg
+maize_flour_meal|Maize Flour & Meal||food|0.1kg
+maize_green|Maize Green||food|0.1kg
+maize_groats|Maize Groats||food|0.05kg
+maize_hulled_pearled_sliced_or_kibbled|Hulled/Pearled Maize||food|0.05kg
+maize_oil|Maize Oil||food|0.014kg
+maize_starch|Maize Starch||food|0.02kg
+major_carp|Major Carp||food|0.15kg
+malt|Malt||food|0.05kg
+malt_roasted|Malt, Roasted||food|0.05kg
+mandarin|Mandarin||food|0.15kg
+mandarin_fish|Mandarin Fish||food|0.15kg
+mango|Mango|mango|food|0.15kg
+mangosteen|Mangosteen||food|0.15kg
+manioc|Manioc||food|0.15kg
+manioc_cassava_starch|Manioc (Cassava) Starch||food|0.02kg
+margarine|Margarine|margarine|food|0.01kg
+mascarpone|Mascarpone|mascarpone|food|0.03kg
+mealworms|Mealworms||food|0.05kg
+milk_acid|Cultured Milk||drink|0.25l
+milk_creamy|Creamy Milk||drink|0.25l
+milk_powder|Milk Powder||food|0.03kg
+milkfish|Milkfish||food|0.15kg
+millet|Millet||food|0.08kg
+mixed_nuts|Mixed Nuts||food|0.03kg
+mixed_vegetables_frozen|Mixed Vegetables|frozen veggies,mixed vegetables|food|0.1kg
+mozzarella|Mozzarella|mozzarella,pizza cheese|food|0.125kg
+mulberry|Mulberry||food|0.15kg
+mule_meat|Mule Meat||food|0.2kg
+mule_offal|Mule Offal||food|0.1kg
+mustard_seed|Mustard Seed||food|0.015kg
+nutmeg|Nutmeg||food|0.002kg
+oat|Oat||food|0.08kg
+oat_flakes|Oat Flakes|oats,oatmeal,rolled oats|food|0.04kg
+oat_groats|Oat Groats||food|0.05kg
+oat_meal|Oat Meal||food|0.1kg
+oatmeal_bowl|Oatmeal Bowl||food|0.25kg
+okra|Okra||food|0.1kg
+olive_oil|Olive Oil|olive oil|food|0.01kg
+olive_oil_refined|Olive Oil Refined||food|0.014kg
+olives|Olives||food|0.15kg
+omelette|Omelette||food|0.15kg
+onion|Onion|onion|food|0.11kg
+orange|Orange|orange,오렌지|food|0.15kg
+orange_juice|Orange Juice|orange juice,OJ|drink|0.25l
+palm_nut|Palm Nut||food|0.15kg
+palm_oil|Palm Oil||food|0.014kg
+pancakes|Pancakes||food|0.2kg
+pangasiid|Pangasiid||food|0.15kg
+papaya|Papaya||food|0.15kg
+parmigiano_reggiano|Parmigiano Reggiano|parmesan,parmigiano|food|0.03kg
+pasta|Pasta|pasta,spaghetti,noodles|food|0.08kg
+pea|Pea||food|0.08kg
+pea_fresh|Pea (Fresh)||food|0.1kg
+peach|Peach|peach|food|0.15kg
+peanut|Peanut||food|0.05kg
+peanut_oil|Peanut Oil||food|0.014kg
+pear|Pear|pear|food|0.15kg
+peas_frozen|Peas||food|0.1kg
+pepper|Pepper|bell pepper,pepper|food|0.1kg
+pepper_piper_spp|Black Pepper||food|0.002kg
+peppermint|Peppermint||food|0.002kg
+pesto|Pesto||food|0.02kg
+pesto_without_garlic|Pesto Without Garlic||food|0.02kg
+pigeon_pea|Pigeon Pea||food|0.08kg
+pineapple|Pineapple|pineapple|food|0.5kg
+pineapple_juice|Pineapple Juice||drink|0.25l
+pistachio|Pistachio||food|0.03kg
+pizza_margherita|Margherita Pizza||food|0.3kg
+plain_crackers|Plain Crackers||food|0.02kg
+plantain|Plantain||food|0.15kg
+plum|Plum||food|0.15kg
+poppy_seed|Poppy Seed||food|0.015kg
+pork_bone_free_meat|Pork (Boneless)|pork loin,pork tenderloin,pork cutlet|food|0.2kg
+pork_cuts_with_bone|Pork Cuts (Bone-in)||food|0.25kg
+pork_fat|Pork Fat||food|0.1kg
+pork_liver|Pork Liver||food|0.1kg
+pork_meat_with_bone|Pork (Bone-in)|pork chop,pork ribs,돼지고기|food|0.25kg
+pork_offal|Pork Offal||food|0.1kg
+potato|Potato|potato,fries,french fries,감자|food|0.17kg
+potato_flakes|Potato Flakes||food|0.05kg
+potato_flour_meal|Potato Flour & Meal||food|0.05kg
+potato_starch|Potato Starch||food|0.02kg
+potatoes_frozen|Potatoes||food|0.1kg
+poultry_fat|Poultry Fat||food|0.1kg
+prawns_giant|Prawns Giant||food|0.15kg
+product_311111|Pet food||product|20usd
+product_313200|Fabric||product|15usd
+product_314110|Carpets & rugs||product|80usd
+product_314120|Curtains & bed linens||product|40usd
+product_315000|Clothing||product|25usd
+product_316000|Shoes & leather goods||product|60usd
+product_322120|Paper||product|8usd
+product_322230|Stationery & notebooks||product|6usd
+product_322291|Tissues, napkins & diapers||product|12usd
+product_323110|Books, newspapers & magazines||product|18usd
+product_325412|Medicines||product|20usd
+product_325610|Soap & cleaning products||product|8usd
+product_325620|Toiletries & cosmetics||product|15usd
+product_326210|Tires||product|150usd
+product_327100|Ceramics & dishes||product|25usd
+product_327200|Glassware||product|15usd
+product_332200|Cutlery & hand tools||product|20usd
+product_333112|Lawn & garden equipment||product|150usd
+product_333991|Power tools||product|90usd
+product_334111|Computers & laptops||product|800usd
+product_334210|Phones||product|700usd
+product_334300|Audio & video gear||product|150usd
+product_334610|Hard drives & storage media||product|80usd
+product_335110|Light bulbs||product|8usd
+product_335210|Small kitchen appliances||product|50usd
+product_335221|Stoves & ovens||product|600usd
+product_335222|Refrigerators & freezers||product|900usd
+product_335224|Washers & dryers||product|700usd
+product_335912|Batteries||product|10usd
+product_336111|Cars (purchase)||product|30000usd
+product_336112|Pickups, vans & SUVs (purchase)||product|40000usd
+product_336991|Bicycles & motorcycles||product|400usd
+product_337121|Sofas & upholstered furniture||product|500usd
+product_337122|Wooden furniture||product|250usd
+product_337900|Mattresses & blinds||product|400usd
+product_339910|Jewelry||product|100usd
+product_339920|Sporting goods||product|50usd
+product_339930|Toys & games||product|25usd
+product_339940|Office supplies||product|10usd
+pumpkin|Pumpkin||food|0.1kg
+quorne|Quorne||food|0.1kg
+raisins|Raisins||food|0.03kg
+rapeseed|Rapeseed||food|0.015kg
+rapeseed_oil|Rapeseed Oil||food|0.014kg
+raspberry|Raspberry||food|0.15kg
+red_drum|Red Drum||food|0.15kg
+rice|Rice|rice,white rice,쌀,밥|food|0.075kg
+rice_flour_meal|Rice Flour & Meal||food|0.1kg
+rice_groats|Rice Groats||food|0.05kg
+ricotta|Ricotta||food|0.03kg
+rye|Rye||food|0.08kg
+rye_flour|Rye Flour||food|0.1kg
+saffron|Saffron||food|0.002kg
+salmon|Salmon|salmon|food|0.15kg
+sandwich_ham_cheese|Ham & Cheese Sandwich||food|0.18kg
+sausages|Sausages|sausage,hot dog,bratwurst|food|0.03kg
+seabass|Seabass||food|0.15kg
+sesam_oil|Sesam Oil||food|0.014kg
+sesam_seed|Sesam Seed||food|0.015kg
+shallot|Shallot||food|0.1kg
+sheep_bone_free_meat|Mutton (Boneless)||food|0.2kg
+sheep_carcasse_with_bone|Mutton (Whole Carcass)||food|0.25kg
+sheep_cuts_with_bone|Mutton Cuts (Bone-in)||food|0.25kg
+sheep_offal|Sheep Offal||food|0.1kg
+silverbarb|Silverbarb||food|0.15kg
+simple_cookies|Simple Cookies||food|0.03kg
+sorghum|Sorghum||food|0.08kg
+soy_burger|Soy Burger|veggie burger,soy burger|food|0.1kg
+soy_milk|Soy Milk|soy milk,soymilk|drink|0.25l
+soy_paste|Soy Paste||food|0.015kg
+soy_sauce|Soy Sauce||food|0.015kg
+soybean|Soybean||food|0.08kg
+soybean_flour|Soybean Flour||food|0.05kg
+soybean_oil|Soybean Oil||food|0.014kg
+spaghetti_bolognese|Spaghetti Bolognese||food|0.35kg
+spinach|Spinach|spinach|food|0.03kg
+spinach_frozen|Spinach||food|0.1kg
+squash|Squash||food|0.1kg
+stracchino|Stracchino||food|0.03kg
+strawberry|Strawberry|strawberry,strawberries|food|0.15kg
+string_bean|String Bean||food|0.1kg
+sturgeon|Sturgeon||food|0.15kg
+sugar_beet|Sugar Beet||food|0.05kg
+sugar_cane|Sugar Cane||food|0.05kg
+sunflower_oil|Sunflower Oil|sunflower oil,cooking oil|food|0.014kg
+sunflower_seed|Sunflower Seed||food|0.015kg
+sushi_set|Sushi Set||food|0.25kg
+sweet_corn_frozen|Sweet Corn||food|0.1kg
+sweet_potato|Sweet Potato|sweet potato|food|0.15kg
+tangerin|Tangerine||food|0.15kg
+tapioca_of_cassava|Tapioca Of Cassava||food|0.05kg
+tapioca_of_potatoes|Tapioca Of Potatoes||food|0.05kg
+taro|Taro||food|0.15kg
+tilapia|Tilapia||food|0.15kg
+tofu|Tofu|tofu,bean curd|food|0.1kg
+tomato|Tomato|tomato,토마토|food|0.12kg
+tomato_arrabbiata|Tomato Arrabbiata||food|0.08kg
+tomato_basil|Tomato & Basil||food|0.08kg
+tomato_dried|Tomato Dried||food|0.02kg
+tomato_juice|Tomato Juice|tomato juice|drink|0.25l
+tomato_juice_concentrated|Tomato Juice Concentrated||food|0.03kg
+tomato_paste|Tomato Paste||food|0.08kg
+tomato_peeled|Tomato Peeled||food|0.08kg
+tomato_puree|Tomato Puree||food|0.08kg
+transport_air_freight_tkm|Air Freight (per t·km)|air cargo|transport|10km|unsupported
+transport_air_long|Flight (Long Haul)|flight,plane,long haul|transport|10km|unsupported
+transport_air_short|Flight (Short Haul)|flight,plane,short haul|transport|10km|unsupported
+transport_bus|Bus||transport|10km
+transport_bus_intercity|Bus Intercity||transport|10km
+transport_diesel_car|Diesel Car||transport|10km
+transport_ev_car|Electric Car|ev,electric car,tesla,battery car,전기차|transport|10km|unsupported
+transport_petrol_car|Petrol Car||transport|10km
+transport_petrol_light_truck|Petrol Light Truck||transport|10km
+transport_rail|Train (Passenger)|train,rail,subway,metro,기차|transport|10km|unsupported
+transport_rail_freight_tkm|Rail Freight (per t·km)|freight train|transport|10km|unsupported
+transport_truck_tkm|Truck Freight (per t·km)|truck freight,lorry|transport|10km|unsupported
+trout|Trout|trout|food|0.15kg
+turbot|Turbot||food|0.15kg
+turkey_bone_free_meat|Turkey (Boneless)||food|0.15kg
+turnip|Turnip||food|0.1kg
+vanilla_bean|Vanilla Bean||food|0.002kg
+veggie_stir_fry|Veggie Stir Fry||food|0.3kg
+walnut_shelled|Walnut Shelled||food|0.03kg
+walnut_with_shell|Walnut With Shell||food|0.05kg
+watermelon|Watermelon|watermelon|food|0.3kg
+wheat|Wheat||food|0.08kg
+wheat_flour|Wheat Flour|flour,wheat flour|food|0.1kg
+wheat_gluten|Wheat Gluten||food|0.05kg
+wheat_pellets|Wheat Pellets||food|0.05kg
+wheat_starch|Wheat Starch||food|0.02kg
+wholegrain_crackers|Wholegrain Crackers||food|0.02kg
+wine|Wine|wine,red wine,white wine|drink|0.125l
+wuchang_bream|Wuchang Bream||food|0.15kg
+yam|Yam||food|0.15kg
+yeast_compressed|Yeast Compressed||food|0.01kg
+yogurt_flavored|Yogurt Flavored|flavored yogurt|food|0.15kg
+yogurt_white|Yogurt White|yogurt,plain yogurt|food|0.15kg
+yogurt_white_lactose_free|Yogurt White Lactose Free||food|0.15kg
+zucchini|Zucchini|zucchini,courgette|food|0.1kg
