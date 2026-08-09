@@ -1,10 +1,16 @@
 import { createContext, createElement, useContext, useMemo, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
-import { palette, radius, space, type ColorTokens } from './tokens';
+import {
+  themePalettes,
+  radius,
+  space,
+  type ColorScheme,
+  type ColorTokens,
+} from './tokens';
 import { usePreferences, type SchemePreference } from './preferences';
 
-export type ColorScheme = 'light' | 'dark';
+export type { ColorScheme } from './tokens';
 
 export type Theme = {
   /** The scheme actually in effect, after applying any manual override. */
@@ -25,12 +31,13 @@ function resolveScheme(
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const colorTheme = usePreferences((s) => s.theme);
   const preference = usePreferences((s) => s.scheme);
   const scheme = resolveScheme(preference, systemScheme);
 
   const theme = useMemo<Theme>(
-    () => ({ scheme, colors: palette[scheme], space, radius }),
-    [scheme],
+    () => ({ scheme, colors: themePalettes[colorTheme][scheme], space, radius }),
+    [colorTheme, scheme],
   );
 
   return createElement(ThemeContext.Provider, { value: theme }, children);
@@ -57,4 +64,11 @@ export function useSchemePreference() {
   const preference = usePreferences((s) => s.scheme);
   const setScheme = usePreferences((s) => s.setScheme);
   return { preference, setScheme };
+}
+
+/** Read and change the visual family independently from light/dark mode. */
+export function useColorThemePreference() {
+  const preference = usePreferences((s) => s.theme);
+  const setTheme = usePreferences((s) => s.setTheme);
+  return { preference, setTheme };
 }

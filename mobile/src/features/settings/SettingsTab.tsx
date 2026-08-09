@@ -28,7 +28,7 @@ import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
 import { Text } from '../../ui/Text';
 import { HandChip } from '../capture/HandChip';
-import { overlayInk } from '../capture/overlay';
+import { useOverlayInk } from '../capture/overlay';
 import { isResultVisible } from '../capture/types';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 
@@ -36,6 +36,7 @@ const GLYPH = 16;
 const SEED = seedFromString('settings/tab');
 
 export function SettingsTab() {
+  const overlayInk = useOverlayInk();
   const router = useRouter();
   const motion = useMotion();
   const state = useCaptureMachine((s) => s.state);

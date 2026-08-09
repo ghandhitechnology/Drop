@@ -56,8 +56,8 @@ function Navigator() {
       {/*
         The camera is the one screen whose ground is the world rather than
         the app. It runs under both bars — the frame reaches the very top and
-        the very bottom — and its marks stay light in either theme, because a
-        viewfinder is closer to night than to paper.
+        the very bottom. System chrome stays light over live video; Drop's own
+        sketch marks choose their ink from the active appearance theme.
       */}
       <Stack.Screen
         name="index"

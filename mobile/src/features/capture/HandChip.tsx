@@ -21,7 +21,7 @@ import { StyleSheet, View, type ViewStyle } from 'react-native';
 import { MIN_TOUCH_SIZE, space } from '../../design/tokens';
 import { SketchButton, SketchSurface } from '../../ui/SketchButton';
 import type { TouchProps } from '../../ui/Touch';
-import { overlayInk } from './overlay';
+import { useOverlayInk } from './overlay';
 
 /** Height of a chip on the viewfinder. Past the 48dp floor on its own. */
 export const CHIP_HEIGHT = MIN_TOUCH_SIZE;
@@ -42,21 +42,17 @@ export type HandChipProps = {
   contentStyle?: ViewStyle | ViewStyle[];
 } & Omit<TouchProps, 'style' | 'children'>;
 
-/** Shared between the pressable and static forms. */
-const shell = {
-  radius: CHIP_HEIGHT / 2,
-  outlineColor: overlayInk.outline,
-  washColor: overlayInk.tint,
-  scale: 0.74,
-  filled: true,
-} as const;
-
 /** A pressable chip on the viewfinder. */
 export function HandChip({ children, seed, style, contentStyle, ...rest }: HandChipProps) {
+  const overlayInk = useOverlayInk();
   return (
     <SketchButton
       {...rest}
-      {...shell}
+      radius={CHIP_HEIGHT / 2}
+      outlineColor={overlayInk.outline}
+      washColor={overlayInk.tint}
+      scale={0.74}
+      filled
       seed={`capture/chip/${seed}`}
       style={StyleSheet.flatten([styles.chip, style])}
       contentStyle={StyleSheet.flatten([styles.content, contentStyle])}
@@ -72,10 +68,15 @@ export function HandChipStatic({
   seed,
   style,
 }: Pick<HandChipProps, 'children' | 'seed' | 'style'>) {
+  const overlayInk = useOverlayInk();
   return (
     <View style={style} pointerEvents="none">
       <SketchSurface
-        {...shell}
+        radius={CHIP_HEIGHT / 2}
+        outlineColor={overlayInk.outline}
+        washColor={overlayInk.tint}
+        scale={0.74}
+        filled
         seed={`capture/chip/${seed}`}
         style={styles.chip}
         contentStyle={styles.content}

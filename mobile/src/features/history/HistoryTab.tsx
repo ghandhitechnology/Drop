@@ -32,7 +32,7 @@ import { copy } from '../../lib/copy';
 import { Text } from '../../ui/Text';
 import { isResultVisible } from '../capture/types';
 import { HandChip } from '../capture/HandChip';
-import { overlayInk } from '../capture/overlay';
+import { useOverlayInk } from '../capture/overlay';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
 import { useHistoryPulse } from './pulse';
 
@@ -43,6 +43,7 @@ const SEED = seedFromString('history/tab');
 const BADGE_HOLD_MS = 2200;
 
 export function HistoryTab() {
+  const overlayInk = useOverlayInk();
   const router = useRouter();
   const motion = useMotion();
   const state = useCaptureMachine((s) => s.state);
@@ -147,7 +148,17 @@ export function HistoryTab() {
               {copy.history.open}
             </Text>
           </HandChip>
-          <Animated.View style={[styles.badge, badgeStyle]} pointerEvents="none">
+          <Animated.View
+            style={[
+              styles.badge,
+              {
+                backgroundColor: overlayInk.scrim,
+                borderColor: overlayInk.outline,
+              },
+              badgeStyle,
+            ]}
+            pointerEvents="none"
+          >
             <Text variant="chip" tone={overlayInk.mark}>
               {copy.history.plusOne}
             </Text>
@@ -167,9 +178,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -6,
     right: -6,
-    backgroundColor: overlayInk.scrim,
     borderWidth: 1,
-    borderColor: overlayInk.outline,
     borderRadius: radius.pill,
     paddingHorizontal: 6,
     paddingVertical: 1,

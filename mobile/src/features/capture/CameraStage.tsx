@@ -19,7 +19,7 @@ import { anchorFor, characterSideForAnchor } from './anchor';
 import { normalizeBarcode, SCANNED_TYPES } from './barcode';
 import { FrozenFrame } from './FrozenFrame';
 import { captureLayout } from './layout';
-import { overlayInk, RETICLE_HANDOFF, RETICLE_RELEASE } from './overlay';
+import { RETICLE_HANDOFF, RETICLE_RELEASE, useOverlayInk } from './overlay';
 import { acceptsCapture, isFrameObscured, isResultVisible, photoUriOf, type Rect } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 
@@ -198,6 +198,7 @@ function Reticle({
   fold: SharedValue<number>;
   target: Rect;
 }) {
+  const overlayInk = useOverlayInk();
   const path = useMemo(() => {
     const arm = Math.min(rect.width, rect.height) * CORNER_FRACTION;
     const l = rect.x;

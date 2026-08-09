@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 
+import type { ColorTheme } from './tokens';
+
 export type SchemePreference = 'system' | 'light' | 'dark';
 export type MotionPreference = 'system' | 'full' | 'reduced';
 
 export type PreferencesState = {
+  /** The visual family used in both light and dark mode. */
+  theme: ColorTheme;
   /** Theme choice. 'system' follows the OS appearance setting. */
   scheme: SchemePreference;
   /** Motion choice. 'system' follows the OS reduce-motion setting. */
@@ -18,6 +22,7 @@ export type PreferencesState = {
    * heavier weight, which is the most legible face guaranteed to be present.
    */
   legibleText: boolean;
+  setTheme: (theme: ColorTheme) => void;
   setScheme: (scheme: SchemePreference) => void;
   setMotion: (motion: MotionPreference) => void;
   setTexture: (texture: boolean) => void;
@@ -31,14 +36,16 @@ export type PreferencesState = {
  *
  * The store itself is pure and synchronous so any component may read it during
  * render. Durability lives beside the settings screen
- * (`features/settings/persist.ts`), which mirrors these four values into the
+ * (`features/settings/persist.ts`), which mirrors these preferences into the
  * key-value table and hydrates them once at boot.
  */
 export const usePreferences = create<PreferencesState>((set) => ({
+  theme: 'default',
   scheme: 'system',
   motion: 'system',
   texture: true,
   legibleText: false,
+  setTheme: (theme) => set({ theme }),
   setScheme: (scheme) => set({ scheme }),
   setMotion: (motion) => set({ motion }),
   setTexture: (texture) => set({ texture }),

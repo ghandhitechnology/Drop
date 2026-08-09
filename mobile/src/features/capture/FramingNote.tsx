@@ -22,7 +22,7 @@ import { space } from '../../design/tokens';
 import { HandPath } from '../../drawing/HandPath';
 import { mulberry32, seedFromString } from '../../drawing/seededRandom';
 import { Text } from '../../ui/Text';
-import { overlayInk } from './overlay';
+import { useOverlayInk } from './overlay';
 
 const SEED = seedFromString('capture/framing-note');
 /** Height reserved under the words for the stroke. */
@@ -33,6 +33,7 @@ const RULE_INSET = 10;
 export type FramingNoteProps = { children: string };
 
 function FramingNoteLayer({ children }: FramingNoteProps) {
+  const overlayInk = useOverlayInk();
   const [width, setWidth] = useState(0);
 
   const onLayout = (event: LayoutChangeEvent) => {
@@ -67,7 +68,7 @@ function FramingNoteLayer({ children }: FramingNoteProps) {
       <Text
         variant="note"
         tone={overlayInk.mark}
-        style={styles.words}
+        style={[styles.words, { textShadowColor: overlayInk.halo }]}
         numberOfLines={2}
         onLayout={onLayout}
       >
@@ -142,7 +143,6 @@ const styles = StyleSheet.create({
   stacked: { position: 'absolute', top: 0, left: 0, right: 0 },
   words: {
     textAlign: 'center',
-    textShadowColor: overlayInk.halo,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 7,
   },
