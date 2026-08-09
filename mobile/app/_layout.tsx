@@ -3,6 +3,10 @@ import {
   Gaegu_700Bold,
 } from '@expo-google-fonts/gaegu';
 import {
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+} from '@expo-google-fonts/nunito';
+import {
   ShantellSans_400Regular,
   ShantellSans_500Medium,
   ShantellSans_600SemiBold,
@@ -115,6 +119,8 @@ export default function RootLayout() {
     ShantellSans_500Medium,
     ShantellSans_600SemiBold,
     ShantellSans_700Bold,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
     Gaegu_400Regular,
     Gaegu_700Bold,
   });

@@ -276,7 +276,7 @@ function StackFooter({
           accessibilityHint={copy.result.confirmHint}
           accessibilityState={{ disabled: confirmed }}
         >
-          <Text variant="note" tone="accent">
+          <Text variant="button" tone="accent">
             {savableCount === 1
               ? copy.result.confirm
               : copy.result.confirmMany(savableCount)}

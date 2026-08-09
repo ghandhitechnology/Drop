@@ -42,7 +42,7 @@ export function CrayonAction({
       style={StyleSheet.flatten([styles.action, style])}
       contentStyle={styles.content}
     >
-      <Text variant="note" tone={primary ? 'accent' : 'ink'}>
+      <Text variant="button" tone={primary ? 'accent' : 'ink'}>
         {children}
       </Text>
     </SketchButton>

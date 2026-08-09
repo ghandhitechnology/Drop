@@ -4,17 +4,22 @@ import type { TextStyle } from 'react-native';
  * Font families are the postscript-ish names registered by expo-font in
  * app/_layout.tsx. Keep these two lists in sync.
  *
- * Everything is written by hand. Shantell Sans carries the running text — it is
- * a handwriting face drawn to hold up at reading sizes — and Gaegu stays on the
- * short annotations that sit among the drawn marks. Anyone who wants a printed
- * face has "Clearer text" in settings, which drops the whole product onto the
- * platform's own UI font.
+ * The content is written by hand; the interface prints its controls. Shantell
+ * Sans carries everything the person or Drop is saying — figures, headings,
+ * running text — because it is a handwriting face drawn to hold up at reading
+ * sizes. Gaegu stays on the short annotations that sit among the drawn marks.
+ * Nunito is the printed face, kept to two weights and reserved for the machine's
+ * own text: button labels and the small bold chips, where handwriting at 13px
+ * turns to mud. Anyone who wants print everywhere has "Clearer text" in
+ * settings, which drops the whole product onto the platform's own UI font.
  */
 export const fontFamily = {
   handBold: 'ShantellSans_700Bold',
   handSemi: 'ShantellSans_600SemiBold',
   handMedium: 'ShantellSans_500Medium',
   handRegular: 'ShantellSans_400Regular',
+  uiBold: 'Nunito_700Bold',
+  uiSemi: 'Nunito_600SemiBold',
   /** Reserved for playful annotations; loaded but not yet used by a variant. */
   noteRegular: 'Gaegu_400Regular',
   noteBold: 'Gaegu_700Bold',
@@ -28,6 +33,7 @@ export type TextVariant =
   | 'chip'
   | 'body'
   | 'label'
+  | 'button'
   | 'axis'
   | 'note';
 
@@ -67,8 +73,11 @@ export const typography: Record<TextVariant, VariantStyle> = {
   },
   // No letterSpacing: on Android it is applied after the final glyph but not
   // included in the measured width, which clips the last character.
+  //
+  // Printed, not written: at 13px bold a handwriting face closes up, and a chip
+  // is the interface stating a fact, not a person writing one down.
   chip: {
-    fontFamily: fontFamily.handBold,
+    fontFamily: fontFamily.uiBold,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -81,6 +90,17 @@ export const typography: Record<TextVariant, VariantStyle> = {
     fontFamily: fontFamily.handMedium,
     fontSize: 14,
     lineHeight: 21,
+  },
+  /**
+   * What a control says it will do. Printed, because a button is the interface
+   * offering an action, not the person writing one — and because the words on
+   * a wobbly drawn outline need a steady face to read as pressable rather than
+   * as more of the sketch.
+   */
+  button: {
+    fontFamily: fontFamily.uiBold,
+    fontSize: 15,
+    lineHeight: 20,
   },
   /**
    * The writing that belongs to a drawing: the figures beside a chart's guides,
@@ -167,6 +187,12 @@ export const legibleTypography: Record<TextVariant, LegibleStyle> = {
     lineHeight: 26,
     letterSpacing: 0.2,
     fontWeight: '600',
+  },
+  button: {
+    fontSize: typography.button.fontSize,
+    lineHeight: typography.button.lineHeight,
+    letterSpacing: 0.2,
+    fontWeight: '700',
   },
   label: {
     fontSize: typography.label.fontSize,

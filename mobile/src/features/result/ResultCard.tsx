@@ -272,7 +272,7 @@ function Controls({
         accessibilityHint={copy.result.confirmHint}
         accessibilityState={{ disabled: confirmed }}
       >
-        <Text variant="note" tone="accent">
+        <Text variant="button" tone="accent">
           {copy.result.confirm}
         </Text>
       </SketchButton>
@@ -334,7 +334,7 @@ function ArrivingLater(props: ResultCardProps) {
             contentStyle={styles.confirmContent}
             accessibilityLabel={copy.unsupported.action}
           >
-            <Text variant="label" tone="accent">
+            <Text variant="button" tone="accent">
               {copy.unsupported.action}
             </Text>
           </SketchButton>

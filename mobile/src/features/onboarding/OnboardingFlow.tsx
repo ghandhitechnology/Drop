@@ -313,7 +313,7 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
             accessibilityLabel={step === MARK ? markAction : page.action}
             accessibilityHint={step === MARK ? markHint : page.actionHint}
           >
-            <Text variant="label" tone="accent">
+            <Text variant="button" tone="accent">
               {step === MARK ? markAction : page.action}
             </Text>
           </SketchButton>

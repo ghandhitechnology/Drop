@@ -32,6 +32,8 @@ const TEXT_SAMPLES: { variant: TextVariant; sample: string }[] = [
   { variant: 'chip', sample: 'HIGH CONFIDENCE' },
   { variant: 'body', sample: 'Water use across growing, processing, and transport.' },
   { variant: 'label', sample: 'Per serving' },
+  { variant: 'button', sample: 'Add to history' },
+  { variant: 'note', sample: 'Hold the camera over the plate' },
 ];
 
 /* ---------------------------------------------------------------- sections */

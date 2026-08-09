@@ -30,7 +30,7 @@ export function UnresolvedCard({ onSearch, onRetake }: UnresolvedCardProps) {
         contentStyle={styles.actionContent}
         accessibilityLabel={copy.unresolved.action}
       >
-        <Text variant="note" tone="accent">
+        <Text variant="button" tone="accent">
           {copy.unresolved.action}
         </Text>
       </SketchButton>

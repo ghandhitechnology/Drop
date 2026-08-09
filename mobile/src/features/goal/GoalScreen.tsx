@@ -221,7 +221,7 @@ export function GoalScreen() {
           style={styles.save}
           contentStyle={styles.saveContent}
         >
-          <Text variant="count" tone="accent">
+          <Text variant="button" tone="accent">
             {copy.goal.sheet.save}
           </Text>
         </SketchButton>

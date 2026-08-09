@@ -85,7 +85,7 @@ export function PermissionPrompt({ mode, onRequest }: PermissionPromptProps) {
             contentStyle={styles.actionContent}
             accessibilityLabel={words.action}
           >
-            <Text variant="label" tone="accent">
+            <Text variant="button" tone="accent">
               {words.action}
             </Text>
           </SketchButton>

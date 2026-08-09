@@ -216,7 +216,7 @@ export function EntryDetailScreen() {
           style={styles.remove}
           contentStyle={styles.removeContent}
         >
-          <Text variant="label" tone="inkSoft">
+          <Text variant="button" tone="inkSoft">
             {copy.history.detail.remove}
           </Text>
         </SketchButton>

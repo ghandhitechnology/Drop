@@ -45,7 +45,7 @@ export function EmptyState({ onCamera }: EmptyStateProps) {
         style={styles.action}
         contentStyle={styles.actionContent}
       >
-        <Text variant="label" tone="accent">
+        <Text variant="button" tone="accent">
           {copy.history.empty.action}
         </Text>
       </SketchButton>

@@ -107,7 +107,7 @@ export function UndoBar({ label, onRestore }: UndoBarProps) {
           style={styles.action}
           contentStyle={styles.actionContent}
         >
-          <Text variant="label" tone="accent">
+          <Text variant="button" tone="accent">
             {copy.history.restore}
           </Text>
         </SketchButton>
