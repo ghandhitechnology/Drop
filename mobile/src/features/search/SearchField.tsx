@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     paddingVertical: space.md,
-    fontFamily: fontFamily.uiRegular,
+    fontFamily: fontFamily.handRegular,
     fontSize: 18,
     // Android measures a taller line box for this face than it draws; pinning
     // the height keeps the caret centred inside the drawn frame.

@@ -3,11 +3,7 @@ import {
   Gaegu_700Bold,
 } from '@expo-google-fonts/gaegu';
 import {
-  Nunito_400Regular,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-} from '@expo-google-fonts/nunito';
-import {
+  ShantellSans_400Regular,
   ShantellSans_500Medium,
   ShantellSans_600SemiBold,
   ShantellSans_700Bold,
@@ -115,12 +111,10 @@ function Navigator() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
+    ShantellSans_400Regular,
     ShantellSans_500Medium,
     ShantellSans_600SemiBold,
     ShantellSans_700Bold,
-    Nunito_400Regular,
-    Nunito_600SemiBold,
-    Nunito_700Bold,
     Gaegu_400Regular,
     Gaegu_700Bold,
   });

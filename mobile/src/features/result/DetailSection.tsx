@@ -3,8 +3,8 @@
  *
  * Collapsed by default: the hero figure answers the question, and this answers
  * the next one. Assumptions come first because they are about *this* estimate;
- * the source block follows in Nunito with tabular figures, because it is a
- * record rather than a sentence.
+ * the source block follows with tabular figures, because it is a record rather
+ * than a sentence.
  */
 
 import { StyleSheet, View } from 'react-native';

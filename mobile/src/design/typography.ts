@@ -3,14 +3,18 @@ import type { TextStyle } from 'react-native';
 /**
  * Font families are the postscript-ish names registered by expo-font in
  * app/_layout.tsx. Keep these two lists in sync.
+ *
+ * Everything is written by hand. Shantell Sans carries the running text — it is
+ * a handwriting face drawn to hold up at reading sizes — and Gaegu stays on the
+ * short annotations that sit among the drawn marks. Anyone who wants a printed
+ * face has "Clearer text" in settings, which drops the whole product onto the
+ * platform's own UI font.
  */
 export const fontFamily = {
   handBold: 'ShantellSans_700Bold',
   handSemi: 'ShantellSans_600SemiBold',
   handMedium: 'ShantellSans_500Medium',
-  uiBold: 'Nunito_700Bold',
-  uiSemi: 'Nunito_600SemiBold',
-  uiRegular: 'Nunito_400Regular',
+  handRegular: 'ShantellSans_400Regular',
   /** Reserved for playful annotations; loaded but not yet used by a variant. */
   noteRegular: 'Gaegu_400Regular',
   noteBold: 'Gaegu_700Bold',
@@ -64,19 +68,19 @@ export const typography: Record<TextVariant, VariantStyle> = {
   // No letterSpacing: on Android it is applied after the final glyph but not
   // included in the measured width, which clips the last character.
   chip: {
-    fontFamily: fontFamily.uiBold,
+    fontFamily: fontFamily.handBold,
     fontSize: 13,
     lineHeight: 18,
   },
   body: {
-    fontFamily: fontFamily.uiRegular,
+    fontFamily: fontFamily.handRegular,
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 26,
   },
   label: {
-    fontFamily: fontFamily.uiSemi,
+    fontFamily: fontFamily.handMedium,
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 21,
   },
   /**
    * The writing that belongs to a drawing: the figures beside a chart's guides,
