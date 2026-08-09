@@ -42,6 +42,8 @@ export const copy = {
     toggleFast: 'Toggle fast mode',
     findByName: 'Find by name',
     findByNameHint: 'Search the catalogue instead of using the camera',
+    fromLibrary: 'Choose a photo',
+    fromLibraryHint: 'Reads a photo from your library instead of the camera',
     barcodeReady: 'Barcode in frame',
     barcodeValue: (value: string) => `Code ${value}`,
     recognizing: 'Reading the photo',

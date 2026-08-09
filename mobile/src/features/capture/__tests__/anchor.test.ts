@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { characterSideForAnchor } from '../anchor';
+import { anchorFor, centerSquare, characterSideForAnchor } from '../anchor';
+
+describe('anchorFor', () => {
+  it('falls back to the centre square when nothing was scanned', () => {
+    // The contract the library picker leans on: a photo that never passed
+    // through a viewfinder still folds into the same square a plain capture
+    // does, because there is no hint to move it.
+    const stage = { width: 390, height: 780 };
+    expect(anchorFor(stage)).toEqual(centerSquare(stage));
+  });
+});
 
 describe('characterSideForAnchor', () => {
   it('lands a normal capture just inside its framing square', () => {

@@ -13,11 +13,13 @@ import { Text } from '../../ui/Text';
 import { CameraStage, useTakePhoto, type StageSize } from './CameraStage';
 import { FramingNote } from './FramingNote';
 import { CHIP_HEIGHT, HandChip, HandChipStatic } from './HandChip';
+import { LibraryChip } from './LibraryChip';
 import { overlayInk } from './overlay';
 import { PermissionPrompt } from './PermissionPrompt';
 import { Shutter } from './Shutter';
 import { type CaptureState } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
+import { useLibraryPick } from './useLibraryPick';
 
 /** At and above this width the camera shares the screen instead of owning it. */
 export const TABLET_BREAKPOINT = 768;
@@ -64,6 +66,7 @@ export function CaptureHome() {
   const beginShutter = useCallback(() => setShutterActive(true), []);
   const resetShutter = useCallback(() => setShutterActive(false), []);
   const takePhoto = useTakePhoto(cameraRef, stage, beginShutter, resetShutter);
+  const pickFromLibrary = useLibraryPick(stage);
 
   // A retake starts a fresh framing run, including a fresh reticle.
   useEffect(() => {
@@ -154,6 +157,12 @@ export function CaptureHome() {
                 fast={mode === 'fast'}
                 disabled={shutterActive}
               />
+
+              <LibraryChip
+                onPress={pickFromLibrary}
+                disabled={shutterActive}
+                style={styles.secondaryRight}
+              />
             </View>
           </View>
         )}
@@ -198,8 +207,9 @@ const styles = StyleSheet.create({
   hintRow: { alignItems: 'center', paddingTop: DOOR_ROW + space.md },
 
   controls: { alignItems: 'center', gap: space.lg, paddingBottom: space.xl },
-  // The shutter is centred on the frame; the secondary control is pinned to the
-  // bottom-left so it never shifts the shutter off centre as its label changes.
+  // The shutter is centred on the frame; the secondary controls are pinned to
+  // the two bottom corners so neither shifts the shutter off centre as its
+  // label changes or its mark is drawn.
   controlRow: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -207,5 +217,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.xl,
   },
   secondary: { position: 'absolute', left: space.xl, bottom: 0 },
+  secondaryRight: { position: 'absolute', right: space.xl, bottom: 0 },
 
 });
