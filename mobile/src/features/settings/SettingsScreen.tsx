@@ -14,14 +14,10 @@
  */
 import { Canvas, Skia } from '@shopify/react-native-skia';
 import Constants from 'expo-constants';
+import { useFocusEffect } from 'expo-router';
 import * as Updates from 'expo-updates';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  AccessibilityInfo,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FACTORS_VERSION } from '../../data/tables';
@@ -42,6 +38,8 @@ import { Touch } from '../../ui/Touch';
 import { catalogSize, datasetCredits } from './datasets';
 import { HandSwitch } from './HandSwitch';
 import { ThemeChoice } from './ThemeChoice';
+import { UsageCard } from './UsageCard';
+import { useUsage } from '../usage';
 
 export type SettingsScreenProps = {
   onDone: () => void;
@@ -58,6 +56,13 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
   const setLegibleText = usePreferences((s) => s.setLegibleText);
 
   const [release, setRelease] = useState<AvailableRelease | null>(null);
+  const refreshUsage = useUsage((state) => state.refresh);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshUsage().catch(() => {});
+    }, [refreshUsage]),
+  );
 
   const credits = useMemo(
     () =>
@@ -137,6 +142,10 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
+          <Section title={copy.usage.title}>
+            <UsageCard />
+          </Section>
+
           <Section title={copy.settings.appearance.title}>
             <ThemeChoice />
           </Section>
@@ -165,9 +174,7 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
               // Shows what is actually in force, including the phone's own
               // setting, and takes over the moment it is touched.
               value={motion.reduceMotion}
-              onToggle={toggle(() =>
-                setMotion(motion.reduceMotion ? 'full' : 'reduced'),
-              )}
+              onToggle={toggle(() => setMotion(motion.reduceMotion ? 'full' : 'reduced'))}
             />
           </Section>
 
@@ -281,10 +288,7 @@ function Rule({ seed }: { seed: number }) {
   );
 
   return (
-    <View
-      style={styles.rule}
-      onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
-    >
+    <View style={styles.rule} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
       {path && (
         <Canvas
           style={StyleSheet.absoluteFill}

@@ -14,11 +14,7 @@ import { Canvas, Skia } from '@shopify/react-native-skia';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { space } from '../../design/tokens';
@@ -40,7 +36,7 @@ export function SettingsTab() {
   const router = useRouter();
   const motion = useMotion();
   const state = useCaptureMachine((s) => s.state);
-  const hidden = isResultVisible(state) || state.name === 'unresolved';
+  const hidden = isResultVisible(state) || state.name === 'unresolved' || state.name === 'limited';
   const visibility = useSharedValue(hidden ? 0 : 1);
 
   useEffect(() => {
@@ -122,6 +118,10 @@ export function SettingsTab() {
 
 const styles = StyleSheet.create({
   root: { position: 'absolute', top: 0, left: 0, right: 0 },
-  align: { alignItems: 'flex-start', paddingHorizontal: space.lg, paddingTop: space.md },
+  align: {
+    alignItems: 'flex-start',
+    paddingHorizontal: space.lg,
+    paddingTop: space.md,
+  },
   glyph: { width: GLYPH, height: GLYPH },
 });

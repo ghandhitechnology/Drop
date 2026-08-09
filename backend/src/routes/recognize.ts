@@ -10,6 +10,8 @@ import {
   type RecognizedItemOut,
 } from '../services/recognizeShape';
 import { recognizeSplit } from '../services/recognizeSplit';
+import { authorizeAnalysis, consumeAnalysis } from '../usage/http';
+import type { UsageService } from '../usage/service';
 
 const SYSTEM_PROMPT = `You identify everyday items for a water-footprint tracker.
 
@@ -55,10 +57,7 @@ ${catalogPrompt}`;
 const ITEM_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: [
-    'label', 'category', 'candidates', 'quantity', 'detected_text', 'box',
-    'unmatched',
-  ],
+  required: ['label', 'category', 'candidates', 'quantity', 'detected_text', 'box', 'unmatched'],
   properties: {
     label: { type: 'string' },
     category: {
@@ -85,7 +84,10 @@ const ITEM_SCHEMA = {
       required: ['value', 'unit', 'basis', 'evidence'],
       properties: {
         value: { type: 'number' },
-        unit: { type: 'string', enum: ['g', 'kg', 'ml', 'l', 'km', 'usd', 'item'] },
+        unit: {
+          type: 'string',
+          enum: ['g', 'kg', 'ml', 'l', 'km', 'usd', 'item'],
+        },
         basis: {
           type: 'string',
           enum: ['package_label', 'vision_estimate'],
@@ -147,90 +149,146 @@ function respond(hash: string, items: RecognizedItemOut[]): object {
   return response;
 }
 
-export const recognize = new Hono();
+function isPresentable(items: RecognizedItemOut[]): boolean {
+  const usable = items.filter((item) => item.candidates.length > 0 || item.label !== '');
+  return usable.length > 1 || Boolean(usable[0]?.candidates.length);
+}
 
-recognize.post('/', async (c) => {
-  const body = await c.req.json<{
-    image_base64?: string;
-    mime?: string;
-    hint?: string;
-    mode?: 'normal' | 'fast';
-  }>();
-  if (!body.image_base64) {
-    return c.json({ error: 'image_base64 required' }, 400);
-  }
-  const mode = body.mode ?? 'normal';
-  if (mode !== 'normal' && mode !== 'fast') {
-    return c.json({ error: "mode must be 'normal' or 'fast'" }, 400);
-  }
-  const mime = body.mime ?? 'image/jpeg';
-  const hash = createHash('sha256').update(body.image_base64).digest('hex');
-  if (cache.has(hash)) return c.json(cache.get(hash) as object);
+export function createRecognize(usage: UsageService) {
+  const recognize = new Hono();
 
-  // The split pipeline (detect -> ground -> rerank) is the default;
-  // RECOGNIZE_PIPELINE=mono is the rollback switch to the original
-  // single-call pipeline.
-  const dataUrl = `data:${mime};base64,${body.image_base64}`;
-  let items: RecognizedItemOut[];
-  if (process.env.RECOGNIZE_PIPELINE !== 'mono') {
-    try {
-      const result = await recognizeSplit(dataUrl, body.hint, mode, tables);
-      if (!result.ok) {
-        console.error('prompt-integrity violation', result.violations);
-        return c.json({
-          error: 'model output rejected',
-          violation: true,
-          paths: result.violations,
-        }, 502);
+  recognize.post('/', async (c) => {
+    const body = await c.req.json<{
+      image_base64?: string;
+      mime?: string;
+      hint?: string;
+      mode?: 'normal' | 'fast';
+    }>();
+    if (!body.image_base64) {
+      return c.json({ error: 'image_base64 required' }, 400);
+    }
+    const mode = body.mode ?? 'normal';
+    if (mode !== 'normal' && mode !== 'fast') {
+      return c.json({ error: "mode must be 'normal' or 'fast'" }, 400);
+    }
+    const mime = body.mime ?? 'image/jpeg';
+    const hash = createHash('sha256').update(body.image_base64).digest('hex');
+    const requestFingerprint = createHash('sha256')
+      .update(JSON.stringify([body.image_base64, mime, body.hint ?? '', mode]))
+      .digest('hex');
+    const authorization = await authorizeAnalysis(c, usage, 'recognize', requestFingerprint);
+    if (authorization instanceof Response) return authorization;
+    if (cache.has(hash)) {
+      const response = cache.get(hash) as { items?: RecognizedItemOut[] };
+      if (isPresentable(response.items ?? [])) {
+        const failed = await consumeAnalysis(
+          c,
+          usage,
+          authorization,
+          'recognize',
+          requestFingerprint,
+        );
+        if (failed) return failed;
       }
-      items = result.items;
+      return c.json(response as object);
+    }
+
+    // The split pipeline (detect -> ground -> rerank) is the default;
+    // RECOGNIZE_PIPELINE=mono is the rollback switch to the original
+    // single-call pipeline.
+    const dataUrl = `data:${mime};base64,${body.image_base64}`;
+    let items: RecognizedItemOut[];
+    if (process.env.RECOGNIZE_PIPELINE !== 'mono') {
+      try {
+        const result = await recognizeSplit(dataUrl, body.hint, mode, tables);
+        if (!result.ok) {
+          console.error('prompt-integrity violation', result.violations);
+          return c.json(
+            {
+              error: 'model output rejected',
+              violation: true,
+              paths: result.violations,
+            },
+            502,
+          );
+        }
+        items = result.items;
+      } catch (err) {
+        console.error('recognize model call failed', err);
+        return c.json({ error: 'model unavailable' }, 502);
+      }
+      const response = respond(hash, items);
+      if (isPresentable(items)) {
+        const failed = await consumeAnalysis(
+          c,
+          usage,
+          authorization,
+          'recognize',
+          requestFingerprint,
+        );
+        if (failed) return failed;
+      }
+      return c.json(response);
+    }
+
+    // A failed model call is an upstream problem, not ours: answer it as a
+    // typed 502 so the app can tell it apart from a rejected request.
+    let out: RawRecognition;
+    try {
+      out = (await chatJSONRetry({
+        schemaName: 'recognition',
+        schema: RESPONSE_SCHEMA as unknown as Record<string, unknown>,
+        timeoutMs: 25_000,
+        reasoningEffort: mode === 'fast' ? 'low' : 'high',
+        maxTokens: 12_000,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: body.hint
+                  ? `Identify everything here. Context: ${body.hint}`
+                  : 'Identify everything here.',
+              },
+              { type: 'image_url', image_url: { url: dataUrl } },
+            ],
+          },
+        ],
+      })) as RawRecognition;
     } catch (err) {
       console.error('recognize model call failed', err);
       return c.json({ error: 'model unavailable' }, 502);
     }
-    return c.json(respond(hash, items));
-  }
 
-  // A failed model call is an upstream problem, not ours: answer it as a
-  // typed 502 so the app can tell it apart from a rejected request.
-  let out: RawRecognition;
-  try {
-    out = await chatJSONRetry({
-      schemaName: 'recognition',
-      schema: RESPONSE_SCHEMA as unknown as Record<string, unknown>,
-      timeoutMs: 25_000,
-      reasoningEffort: mode === 'fast' ? 'low' : 'high',
-      maxTokens: 12_000,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+    const sanity = sanitizeModelOutput(out);
+    if (!sanity.ok) {
+      console.error('prompt-integrity violation', sanity.violations);
+      return c.json(
         {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: body.hint
-                ? `Identify everything here. Context: ${body.hint}`
-                : 'Identify everything here.',
-            },
-            { type: 'image_url', image_url: { url: dataUrl } },
-          ],
+          error: 'model output rejected',
+          violation: true,
+          paths: sanity.violations,
         },
-      ],
-    }) as RawRecognition;
-  } catch (err) {
-    console.error('recognize model call failed', err);
-    return c.json({ error: 'model unavailable' }, 502);
-  }
+        502,
+      );
+    }
 
-  const sanity = sanitizeModelOutput(out);
-  if (!sanity.ok) {
-    console.error('prompt-integrity violation', sanity.violations);
-    return c.json({
-      error: 'model output rejected',
-      violation: true,
-      paths: sanity.violations,
-    }, 502);
-  }
+    items = shapeItems(out, tables);
+    const response = respond(hash, items);
+    if (isPresentable(items)) {
+      const failed = await consumeAnalysis(
+        c,
+        usage,
+        authorization,
+        'recognize',
+        requestFingerprint,
+      );
+      if (failed) return failed;
+    }
+    return c.json(response);
+  });
 
-  return c.json(respond(hash, shapeItems(out, tables)));
-});
+  return recognize;
+}

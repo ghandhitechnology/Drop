@@ -67,6 +67,31 @@ export const copy = {
     },
   },
 
+  usage: {
+    title: 'Usage',
+    checking: 'Checking today’s drops',
+    checkingCount: '— of 20',
+    count: (used = 0, limit = 20) => `${used} of ${limit}`,
+    progress: (used = 0, limit = 20) => `${used} of ${limit} camera analyses used`,
+    left: (remaining = 0) =>
+      remaining === 1 ? '1 camera analysis left today' : `${remaining} camera analyses left today`,
+    full: 'Today’s 20 camera analyses are used',
+    reset: 'Refreshes at midnight',
+    cached: 'Latest count saved on this device',
+    refresh: 'Refresh',
+    refreshHint: 'Checks today’s camera usage',
+    framingFull: '20 of 20 used · Find by name stays open',
+    limited: {
+      title: 'Today’s camera drops are full',
+      body: 'A fresh set arrives at midnight. Find by name keeps going.',
+      search: 'Find by name',
+      settings: 'View usage',
+    },
+    announce: {
+      limited: 'Today’s 20 camera analyses are used. Find by name is ready.',
+    },
+  },
+
   result: {
     expand: 'Show the detail',
     collapse: 'Close the detail',
@@ -150,8 +175,7 @@ export const copy = {
       queued: (label: string, waiting: number, left: number) =>
         `${label} ready to add. ${waiting} waiting, ${left} left to sort.`,
       /** Said when the way out puts the tray back. */
-      discarded: (count: number) =>
-        `Result closed. ${count} went back into the photo.`,
+      discarded: (count: number) => `Result closed. ${count} went back into the photo.`,
       presentingMany: (count: number, label: string, litres: string) =>
         `${count} things in this frame. ${label}. ${litres}.`,
       confirmedMany: (count: number, label: string) =>
@@ -216,12 +240,10 @@ export const copy = {
     addAnotherHint: 'Keeps this and goes back to the list',
     goMany: (count = 2) => `Show me the water · ${count}`,
     goManyHint: 'Hands everything to Drop as one plate',
-    basketLabel: (count = 1) =>
-      count === 1 ? 'One thing added' : `${count} things added`,
+    basketLabel: (count = 1) => (count === 1 ? 'One thing added' : `${count} things added`),
     removePick: (label = 'Apple') => `Remove ${label}`,
     removePickHint: 'Takes this thing out of the group',
-    soFar: (count = 1) =>
-      count === 1 ? 'One thing so far' : `${count} things so far`,
+    soFar: (count = 1) => (count === 1 ? 'One thing so far' : `${count} things so far`),
 
     /** The word beside an item's drawn mark. */
     category: {
@@ -266,11 +288,9 @@ export const copy = {
     /** One bar, spoken. "Tuesday, 4,200 litres". */
     bar: (day = 'Monday', litres = '0 litres') => `${day}, ${litres}`,
     /** The three sentences under the chart, joined with a middle dot. */
-    summaryTotal: (span = 'Last 7 days', litres = '0 litres') =>
-      `${span}: ${litres} in total`,
+    summaryTotal: (span = 'Last 7 days', litres = '0 litres') => `${span}: ${litres} in total`,
     summaryDaily: (litres = '0 litres') => `${litres} a day on average`,
-    summaryPeak: (day = 'Monday', litres = '0 litres') =>
-      `${day} ran highest at ${litres}`,
+    summaryPeak: (day = 'Monday', litres = '0 litres') => `${day} ran highest at ${litres}`,
     /** Shown while every day in the window is still open. */
     summaryQuiet: (span = 'Last 7 days') => `${span}: a clean page so far`,
 
@@ -372,7 +392,9 @@ export const copy = {
      * same tables as every other number in Drop.
      */
     leader: (label = 'Beef', times = 1, litres = '0 L') =>
-      times > 1 ? `${label}, ${times}× — ${litres} of this week` : `${label} — ${litres} of this week`,
+      times > 1
+        ? `${label}, ${times}× — ${litres} of this week`
+        : `${label} — ${litres} of this week`,
     swap: (label = 'Chicken', litres = '0 L') => `${label} instead frees ${litres}`,
     swapHint: 'Opens this item in the catalogue',
 
@@ -550,11 +572,9 @@ export const copy = {
     /** The tail of the screen — the exact build a tester names in a report. */
     version: {
       app: (version = '1.0.0') => `Drop ${version}`,
-      appChannel: (version = '1.0.0', channel = 'preview') =>
-        `Drop ${version} · ${channel}`,
+      appChannel: (version = '1.0.0', channel = 'preview') => `Drop ${version} · ${channel}`,
       /** Reads as "Update 019fe6d7 · Aug 9, 2026" under the app line. */
-      update: (id = '019fe6d7', date = '') =>
-        date ? `Update ${id} · ${date}` : `Update ${id}`,
+      update: (id = '019fe6d7', date = '') => (date ? `Update ${id} · ${date}` : `Update ${id}`),
       /** Shown while the app runs the bundle its build shipped with. */
       embedded: 'Bundled with the build',
     },
@@ -597,8 +617,18 @@ export function metricLabel(metric: MetricType): string {
 
 /** "Aug 9, 2026" — the date a print wears in its corner. */
 const PRINT_MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ] as const;
 
 export function printDate(at: Date): string {
@@ -635,9 +665,7 @@ export function litresSentence(estimate: Estimate): string {
   const headline = estimate.headline;
   if (!headline) return unsupportedLine(estimate);
   const base = `${formatLitres(headline.value_l)} ${copy.result.unit}`;
-  return hasSpread(headline.range_l)
-    ? `${base}, ranging ${formatRange(headline.range_l)}`
-    : base;
+  return hasSpread(headline.range_l) ? `${base}, ranging ${formatRange(headline.range_l)}` : base;
 }
 
 /* --------------------------------------------------------- the hero figure */
@@ -818,8 +846,7 @@ const UNSUPPORTED_BY_ID: Record<string, string> = {
     'Flight water data arrives in a future update. Track the trip distance meanwhile?',
   transport_air_short:
     'Flight water data arrives in a future update. Track the trip distance meanwhile?',
-  transport_rail:
-    'Rail water data arrives in a future update. Track the trip distance meanwhile?',
+  transport_rail: 'Rail water data arrives in a future update. Track the trip distance meanwhile?',
   transport_air_freight_tkm:
     'Freight rides on tonne-kilometres. Personal tracking arrives in a future update.',
   transport_rail_freight_tkm:
@@ -832,8 +859,7 @@ const UNSUPPORTED_DEFAULT =
   'Water data for this one arrives in a future update. Find something else by name?';
 
 /** The model saw it; the catalogue has yet to learn its name. */
-const UNSUPPORTED_UNMATCHED =
-  'Drop is still learning this one. Find it by name?';
+const UNSUPPORTED_UNMATCHED = 'Drop is still learning this one. Find it by name?';
 
 export function unsupportedLine(estimate: Estimate): string {
   if (estimate.unsupported?.reason === 'not_in_catalog') return UNSUPPORTED_UNMATCHED;
@@ -857,12 +883,21 @@ export function sourceRows(estimate: Estimate): SourceRow[] {
   const rows: SourceRow[] = [];
   if (factor) {
     rows.push({ label: copy.result.source.dataset, value: factor.dataset });
-    rows.push({ label: copy.result.source.release, value: factor.dataset_release });
+    rows.push({
+      label: copy.result.source.release,
+      value: factor.dataset_release,
+    });
     rows.push({ label: copy.result.source.geography, value: factor.geography });
     if (factor.system_boundary) {
-      rows.push({ label: copy.result.source.boundary, value: factor.system_boundary });
+      rows.push({
+        label: copy.result.source.boundary,
+        value: factor.system_boundary,
+      });
     }
   }
-  rows.push({ label: copy.result.source.tables, value: estimate.factors_version });
+  rows.push({
+    label: copy.result.source.tables,
+    value: estimate.factors_version,
+  });
   return rows;
 }

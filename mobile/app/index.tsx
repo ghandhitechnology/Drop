@@ -8,6 +8,7 @@ import { HistoryTab } from '../src/features/history/HistoryTab';
 import { FirstRunGate } from '../src/features/onboarding/FirstRunGate';
 import { startPreferencePersistence } from '../src/features/settings/persist';
 import { SettingsTab } from '../src/features/settings/SettingsTab';
+import { startUsageSync } from '../src/features/usage';
 
 /**
  * Home is the camera. Everything else in Drop is reached from it.
@@ -36,7 +37,20 @@ export default function Home() {
   // asks at most once a day.
   useEffect(() => {
     startPreferencePersistence().catch(() => {});
-    return startFactorSync();
+    const stopFactors = startFactorSync();
+    let stopUsage: (() => void) | null = null;
+    let disposed = false;
+    startUsageSync()
+      .then((stop) => {
+        if (disposed) stop();
+        else stopUsage = stop;
+      })
+      .catch(() => {});
+    return () => {
+      disposed = true;
+      stopFactors();
+      stopUsage?.();
+    };
   }, []);
 
   return (

@@ -9,75 +9,132 @@ import type { EstimateInput } from '@drop/water-engine';
 import { FACTORS_VERSION, raw, rawTable, tables } from './data';
 import { MODEL } from './services/openrouter';
 import { searchCatalog } from './services/catalogMatch';
-import { recognize } from './routes/recognize';
-import { barcode } from './routes/barcode';
+import { createRecognize } from './routes/recognize';
+import { createBarcode } from './routes/barcode';
 import { research } from './routes/research';
+import { applyUsageHeaders, usageErrorResponse } from './usage/http';
+import { UsageService, createUsageServiceFromEnv } from './usage/service';
 
-const app = new Hono();
-app.use(logger());
-app.use('/v1/catalog', etag());
-app.use('/v1/factors/*', etag());
+export type AppDependencies = { usage: UsageService };
 
-/** Every POST route parses a JSON body via c.req.json(); malformed or empty
- * bodies must surface as a clean 400, never a raw 500. c.req.json() caches
- * the parsed text internally, so routes downstream reuse this same read. */
-app.use('*', async (c, next) => {
-  if (c.req.method === 'POST') {
-    try {
-      await c.req.json();
-    } catch {
-      return c.json({ error: 'invalid JSON body' }, 400);
+export function createApp({ usage }: AppDependencies) {
+  const app = new Hono();
+  app.use(logger());
+  app.use('/v1/catalog', etag());
+  app.use('/v1/factors/*', etag());
+
+  /** Every POST route parses a JSON body via c.req.json(); malformed or empty
+   * bodies must surface as a clean 400, never a raw 500. c.req.json() caches
+   * the parsed text internally, so routes downstream reuse this same read. */
+  app.use('*', async (c, next) => {
+    if (c.req.method === 'POST') {
+      try {
+        await c.req.json();
+      } catch {
+        return c.json({ error: 'invalid JSON body' }, 400);
+      }
     }
-  }
-  await next();
-});
-
-app.get('/v1/health', (c) => c.json({
-  ok: true,
-  factors_version: FACTORS_VERSION,
-  catalog_version: raw.catalog.catalog_version,
-  model: MODEL,
-}));
-
-app.get('/v1/manifest', (c) => c.json(raw.manifest));
-
-app.get('/v1/catalog', (c) => {
-  c.header('Cache-Control', 'public, max-age=86400');
-  return c.json(raw.catalog);
-});
-
-app.get('/v1/factors/:table', (c) => {
-  const t = rawTable(c.req.param('table'));
-  if (!t) return c.json({ error: 'unknown table' }, 404);
-  c.header('Cache-Control', 'public, max-age=86400');
-  return c.json(t as object);
-});
-
-app.get('/v1/search', (c) => {
-  const q = c.req.query('q') ?? '';
-  return c.json({
-    results: searchCatalog(q, tables, 12).map((e) => ({
-      catalog_id: e.catalog_id,
-      display_name: e.display_name,
-      category: e.category,
-      default_quantity: e.default_quantity,
-    })),
+    await next();
   });
-});
 
-/** Parity/debug endpoint: same engine binary the app runs on-device. */
-app.post('/v1/estimate', async (c) => {
-  const input = await c.req.json<EstimateInput>();
-  try {
-    return c.json(estimate(input, tables));
-  } catch (err) {
-    return c.json({ error: (err as Error).message }, 400);
-  }
-});
+  app.get('/v1/health', async (c) =>
+    c.json({
+      ok: true,
+      factors_version: FACTORS_VERSION,
+      catalog_version: raw.catalog.catalog_version,
+      model: MODEL,
+      usage_store: (await usage.health()) ? 'ready' : 'unavailable',
+      usage_enforcement: usage.enforcement ? 'on' : 'off',
+      usage_legacy_policy: usage.legacyPolicy,
+    }),
+  );
 
-app.route('/v1/recognize', recognize);
-app.route('/v1/barcode', barcode);
-app.route('/v1/research', research);
+  app.get('/v1/usage', async (c) => {
+    try {
+      const snapshot = await usage.status(c.req.raw.headers);
+      applyUsageHeaders(c, snapshot);
+      return c.json(snapshot);
+    } catch (error) {
+      const response = usageErrorResponse(c, error);
+      if (response) return response;
+      console.error('[usage] status failed', error);
+      return c.json({ error: 'usage_store_unavailable' }, 503);
+    }
+  });
+
+  app.post('/v1/usage/reservations', async (c) => {
+    const body = await c.req.json<{ analysis_id?: string }>();
+    try {
+      const result = await usage.reserve(c.req.raw.headers, body.analysis_id ?? '');
+      return c.json(result, 201);
+    } catch (error) {
+      const response = usageErrorResponse(c, error);
+      if (response) return response;
+      console.error('[usage] reservation failed', error);
+      return c.json({ error: 'usage_store_unavailable' }, 503);
+    }
+  });
+
+  app.delete('/v1/usage/reservations/:analysisId', async (c) => {
+    try {
+      await usage.release(c.req.raw.headers, c.req.param('analysisId'));
+      return c.body(null, 204);
+    } catch (error) {
+      const response = usageErrorResponse(c, error);
+      if (response) return response;
+      console.error('[usage] release failed', error);
+      return c.json({ error: 'usage_store_unavailable' }, 503);
+    }
+  });
+
+  app.get('/v1/manifest', (c) => c.json(raw.manifest));
+
+  app.get('/v1/catalog', (c) => {
+    c.header('Cache-Control', 'public, max-age=86400');
+    return c.json(raw.catalog);
+  });
+
+  app.get('/v1/factors/:table', (c) => {
+    const t = rawTable(c.req.param('table'));
+    if (!t) return c.json({ error: 'unknown table' }, 404);
+    c.header('Cache-Control', 'public, max-age=86400');
+    return c.json(t as object);
+  });
+
+  app.get('/v1/search', (c) => {
+    const q = c.req.query('q') ?? '';
+    return c.json({
+      results: searchCatalog(q, tables, 12).map((e) => ({
+        catalog_id: e.catalog_id,
+        display_name: e.display_name,
+        category: e.category,
+        default_quantity: e.default_quantity,
+      })),
+    });
+  });
+
+  /** Parity/debug endpoint: same engine binary the app runs on-device. */
+  app.post('/v1/estimate', async (c) => {
+    const input = await c.req.json<EstimateInput>();
+    try {
+      return c.json(estimate(input, tables));
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 400);
+    }
+  });
+
+  app.route('/v1/recognize', createRecognize(usage));
+  app.route('/v1/barcode', createBarcode(usage));
+  app.route('/v1/research', research);
+
+  return app;
+}
+
+const usage =
+  process.env.VITEST === 'true'
+    ? new UsageService(null, false, 'allow')
+    : createUsageServiceFromEnv();
+const app = createApp({ usage });
 
 /** Tailscale uses the 100.64.0.0/10 CGNAT range for device IPv4s. */
 function isTailnetIp(ip: string): boolean {
@@ -95,7 +152,9 @@ function tailnetHost(): string {
   const pinned = process.env.HOST;
   if (pinned) return pinned;
   try {
-    const out = execFileSync('tailscale', ['ip', '-4'], { timeout: 5000 }).toString();
+    const out = execFileSync('tailscale', ['ip', '-4'], {
+      timeout: 5000,
+    }).toString();
     const first = out.trim().split(/\s+/)[0];
     if (first && isTailnetIp(first)) return first;
   } catch {
@@ -114,9 +173,17 @@ function tailnetHost(): string {
 // Tests import `app` for in-process requests (app.request(...)) and must
 // not also bind a real port — vitest sets VITEST=true for every run.
 if (process.env.VITEST !== 'true') {
+  usage.cleanup().catch((error) => console.error('[usage] cleanup failed', error));
+  const cleanup = setInterval(
+    () => usage.cleanup().catch((error) => console.error('[usage] cleanup failed', error)),
+    24 * 60 * 60 * 1000,
+  );
+  cleanup.unref();
   const port = Number(process.env.PORT ?? 8787);
   const hostname = tailnetHost();
-  console.log(`Drop backend on http://${hostname}:${port} (tailnet only) — factors ${FACTORS_VERSION}`);
+  console.log(
+    `Drop backend on http://${hostname}:${port} (tailnet only) — factors ${FACTORS_VERSION}`,
+  );
   serve({ fetch: app.fetch, port, hostname });
 }
 

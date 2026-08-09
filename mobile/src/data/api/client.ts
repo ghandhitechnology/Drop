@@ -16,6 +16,7 @@ import Constants from 'expo-constants';
 import { NativeModules, Platform } from 'react-native';
 
 import { ApiError } from './errors';
+import { publishUsage, readUsageSnapshot, usageFromHeaders } from './usage';
 
 export { ApiError, type ApiFailureKind } from './errors';
 
@@ -54,13 +55,14 @@ export function hostFromUri(value: unknown): string | null {
  * knows the exact Metro URL it loaded — including the Mac's LAN hostname.
  */
 function developmentHost(): string | null {
-  const source = NativeModules.SourceCode as {
-    scriptURL?: string;
-    getConstants?: () => { scriptURL?: string };
-  } | undefined;
+  const source = NativeModules.SourceCode as
+    | {
+        scriptURL?: string;
+        getConstants?: () => { scriptURL?: string };
+      }
+    | undefined;
   const scriptURL = source?.scriptURL ?? source?.getConstants?.().scriptURL;
-  return hostFromUri(scriptURL)
-    ?? hostFromUri(Constants.expoConfig?.hostUri);
+  return hostFromUri(scriptURL) ?? hostFromUri(Constants.expoConfig?.hostUri);
 }
 
 /**
@@ -94,9 +96,11 @@ export type RequestOptions = {
   timeoutMs?: number;
   /** The caller's own withdrawal signal, raced against the timeout. */
   signal?: AbortSignal;
+  /** Additional protocol headers, merged with JSON content negotiation. */
+  headers?: Record<string, string>;
 };
 
-type Method = 'GET' | 'POST';
+type Method = 'GET' | 'POST' | 'DELETE';
 
 /**
  * One request, one budget, one typed failure.
@@ -134,13 +138,30 @@ async function request<T>(
     const response = await fetch(url, {
       method,
       signal: controller.signal,
-      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      headers: {
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...options.headers,
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        let usage = usageFromHeaders(response.headers);
+        try {
+          const payload = (await response.json()) as { usage?: unknown };
+          usage = readUsageSnapshot(payload.usage) ?? usage;
+        } catch {}
+        if (usage) publishUsage(usage);
+        throw new ApiError('rate_limited', `${path} reached today's limit`, 429, usage);
+      }
       throw new ApiError('server', `${path} answered ${response.status}`, response.status);
     }
+
+    const usage = usageFromHeaders(response.headers);
+    if (usage) publishUsage(usage);
+
+    if (response.status === 204) return undefined as T;
 
     try {
       return (await response.json()) as T;
@@ -162,10 +183,10 @@ export function getJson<T>(path: string, options?: RequestOptions): Promise<T> {
   return request<T>('GET', path, undefined, options);
 }
 
-export function postJson<T>(
-  path: string,
-  body: unknown,
-  options?: RequestOptions,
-): Promise<T> {
+export function postJson<T>(path: string, body: unknown, options?: RequestOptions): Promise<T> {
   return request<T>('POST', path, body, options);
+}
+
+export function deleteJson(path: string, options?: RequestOptions): Promise<void> {
+  return request<void>('DELETE', path, undefined, options);
 }
