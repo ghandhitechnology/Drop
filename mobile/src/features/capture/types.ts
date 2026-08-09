@@ -286,6 +286,18 @@ export function isBusy(state: CaptureState): boolean {
   return state.name === 'captured' || state.name === 'recognizing' || state.name === 'analyzing';
 }
 
+/**
+ * True while a new photo would be accepted — a live frame, nothing held.
+ *
+ * Every way into the machine asks this first: the shutter, and the library
+ * picker that can sit open for a minute before it hands a file back. `capture()`
+ * enforces the same rule at the door, so the predicate is a courtesy to the
+ * caller rather than the thing that keeps the machine honest.
+ */
+export function acceptsCapture(state: CaptureState): boolean {
+  return state.name === 'idle' || state.name === 'framing';
+}
+
 /** True while the full captured photo must stay behind the framed print. */
 export function isFrameObscured(state: CaptureState): boolean {
   return isBusy(state) || state.name === 'unresolved';

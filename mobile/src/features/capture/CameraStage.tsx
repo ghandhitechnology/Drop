@@ -20,7 +20,7 @@ import { normalizeBarcode, SCANNED_TYPES } from './barcode';
 import { FrozenFrame } from './FrozenFrame';
 import { captureLayout } from './layout';
 import { overlayInk, RETICLE_HANDOFF, RETICLE_RELEASE } from './overlay';
-import { isFrameObscured, isResultVisible, photoUriOf, type Rect } from './types';
+import { acceptsCapture, isFrameObscured, isResultVisible, photoUriOf, type Rect } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 
 /** A code has to go missing for this long before the hint lets go. */
@@ -286,7 +286,7 @@ export function useTakePhoto(
     if (!camera || busy.current) return;
 
     const current = useCaptureMachine.getState().state;
-    if (current.name !== 'framing' && current.name !== 'idle') return;
+    if (!acceptsCapture(current)) return;
 
     const hint = current.name === 'framing' ? current.barcodeHint : undefined;
     const anchor = anchorFor(stage, hint);

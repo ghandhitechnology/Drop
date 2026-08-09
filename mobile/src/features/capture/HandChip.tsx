@@ -34,6 +34,12 @@ export type HandChipProps = {
    */
   seed: string;
   style?: ViewStyle | ViewStyle[];
+  /**
+   * Padding inside the shell. The default is cut for a chip that carries a
+   * word; one carrying only a mark overrides it so the shell comes in square
+   * rather than sitting as a lozenge around a small drawing.
+   */
+  contentStyle?: ViewStyle | ViewStyle[];
 } & Omit<TouchProps, 'style' | 'children'>;
 
 /** Shared between the pressable and static forms. */
@@ -46,14 +52,14 @@ const shell = {
 } as const;
 
 /** A pressable chip on the viewfinder. */
-export function HandChip({ children, seed, style, ...rest }: HandChipProps) {
+export function HandChip({ children, seed, style, contentStyle, ...rest }: HandChipProps) {
   return (
     <SketchButton
       {...rest}
       {...shell}
       seed={`capture/chip/${seed}`}
       style={StyleSheet.flatten([styles.chip, style])}
-      contentStyle={styles.content}
+      contentStyle={StyleSheet.flatten([styles.content, contentStyle])}
     >
       {children}
     </SketchButton>
