@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { tables } from '../src/data';
-import { searchCatalog, validateCatalogId } from '../src/services/catalogMatch';
+import {
+  matchLabel,
+  searchCatalog,
+  validateCatalogId,
+} from '../src/services/catalogMatch';
 
 describe('validateCatalogId', () => {
   it('passes through a real catalog id unrepaired', () => {
@@ -42,6 +46,34 @@ describe('validateCatalogId', () => {
   it('still repairs a real near-miss (missing underscore/typo)', () => {
     const v = validateCatalogId('almond shelled', tables);
     expect(v).toEqual({ catalog_id: 'almond_shelled', repaired: true });
+  });
+});
+
+describe('matchLabel', () => {
+  it('never matches "dog" to "hot dog" — a partial alias is no match', () => {
+    expect(matchLabel('dog', tables)).toBeNull();
+    expect(matchLabel('a dog in the park', tables)).toBeNull();
+  });
+
+  it('matches when a full alias is present in the query', () => {
+    expect(matchLabel('grilled hot dog', tables)?.catalog_id)
+      .toBe('sausages');
+    expect(matchLabel('almond shelled', tables)?.catalog_id)
+      .toBe('almond_shelled');
+  });
+
+  it('folds plurals inside a sentence', () => {
+    expect(matchLabel('a bowl of apples on a table', tables)?.catalog_id)
+      .toBe('apple');
+  });
+
+  it('routes single words through the alias map', () => {
+    expect(matchLabel('milk', tables)?.catalog_id).toBe('cow_milk');
+  });
+
+  it('returns null for empty and garbage queries', () => {
+    expect(matchLabel('', tables)).toBeNull();
+    expect(matchLabel('xylotherium pastry', tables)).toBeNull();
   });
 });
 

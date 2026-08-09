@@ -7,7 +7,9 @@ import {
   MAX_ITEMS,
   shapeItems,
   type RawRecognition,
+  type RecognizedItemOut,
 } from '../services/recognizeShape';
+import { recognizeSplit } from '../services/recognizeSplit';
 
 const SYSTEM_PROMPT = `You identify everyday items for a water-footprint tracker.
 
@@ -121,6 +123,30 @@ const RESPONSE_SCHEMA = {
 const cache = new Map<string, unknown>();
 const CACHE_MAX = 200;
 
+/** Builds the wire envelope and caches it. Both pipelines end here, so the
+ * response shape stays byte-compatible regardless of which one ran. */
+function respond(hash: string, items: RecognizedItemOut[]): object {
+  const first = items[0];
+  const response = {
+    request_id: `rec_${hash.slice(0, 12)}`,
+    model: MODEL,
+    catalog_version: FACTORS_VERSION,
+    items,
+    item_count: items.length,
+    // Legacy mirror of items[0]: an un-upgraded client keeps working.
+    candidates: first?.candidates ?? [],
+    quantity: first?.quantity ?? null,
+    detected_text: first?.detected_text ?? [],
+    unmatched: items.length === 0 || items.every((i) => i.unmatched),
+  };
+  if (cache.size >= CACHE_MAX) {
+    const oldest = cache.keys().next().value;
+    if (oldest) cache.delete(oldest);
+  }
+  cache.set(hash, response);
+  return response;
+}
+
 export const recognize = new Hono();
 
 recognize.post('/', async (c) => {
@@ -140,6 +166,30 @@ recognize.post('/', async (c) => {
   const mime = body.mime ?? 'image/jpeg';
   const hash = createHash('sha256').update(body.image_base64).digest('hex');
   if (cache.has(hash)) return c.json(cache.get(hash) as object);
+
+  // The split pipeline (detect -> ground -> rerank) is the default;
+  // RECOGNIZE_PIPELINE=mono is the rollback switch to the original
+  // single-call pipeline.
+  const dataUrl = `data:${mime};base64,${body.image_base64}`;
+  let items: RecognizedItemOut[];
+  if (process.env.RECOGNIZE_PIPELINE !== 'mono') {
+    try {
+      const result = await recognizeSplit(dataUrl, body.hint, mode, tables);
+      if (!result.ok) {
+        console.error('prompt-integrity violation', result.violations);
+        return c.json({
+          error: 'model output rejected',
+          violation: true,
+          paths: result.violations,
+        }, 502);
+      }
+      items = result.items;
+    } catch (err) {
+      console.error('recognize model call failed', err);
+      return c.json({ error: 'model unavailable' }, 502);
+    }
+    return c.json(respond(hash, items));
+  }
 
   // A failed model call is an upstream problem, not ours: answer it as a
   // typed 502 so the app can tell it apart from a rejected request.
@@ -162,10 +212,7 @@ recognize.post('/', async (c) => {
                 ? `Identify everything here. Context: ${body.hint}`
                 : 'Identify everything here.',
             },
-            {
-              type: 'image_url',
-              image_url: { url: `data:${mime};base64,${body.image_base64}` },
-            },
+            { type: 'image_url', image_url: { url: dataUrl } },
           ],
         },
       ],
@@ -185,26 +232,5 @@ recognize.post('/', async (c) => {
     }, 502);
   }
 
-  const items = shapeItems(out, tables);
-  const first = items[0];
-
-  const response = {
-    request_id: `rec_${hash.slice(0, 12)}`,
-    model: MODEL,
-    catalog_version: FACTORS_VERSION,
-    items,
-    item_count: items.length,
-    // Legacy mirror of items[0]: an un-upgraded client keeps working.
-    candidates: first?.candidates ?? [],
-    quantity: first?.quantity ?? null,
-    detected_text: first?.detected_text ?? [],
-    unmatched: items.length === 0 || items.every((i) => i.unmatched),
-  };
-
-  if (cache.size >= CACHE_MAX) {
-    const oldest = cache.keys().next().value;
-    if (oldest) cache.delete(oldest);
-  }
-  cache.set(hash, response);
-  return c.json(response);
+  return c.json(respond(hash, shapeItems(out, tables)));
 });
