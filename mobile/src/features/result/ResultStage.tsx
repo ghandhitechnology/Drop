@@ -72,10 +72,17 @@ import {
   type Rect,
 } from '../capture/types';
 import { characterSideForAnchor } from '../capture/anchor';
-import { captureLayout, PULL_ROW, TEASER_HEIGHT } from '../capture/layout';
+import {
+  captureLayout,
+  PULL_ROW,
+  TEASER_HEIGHT,
+  TEASER_MAX_WIDTH_SHARE,
+} from '../capture/layout';
 import { RETICLE_HANDOFF, RETICLE_RELEASE } from '../capture/overlay';
 import { Snapshot, snapshotTilt } from '../capture/Snapshot';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
+import { RainLayer } from '../rain/RainLayer';
+import { rainPhaseFor } from '../rain/sim';
 import { ExpansionRays } from './ExpansionRays';
 import { FindMarks } from './FindMarks';
 import { localEstimate, servingOf, toEngineEstimate } from './localPipeline';
@@ -233,6 +240,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   const queueCard = useCaptureMachine((s) => s.queueCard);
   const confirmPlate = useCaptureMachine((s) => s.confirmPlate);
   const retake = useCaptureMachine((s) => s.retake);
+  /** Which of the three waits this run is in for — the rain paces against it. */
+  const pace = useCaptureMachine((s) => s.pace);
 
   /*
    * A plate is the same stage wearing more cards. `estimate` stays exactly the
@@ -276,6 +285,17 @@ export function ResultStage({ stage }: ResultStageProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [cardHeight, setCardHeight] = useState(0);
   const [receding, setReceding] = useState(false);
+  /**
+   * The status pill's real footprint, once it has been laid out.
+   *
+   * The rain has to keep its pool and its falling drops out from under this
+   * chip, and the chip is only as wide as the sentence in it. Reserving the
+   * widest it is allowed to be would put a ceiling on the water — and an
+   * umbrella over the rain — across most of the stage, either side of a pill
+   * that is not there. So it is measured, and the reservation is only ever the
+   * fallback for the frame before the measure lands.
+   */
+  const [pillBox, setPillBox] = useState<Rect | null>(null);
   /** A pile has no `expanded` machine state; whether it is open lives here. */
   const [plateOpen, setPlateOpen] = useState(false);
 
@@ -1205,6 +1225,25 @@ export function ResultStage({ stage }: ResultStageProps) {
       )}
 
       {/*
+        The weather goes down before anything else, because it is behind
+        everything else: the print, the character, the card and the line all sit
+        over it. It is mounted for exactly as long as a frame is held — a live
+        viewfinder never sees it — and unmounts itself the moment it has
+        finished draining, so a result on screen is a layer costing nothing.
+      */}
+      {stageVisible && (
+        <RainLayer
+          stage={stage}
+          layout={layout}
+          pill={pillBox}
+          fold={captureFold}
+          phase={rainPhaseFor(state.name)}
+          pace={pace}
+          reduceMotion={motion.reduceMotion}
+        />
+      )}
+
+      {/*
         The print is one held object from the stamp through the result. A failed
         reading leaves it mounted here while the recovery card arrives above it.
       */}
@@ -1547,7 +1586,25 @@ export function ResultStage({ stage }: ResultStageProps) {
                 )}
               </View>
 
-              <View style={[styles.teaserPill, { backgroundColor: colors.bg }]}>
+              <View
+                style={[styles.teaserPill, { backgroundColor: colors.bg }]}
+                // The row this sits in is pinned to `layout.teaserTop` and
+                // spans the stage, so the measured box only needs that one
+                // offset to be in the stage's own coordinates — which is the
+                // space the rain layer draws in.
+                onLayout={(event) => {
+                  const { x, y, width, height } = event.nativeEvent.layout;
+                  setPillBox((current) =>
+                    current &&
+                    current.x === x &&
+                    current.y === layout.teaserTop + y &&
+                    current.width === width &&
+                    current.height === height
+                      ? current
+                      : { x, y: layout.teaserTop + y, width, height },
+                  );
+                }}
+              >
                 <Text variant="label" tone="ink" numberOfLines={1}>
                   {teaser}
                 </Text>
@@ -1575,11 +1632,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // The minimum is what the layout measured the stack against; the padding is
-  // what lets a larger type setting grow the pill instead of clipping it.
+  // what lets a larger type setting grow the pill instead of clipping it. The
+  // maximum is what the rain falls back on for the frame before it has this
+  // pill's real box to keep its pool out from under.
   teaserPill: {
     minHeight: TEASER_HEIGHT,
     justifyContent: 'center',
-    maxWidth: '86%',
+    maxWidth: `${TEASER_MAX_WIDTH_SHARE * 100}%` as `${number}%`,
     paddingHorizontal: space.lg,
     paddingVertical: space.sm,
     borderRadius: radii.pill,
