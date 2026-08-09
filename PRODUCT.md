@@ -67,15 +67,15 @@ Tablet support should preserve the same workflow rather than introduce a separat
 
 ## Evidence on Hand
 
-- [`Plan.md`](Plan.md) records the original goal, camera input, tracking model, phone/tablet ambition, and grounded-model direction.
+- [`Plan.md`](docs/Plan.md) records the original goal, camera input, tracking model, phone/tablet ambition, and grounded-model direction.
 - [`water_logic/datasets/fndds/FoodData_Central_survey_food_json_2024-10-31.zip`](water_logic/datasets/fndds/FoodData_Central_survey_food_json_2024-10-31.zip) provides USDA consumer food names, categories, ingredient-composition records, and measured portions. It is catalog evidence only, never a water factor.
 - [`water_logic/datasets/hestia/hestia_food_water_footprints.csv`](water_logic/datasets/hestia/hestia_food_water_footprints.csv) and the related HESTIA source files provide food and agricultural footprint evidence.
 - [`water_logic/datasets/owid_poore_nemecek/freshwater_withdrawals_per_kg.csv`](water_logic/datasets/owid_poore_nemecek/freshwater_withdrawals_per_kg.csv) provides comparative food freshwater-withdrawal data.
 - [`water_logic/datasets/su_eatable_life/SuEatableLife_Food_Footprint_database.xlsx`](water_logic/datasets/su_eatable_life/SuEatableLife_Food_Footprint_database.xlsx) is the primary food-footprint source.
 - [`water_logic/datasets/useeio/USEEIOv2.0.xlsx`](water_logic/datasets/useeio/USEEIOv2.0.xlsx) supports coarse sector-level spend estimates, not precise consumer-product claims. The v2.5.1 release beside it carries no water indicator and is not used for water.
 - [`packages/factors/data/2026.08.2/`](packages/factors/data/2026.08.2/) holds the versioned factor tables and the 1,000-entry catalog the app and backend read. The raw datasets are never read at run time.
-- [`LCA_COMMONS_EVALUATION.md`](LCA_COMMONS_EVALUATION.md) documents why Federal LCA Commons is supplementary rather than the primary consumer database.
-- [`FNDDS_EVALUATION.md`](FNDDS_EVALUATION.md) documents why USDA FNDDS is the catalog-expansion source and why it contributes no water factor.
+- [`LCA_COMMONS_EVALUATION.md`](docs/LCA_COMMONS_EVALUATION.md) documents why Federal LCA Commons is supplementary rather than the primary consumer database.
+- [`FNDDS_EVALUATION.md`](docs/FNDDS_EVALUATION.md) documents why USDA FNDDS is the catalog-expansion source and why it contributes no water factor.
 - The user's photographed sketch establishes the camera as the direct user action; a separate research search and trusted data feeding LLM grounding; analysis embodied by an avatar; an in-place crayon/sketch expansion with fading or splitting motion; and a final result led by a large number with detailed explanation beneath it. The outer frame and left rail are not yet confirmed as literal navigation. The sketch is a product and design reference, not evidence for environmental claims.
 - No testimonials, customers, benchmark outcomes, validated recommendation efficacy, or product-level global coverage are currently established. Future work must not fabricate them.
 

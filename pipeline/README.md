@@ -4,6 +4,15 @@ One-time extractors that turn the raw datasets in `water_logic/datasets/`
 into the versioned factor tables in `packages/factors/data/<version>/`.
 The mobile app and backend only ever read those tables — never the raw files.
 
+## Setup
+
+```sh
+python3.11 -m venv pipeline/.venv
+pipeline/.venv/bin/pip install -r pipeline/requirements.txt
+```
+
+Use python3.11 (Homebrew 3.14 has a broken pyexpat).
+
 ## Rebuild
 
 ```sh

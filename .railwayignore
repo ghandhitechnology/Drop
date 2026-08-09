@@ -3,12 +3,9 @@
 .git/
 mobile/
 pipeline/
-prototypes/
 water_logic/
 assets/
 tmp/
 Basic_character_assets.png
-FNDDS_EVALUATION.md
-LCA_COMMONS_EVALUATION.md
-Plan.md
 PRODUCT.md
+docs/
