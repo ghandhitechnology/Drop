@@ -82,7 +82,7 @@ export function createBarcode(usage: UsageService) {
   barcode.get('/:ean', async (c) => {
     const ean = c.req.param('ean').replace(/\D/g, '');
     if (ean.length < 8) return c.json({ error: 'invalid barcode' }, 400);
-    const authorization = await authorizeAnalysis(c, usage);
+    const authorization = await authorizeAnalysis(c, usage, 'barcode', ean);
     if (authorization instanceof Response) return authorization;
     const hit = cache.get(ean);
     if (hit && Date.now() - hit.at < hit.ttl) {

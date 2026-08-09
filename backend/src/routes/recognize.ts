@@ -171,14 +171,23 @@ export function createRecognize(usage: UsageService) {
     if (mode !== 'normal' && mode !== 'fast') {
       return c.json({ error: "mode must be 'normal' or 'fast'" }, 400);
     }
-    const authorization = await authorizeAnalysis(c, usage);
-    if (authorization instanceof Response) return authorization;
     const mime = body.mime ?? 'image/jpeg';
     const hash = createHash('sha256').update(body.image_base64).digest('hex');
+    const requestFingerprint = createHash('sha256')
+      .update(JSON.stringify([body.image_base64, mime, body.hint ?? '', mode]))
+      .digest('hex');
+    const authorization = await authorizeAnalysis(c, usage, 'recognize', requestFingerprint);
+    if (authorization instanceof Response) return authorization;
     if (cache.has(hash)) {
       const response = cache.get(hash) as { items?: RecognizedItemOut[] };
       if (isPresentable(response.items ?? [])) {
-        const failed = await consumeAnalysis(c, usage, authorization, 'recognize', hash);
+        const failed = await consumeAnalysis(
+          c,
+          usage,
+          authorization,
+          'recognize',
+          requestFingerprint,
+        );
         if (failed) return failed;
       }
       return c.json(response as object);
@@ -210,7 +219,13 @@ export function createRecognize(usage: UsageService) {
       }
       const response = respond(hash, items);
       if (isPresentable(items)) {
-        const failed = await consumeAnalysis(c, usage, authorization, 'recognize', hash);
+        const failed = await consumeAnalysis(
+          c,
+          usage,
+          authorization,
+          'recognize',
+          requestFingerprint,
+        );
         if (failed) return failed;
       }
       return c.json(response);
@@ -263,7 +278,13 @@ export function createRecognize(usage: UsageService) {
     items = shapeItems(out, tables);
     const response = respond(hash, items);
     if (isPresentable(items)) {
-      const failed = await consumeAnalysis(c, usage, authorization, 'recognize', hash);
+      const failed = await consumeAnalysis(
+        c,
+        usage,
+        authorization,
+        'recognize',
+        requestFingerprint,
+      );
       if (failed) return failed;
     }
     return c.json(response);

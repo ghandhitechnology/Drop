@@ -30,7 +30,7 @@ export interface UsageRepository {
   probe(): Promise<boolean>;
   status(identity: UsageIdentity): Promise<UsageSnapshot>;
   reserve(identity: UsageIdentity, analysisId: string): Promise<ReservationResult>;
-  authorize(lease: UsageLease): Promise<void>;
+  authorize(lease: UsageLease, branch: AnalysisBranch, fingerprint: string): Promise<void>;
   consume(lease: UsageLease, branch: AnalysisBranch, fingerprint: string): Promise<UsageSnapshot>;
   release(lease: UsageLease): Promise<void>;
   cleanup(): Promise<void>;

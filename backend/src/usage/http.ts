@@ -35,9 +35,14 @@ export function usageErrorResponse(c: Context, error: unknown): Response | null 
   return null;
 }
 
-export async function authorizeAnalysis(c: Context, usage: UsageService) {
+export async function authorizeAnalysis(
+  c: Context,
+  usage: UsageService,
+  branch: AnalysisBranch,
+  fingerprint: string,
+) {
   try {
-    return await usage.authorize(c.req.raw.headers);
+    return await usage.authorize(c.req.raw.headers, branch, fingerprint);
   } catch (error) {
     const response = usageErrorResponse(c, error);
     if (response) return response;

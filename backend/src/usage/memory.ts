@@ -188,7 +188,7 @@ export class InMemoryUsageRepository implements UsageRepository {
     };
   }
 
-  async authorize(lease: UsageLease): Promise<void> {
+  async authorize(lease: UsageLease, branch: AnalysisBranch, fingerprint: string): Promise<void> {
     const found = this.findReservation(lease.deviceHash, lease.analysisId);
     if (
       !found ||
@@ -197,6 +197,11 @@ export class InMemoryUsageRepository implements UsageRepository {
     ) {
       throw new UsageReservationError('analysis reservation missing or expired');
     }
+    const prior = found.reservation.fingerprints[branch];
+    if (prior && prior !== fingerprint) {
+      throw new UsageReservationError(`analysis id already used for another ${branch} request`);
+    }
+    found.reservation.fingerprints[branch] = fingerprint;
   }
 
   async consume(

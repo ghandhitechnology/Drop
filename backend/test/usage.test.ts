@@ -19,7 +19,11 @@ describe('daily usage service', () => {
       const analysisId = id(index);
       const reservation = await usage.reserve(new Headers(headers(analysisId)), analysisId);
       expect(reservation.usage.used).toBe(index - 1);
-      const authorization = await usage.authorize(new Headers(headers(analysisId)));
+      const authorization = await usage.authorize(
+        new Headers(headers(analysisId)),
+        'recognize',
+        `photo-${index}`,
+      );
       const snapshot = await usage.consume(authorization, 'recognize', `photo-${index}`);
       expect(snapshot?.used).toBe(index);
     }
@@ -32,13 +36,24 @@ describe('daily usage service', () => {
     const usage = createTestUsageService();
     const analysisId = id(30);
     await usage.reserve(new Headers(headers(analysisId)), analysisId);
-    const authorization = await usage.authorize(new Headers(headers(analysisId)));
+    const authorization = await usage.authorize(
+      new Headers(headers(analysisId)),
+      'barcode',
+      '00000001',
+    );
+    await usage.authorize(new Headers(headers(analysisId)), 'recognize', 'photo-hash');
     const [first, second] = await Promise.all([
       usage.consume(authorization, 'barcode', '00000001'),
       usage.consume(authorization, 'recognize', 'photo-hash'),
     ]);
     expect(first?.used).toBe(1);
     expect(second?.used).toBe(1);
+    await expect(
+      usage.authorize(new Headers(headers(analysisId)), 'recognize', 'different-photo'),
+    ).rejects.toThrow(/another recognize request/);
+    await expect(
+      usage.authorize(new Headers(headers(analysisId)), 'recognize', 'photo-hash'),
+    ).resolves.toMatchObject({ kind: 'metered' });
     await expect(usage.consume(authorization, 'recognize', 'different-photo')).rejects.toThrow(
       /another recognize request/,
     );
@@ -62,7 +77,11 @@ describe('daily usage service', () => {
     const usage = createTestUsageService({ now: () => now });
     const analysisId = id(50);
     await usage.reserve(new Headers(headers(analysisId)), analysisId);
-    const authorization = await usage.authorize(new Headers(headers(analysisId)));
+    const authorization = await usage.authorize(
+      new Headers(headers(analysisId)),
+      'recognize',
+      'midnight-photo',
+    );
     now = new Date('2026-08-10T15:00:10.000Z');
     const priorDay = await usage.consume(authorization, 'recognize', 'midnight-photo');
     expect(priorDay).toMatchObject({ local_day: '2026-08-10', used: 1 });
@@ -119,7 +138,11 @@ describe('usage HTTP protocol', () => {
     for (let index = 1; index <= 20; index += 1) {
       const analysisId = id(100 + index);
       await usage.reserve(new Headers(headers(analysisId)), analysisId);
-      const authorization = await usage.authorize(new Headers(headers(analysisId)));
+      const authorization = await usage.authorize(
+        new Headers(headers(analysisId)),
+        'recognize',
+        `photo-${index}`,
+      );
       await usage.consume(authorization, 'recognize', `photo-${index}`);
     }
     const response = await app.request('/v1/usage/reservations', {
@@ -139,47 +162,45 @@ describe('usage HTTP protocol', () => {
   it('consumes a presentable recognition once and exposes the new snapshot', async () => {
     vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
     vi.stubEnv('RECOGNIZE_PIPELINE', 'mono');
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            choices: [
-              {
-                message: {
-                  content: JSON.stringify({
-                    items: [
-                      {
-                        label: 'apple',
-                        category: 'food',
-                        candidates: [
-                          {
-                            catalog_id: 'apple',
-                            score: 0.95,
-                            reason: 'whole apple',
-                          },
-                        ],
-                        quantity: {
-                          value: 180,
-                          unit: 'g',
-                          basis: 'vision_estimate',
-                          evidence: 'one apple',
+    const upstream = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  items: [
+                    {
+                      label: 'apple',
+                      category: 'food',
+                      candidates: [
+                        {
+                          catalog_id: 'apple',
+                          score: 0.95,
+                          reason: 'whole apple',
                         },
-                        detected_text: [],
-                        box: { x: 0.1, y: 0.1, w: 0.8, h: 0.8 },
-                        unmatched: false,
+                      ],
+                      quantity: {
+                        value: 180,
+                        unit: 'g',
+                        basis: 'vision_estimate',
+                        evidence: 'one apple',
                       },
-                    ],
-                    scene_description: null,
-                  }),
-                },
+                      detected_text: [],
+                      box: { x: 0.1, y: 0.1, w: 0.8, h: 0.8 },
+                      unmatched: false,
+                    },
+                  ],
+                  scene_description: null,
+                }),
               },
-            ],
-          }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        ),
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
       ),
     );
+    vi.stubGlobal('fetch', upstream);
 
     const usage = createTestUsageService();
     const app = createApp({ usage });
@@ -198,6 +219,14 @@ describe('usage HTTP protocol', () => {
     });
     expect(recognized.status).toBe(200);
     expect(recognized.headers.get('X-Drop-Usage-Used')).toBe('1');
+
+    const replay = await app.request('/v1/recognize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers(analysisId) },
+      body: JSON.stringify({ image_base64: 'different-photo' }),
+    });
+    expect(replay.status).toBe(409);
+    expect(upstream).toHaveBeenCalledOnce();
 
     const status = await app.request('/v1/usage', { headers: headers() });
     await expect(status.json()).resolves.toMatchObject({

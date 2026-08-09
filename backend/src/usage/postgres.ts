@@ -178,15 +178,21 @@ export class PostgresUsageRepository implements UsageRepository {
     });
   }
 
-  async authorize(lease: UsageLease): Promise<void> {
-    const client = await this.pool.connect();
-    try {
-      const result = await client.query<{ active: boolean }>(
+  authorize(lease: UsageLease, branch: AnalysisBranch, fingerprint: string): Promise<void> {
+    return transaction(this.pool, async (client) => {
+      const result = await client.query<{
+        active: boolean;
+        local_day: string;
+        barcode_fingerprint: string | null;
+        recognize_fingerprint: string | null;
+      }>(
         `
-        SELECT (state = 'consumed' OR expires_at > CURRENT_TIMESTAMP) AS active
+        SELECT (state = 'consumed' OR expires_at > CURRENT_TIMESTAMP) AS active,
+          local_day::text, barcode_fingerprint, recognize_fingerprint
         FROM usage_reservations
         WHERE device_hash = $1 AND analysis_id = $2
         ORDER BY local_day DESC LIMIT 1
+        FOR UPDATE
       `,
         [lease.deviceHash, lease.analysisId],
       );
@@ -194,9 +200,21 @@ export class PostgresUsageRepository implements UsageRepository {
       if (!row?.active) {
         throw new UsageReservationError('analysis reservation missing or expired');
       }
-    } finally {
-      client.release();
-    }
+      const prior = branch === 'barcode' ? row.barcode_fingerprint : row.recognize_fingerprint;
+      if (prior && prior !== fingerprint) {
+        throw new UsageReservationError(`analysis id already used for another ${branch} request`);
+      }
+      if (!prior) {
+        const column = branch === 'barcode' ? 'barcode_fingerprint' : 'recognize_fingerprint';
+        await client.query(
+          `
+          UPDATE usage_reservations SET ${column} = $3
+          WHERE device_hash = $1 AND local_day = $2 AND analysis_id = $4
+        `,
+          [lease.deviceHash, row.local_day, fingerprint, lease.analysisId],
+        );
+      }
+    });
   }
 
   consume(lease: UsageLease, branch: AnalysisBranch, fingerprint: string): Promise<UsageSnapshot> {

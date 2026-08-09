@@ -112,7 +112,11 @@ export class UsageService {
     return this.requireRepository().reserve(identity, analysisId);
   }
 
-  async authorize(headers: Headers): Promise<AnalysisAuthorization> {
+  async authorize(
+    headers: Headers,
+    branch: AnalysisBranch,
+    fingerprint: string,
+  ): Promise<AnalysisAuthorization> {
     if (!this.enforcement) return { kind: 'legacy' };
     const device = headers.get(DEVICE_HEADER);
     const timezone = headers.get(TIMEZONE_HEADER);
@@ -130,7 +134,7 @@ export class UsageService {
     if (!UUID.test(analysisId)) throw new UsageProtocolError(400, 'valid analysis id required');
     const lease = { ...this.identity(headers), analysisId };
     try {
-      await this.requireRepository().authorize(lease);
+      await this.requireRepository().authorize(lease, branch, fingerprint);
     } catch (error) {
       if (error instanceof UsageReservationError) {
         throw new UsageProtocolError(409, error.message);

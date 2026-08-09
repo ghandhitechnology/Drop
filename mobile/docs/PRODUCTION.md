@@ -62,6 +62,11 @@ The compatibility rollout is intentionally staged:
 zero-usage snapshot and lets analysis proceed without Postgres; restore it to
 `on` after the incident is resolved.
 
+The installation's reported IANA timezone defines its local day and follows
+legitimate travel. This best-effort, installation-level model deliberately
+trusts that value; deliberate timezone manipulation requires device attestation
+and is outside the current threat model.
+
 ## Mobile production updates
 
 The EAS project is [`@heemangstudios/drop`](https://expo.dev/accounts/heemangstudios/projects/drop).
