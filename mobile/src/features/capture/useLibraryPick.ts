@@ -54,12 +54,22 @@ export async function pickDownscaledPhoto(): Promise<string | null> {
   try {
     const plan = downscalePlan(asset.width, asset.height);
     const context = ImageManipulator.manipulate(asset.uri);
-    const image = await (plan ? context.resize(plan) : context).renderAsync();
-    const saved = await image.saveAsync({
-      compress: DOWNSCALE_QUALITY,
-      format: SaveFormat.JPEG,
-    });
-    return saved.uri;
+
+    try {
+      const image = await (plan ? context.resize(plan) : context).renderAsync();
+
+      try {
+        const saved = await image.saveAsync({
+          compress: DOWNSCALE_QUALITY,
+          format: SaveFormat.JPEG,
+        });
+        return saved.uri;
+      } finally {
+        image.release();
+      }
+    } finally {
+      context.release();
+    }
   } catch (error) {
     console.log('[capture] library resample', error);
     return asset.uri;
