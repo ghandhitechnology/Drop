@@ -87,6 +87,7 @@ import { QueueTray } from './QueueTray';
 import { ResultCard } from './ResultCard';
 import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
+import { UnresolvedCard } from './UnresolvedCard';
 import { SwipeVerdict } from './SwipeVerdict';
 import { crossedStamp, STAMP_BOTTOM, STAMP_PRESS } from './stamp';
 import { beat, useExpansion } from './useExpansion';
@@ -269,6 +270,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   const anchor: Rect | null = 'anchor' in state ? state.anchor : null;
   const photoUri = 'photoUri' in state ? state.photoUri : null;
   const live = BEAT_STATES.has(state.name);
+  const unresolved = state.name === 'unresolved';
+  const stageVisible = live || unresolved;
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [cardHeight, setCardHeight] = useState(0);
@@ -395,7 +398,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const fanfare = anyFigure && !motion.reduceMotion;
   const open = multi
     ? plateOpen || state.name === 'plateConfirmed' || unsupported
-    : OPEN_STATES.has(state.name) || unsupported;
+    : OPEN_STATES.has(state.name) || unsupported || unresolved;
 
   const backdropDismissible =
     BACKDROP_DISMISS_STATES.has(state.name) && !(multi && open);
@@ -444,6 +447,10 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   useEffect(() => {
     if (!live) {
+      // A failed reading keeps the landed print exactly where analysis left it.
+      // It is still the same captured object; only its recovery card changes.
+      if (unresolved) return;
+
       // A fresh frame starts from nothing — including the recede flag, which a
       // run cut short between the tick and the card's trip home would otherwise
       // leave set, holding every later result shut.
@@ -470,6 +477,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     );
   }, [
     live,
+    unresolved,
     motion.reduceMotion,
     captureFoldMs,
     arrival,
@@ -1017,7 +1025,10 @@ export function ResultStage({ stage }: ResultStageProps) {
     return {
       opacity:
         arrival.value *
-        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
+        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP) *
+        (unresolved
+          ? interpolate(t, [0, 0.52], [1, 0], Extrapolation.CLAMP)
+          : 1),
       transform: [
         { translateX: cx - heroSize / 2 },
         { translateY: cy - heroSize / 2 },
@@ -1053,7 +1064,7 @@ export function ResultStage({ stage }: ResultStageProps) {
    */
   const printStyle = useAnimatedStyle(() => {
     const fold = captureFold.value;
-    const t = expansion.value;
+    const t = unresolved ? 0 : expansion.value;
     const exit = dissolve.value;
     const side = layout.slot.width;
 
@@ -1176,57 +1187,56 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   return (
     <View style={styles.root} pointerEvents="box-none">
-      {live && (
-        <>
-          {backdropDismissible && (
-            <Pressable
-              style={StyleSheet.absoluteFill}
-              // While the result is still presenting itself, every tap is a
-              // request to see it — the number is the whole point of the beat.
-              // Only an open card treats the backdrop as the way out. A pile
-              // still waiting on its pull is the same moment wearing more cards.
-              onPress={
-                state.name === 'presenting' || state.name === 'plating'
-                  ? handleOpen
-                  : retake
-              }
-              accessible={false}
-              testID="result-backdrop-dismiss"
+      {live && backdropDismissible && (
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          // While the result is still presenting itself, every tap is a
+          // request to see it — the number is the whole point of the beat.
+          // Only an open card treats the backdrop as the way out. A pile
+          // still waiting on its pull is the same moment wearing more cards.
+          onPress={
+            state.name === 'presenting' || state.name === 'plating'
+              ? handleOpen
+              : retake
+          }
+          accessible={false}
+          testID="result-backdrop-dismiss"
+        />
+      )}
+
+      {/*
+        The print is one held object from the stamp through the result. A failed
+        reading leaves it mounted here while the recovery card arrives above it.
+      */}
+      {stageVisible && photoUri && (
+        <Animated.View
+          style={[
+            styles.print,
+            { width: layout.slot.width, height: layout.slot.height },
+            printStyle,
+          ]}
+          pointerEvents="none"
+        >
+          <Snapshot
+            uri={photoUri}
+            size={layout.slot.width}
+            seed={photoUri}
+            tilt={0}
+            label={copy.capture.snapshot}
+          />
+          {multi && (
+            <FindMarks
+              boxes={plateBoxes}
+              side={layout.slot.width}
+              landed={captureFold}
+              reduceMotion={motion.reduceMotion}
             />
           )}
+        </Animated.View>
+      )}
 
-          {/*
-            Under the card and over the backdrop: the print is the moment the
-            result came from, so the result is allowed to pass in front of it,
-            and a tap anywhere on it still reaches the backdrop underneath.
-          */}
-          {photoUri && (
-            <Animated.View
-              style={[
-                styles.print,
-                { width: layout.slot.width, height: layout.slot.height },
-                printStyle,
-              ]}
-              pointerEvents="none"
-            >
-              <Snapshot
-                uri={photoUri}
-                size={layout.slot.width}
-                seed={photoUri}
-                tilt={0}
-                label={copy.capture.snapshot}
-              />
-              {multi && (
-                <FindMarks
-                  boxes={plateBoxes}
-                  side={layout.slot.width}
-                  landed={captureFold}
-                  reduceMotion={motion.reduceMotion}
-                />
-              )}
-            </Animated.View>
-          )}
-
+      {stageVisible && (
+        <>
           <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
             <Canvas
               style={StyleSheet.absoluteFill}
@@ -1301,7 +1311,27 @@ export function ResultStage({ stage }: ResultStageProps) {
             </Canvas>
           </Animated.View>
 
-          {multi ? (
+          {unresolved ? (
+            <Animated.View
+              style={[
+                styles.card,
+                {
+                  left: CARD_MARGIN,
+                  right: CARD_MARGIN,
+                  bottom: insets.bottom + CARD_MARGIN,
+                  maxHeight: stage.height * CARD_MAX_SHARE,
+                },
+                contentStyle,
+              ]}
+              pointerEvents={open ? 'auto' : 'none'}
+              onLayout={(event) => {
+                const { height } = event.nativeEvent.layout;
+                setCardHeight((current) => (current === height ? current : height));
+              }}
+            >
+              <UnresolvedCard onSearch={openSearch} onRetake={handleRetake} />
+            </Animated.View>
+          ) : multi ? (
             plateItems.length > 0 && (
               <Animated.View
                 style={[
@@ -1397,7 +1427,7 @@ export function ResultStage({ stage }: ResultStageProps) {
             paper, so a card caught mid-throw wears its own decision out of
             frame. Nothing here takes a finger.
           */}
-          {open && !receding && (
+          {!unresolved && open && !receding && (
             <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
               <Canvas
                 style={StyleSheet.absoluteFill}
@@ -1469,7 +1499,12 @@ export function ResultStage({ stage }: ResultStageProps) {
                 the gesture for the same touch. What the tap was missing was a
                 note, and that belongs to the open and the close themselves.
               */}
-              <DropCharacter state={character} size={heroSize} seed={seed} announce />
+              <DropCharacter
+                state={character}
+                size={heroSize}
+                seed={seed}
+                announce={!unresolved}
+              />
               {backdropDismissible &&
                 state.name !== 'presenting' &&
                 state.name !== 'plating' && (

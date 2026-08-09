@@ -20,7 +20,7 @@ import { normalizeBarcode, SCANNED_TYPES } from './barcode';
 import { FrozenFrame } from './FrozenFrame';
 import { captureLayout } from './layout';
 import { overlayInk, RETICLE_HANDOFF, RETICLE_RELEASE } from './overlay';
-import { isBusy, isResultVisible, photoUriOf, type Rect } from './types';
+import { isFrameObscured, isResultVisible, photoUriOf, type Rect } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 
 /** A code has to go missing for this long before the hint lets go. */
@@ -162,7 +162,7 @@ export function CameraStage({
           uri={photoUri}
           width={stage.width}
           height={stage.height}
-          processing={isBusy(state)}
+          obscured={isFrameObscured(state)}
           dimmed={isResultVisible(state)}
         />
       )}

@@ -24,8 +24,8 @@ export type FrozenFrameProps = {
   uri: string;
   width: number;
   height: number;
-  /** True while recognition is running: the frame becomes quiet background. */
-  processing: boolean;
+  /** True while analysis or its recovery state owns the foreground. */
+  obscured: boolean;
   /** True from `presenting` onward: the frame steps back so the number leads. */
   dimmed: boolean;
 };
@@ -44,7 +44,7 @@ export function FrozenFrame({
   uri,
   width,
   height,
-  processing,
+  obscured,
   dimmed,
 }: FrozenFrameProps) {
   const motion = useMotion();
@@ -54,13 +54,13 @@ export function FrozenFrame({
   const shade = useSharedValue(0);
 
   useEffect(() => {
-    const treated = processing || dimmed;
+    const treated = obscured || dimmed;
     reveal.value = withTiming(treated ? 1 : 0, { duration: motion.ms('settle') });
     shade.value = withTiming(
-      processing ? PROCESSING_DIM : dimmed ? RESULT_DIM : 0,
+      obscured ? PROCESSING_DIM : dimmed ? RESULT_DIM : 0,
       { duration: motion.ms('settle') },
     );
-  }, [processing, dimmed, reveal, shade, motion]);
+  }, [obscured, dimmed, reveal, shade, motion]);
 
   const blurStyle = useAnimatedStyle(() => ({ opacity: reveal.value }));
   const dimStyle = useAnimatedStyle(() => ({ opacity: shade.value }));
@@ -83,7 +83,7 @@ export function FrozenFrame({
             importantForAccessibility="no-hide-descendants"
           >
             <SkiaImage image={image} x={0} y={0} width={width} height={height} fit="cover">
-              <Blur blur={processing ? PROCESSING_BLUR : RESULT_BLUR} mode="clamp" />
+              <Blur blur={obscured ? PROCESSING_BLUR : RESULT_BLUR} mode="clamp" />
             </SkiaImage>
           </Canvas>
         </Animated.View>

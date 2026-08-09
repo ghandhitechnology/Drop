@@ -182,7 +182,7 @@ export type CaptureState =
       /** What actually went into history — the merged plate, or the one survivor. */
       saved: Estimate;
     }
-  | { name: 'unresolved'; photoUri: string };
+  | { name: 'unresolved'; photoUri: string; anchor: Rect };
 
 export type CaptureStateName = CaptureState['name'];
 
@@ -284,4 +284,9 @@ export function isResultVisible(state: CaptureState): boolean {
 /** True while the pipeline is working and the shutter should stay quiet. */
 export function isBusy(state: CaptureState): boolean {
   return state.name === 'captured' || state.name === 'recognizing' || state.name === 'analyzing';
+}
+
+/** True while the full captured photo must stay behind the framed print. */
+export function isFrameObscured(state: CaptureState): boolean {
+  return isBusy(state) || state.name === 'unresolved';
 }

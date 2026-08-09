@@ -6,13 +6,9 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../design/theme';
-import { radius, space } from '../../design/tokens';
-import { HandFrame } from '../../drawing/HandFrame';
-import { seedFromString } from '../../drawing/seededRandom';
+import { space } from '../../design/tokens';
 import { copy } from '../../lib/copy';
 import { ResultStage } from '../result/ResultStage';
-import { SketchButton } from '../../ui/SketchButton';
-import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
 import { CameraStage, useTakePhoto, type StageSize } from './CameraStage';
 import { FramingNote } from './FramingNote';
@@ -38,7 +34,6 @@ const CAMERA_SHARE = 0.62;
  * read over. Kept here because this is the only place the three overlap.
  */
 const DOOR_ROW = space.md + CHIP_HEIGHT;
-const UNRESOLVED_FRAME_SEED = seedFromString('capture/unresolved/frame');
 
 /** True while the camera is live and waiting to be pointed at something. */
 function isFraming(state: CaptureState): boolean {
@@ -65,7 +60,6 @@ export function CaptureHome() {
   const state = useCaptureMachine((s) => s.state);
   const mode = useCaptureMachine((s) => s.mode);
   const toggleFastMode = useCaptureMachine((s) => s.toggleFastMode);
-  const retake = useCaptureMachine((s) => s.retake);
 
   const beginShutter = useCallback(() => setShutterActive(true), []);
   const resetShutter = useCallback(() => setShutterActive(false), []);
@@ -164,49 +158,6 @@ export function CaptureHome() {
           </View>
         )}
 
-        {state.name === 'unresolved' && (
-          <View style={styles.sheet} pointerEvents="box-none">
-            <HandFrame
-              seed={UNRESOLVED_FRAME_SEED}
-              color={colors.inkFaint}
-              radius={radius.lg}
-              strokeScale={0.9}
-              style={[styles.card, { backgroundColor: colors.paper }]}
-              contentStyle={styles.cardContent}
-            >
-              <Text variant="title" tone="ink">
-                {copy.unresolved.title}
-              </Text>
-              <Text variant="axis" tone="inkSoft">
-                {copy.unresolved.body}
-              </Text>
-              <SketchButton
-                onPress={openSearch}
-                seed="capture/unresolved/search"
-                filled
-                radius={radius.pill}
-                style={styles.action}
-                contentStyle={styles.actionContent}
-                accessibilityLabel={copy.unresolved.action}
-              >
-                <Text variant="note" tone="accent">
-                  {copy.unresolved.action}
-                </Text>
-              </SketchButton>
-              <SketchLink
-                onPress={retake}
-                seed="capture/unresolved/retake"
-                tone="inkSoft"
-                variant="note"
-                style={styles.retake}
-                accessibilityLabel={copy.capture.retake}
-              >
-                {copy.capture.retake}
-              </SketchLink>
-            </HandFrame>
-          </View>
-        )}
-
       </SafeAreaView>
 
       {/*
@@ -257,17 +208,4 @@ const styles = StyleSheet.create({
   },
   secondary: { position: 'absolute', left: space.xl, bottom: 0 },
 
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '86%' },
-  sheetContent: { padding: space.lg, justifyContent: 'flex-end', flexGrow: 1 },
-  card: {
-    margin: space.lg,
-    borderRadius: radius.lg,
-  },
-  cardContent: {
-    padding: space.xl,
-    gap: space.md,
-  },
-  action: { minHeight: 56 },
-  actionContent: { minHeight: 56 },
-  retake: { minHeight: 48, alignItems: 'center' },
 });

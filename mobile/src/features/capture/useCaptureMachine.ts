@@ -223,9 +223,13 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
 
           onUnresolved: () =>
             forRun(token, (current) => {
-              if (!('photoUri' in current)) return null;
+              if (!('photoUri' in current) || !('anchor' in current)) return null;
               announce(copy.capture.announce.unresolved);
-              return { name: 'unresolved', photoUri: current.photoUri };
+              return {
+                name: 'unresolved',
+                photoUri: current.photoUri,
+                anchor: current.anchor,
+              };
             }),
         },
       );
