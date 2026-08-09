@@ -217,7 +217,9 @@ export function SketchButton({
 }
 
 const styles = StyleSheet.create({
-  // Layout belongs to the pressable; the drawn shape fills whatever it is given.
-  surface: { alignSelf: 'stretch', flexGrow: 1, justifyContent: 'center' },
+  // The content gives a button its intrinsic height; the pressable owns any
+  // larger explicit height from the caller. Growing here creates a circular
+  // flex measurement and can make a min-height button consume its whole screen.
+  surface: { alignSelf: 'stretch', justifyContent: 'center' },
   content: { alignItems: 'center', justifyContent: 'center' },
 });
