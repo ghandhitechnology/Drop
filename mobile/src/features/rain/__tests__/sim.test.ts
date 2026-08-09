@@ -54,7 +54,8 @@ import {
   STRAND_FLOOR,
   STRAND_FRESH,
   strandOpacity,
-  columnCaps,
+  columnBands,
+  settleDepth,
   POOL_SHARE,
   type RainConfig,
 } from '../sim';
@@ -183,8 +184,8 @@ describe('dry islands', () => {
     );
   });
 
-  it('caps the columns under each of them', () => {
-    const caps = columnCaps(configFor(HARD_CEILING_MS, islands));
+  it('turns each island into the stretch of depths it occupies', () => {
+    const bands = columnBands(configFor(HARD_CEILING_MS, islands));
     const step = STAGE.width / COLUMNS;
 
     for (let i = 0; i < COLUMNS; i += 1) {
@@ -192,22 +193,26 @@ describe('dry islands', () => {
       for (const island of islands) {
         const underside = islandUndersideAt(island, x);
         if (underside === -Infinity) continue;
-        // The water's edge stays under the island's outline, margin included.
-        expect(STAGE.height - caps[i]).toBeGreaterThanOrEqual(underside - 1e-9);
+        // A level aimed into the island's body settles at its underside —
+        // the water lapping the sides rather than standing in the outline.
+        const inside = STAGE.height - (underside + islandTopAt(island, x)) / 2;
+        const settled = settleDepth(inside, bands[i]);
+        expect(STAGE.height - settled).toBeGreaterThanOrEqual(underside - 1e-9);
       }
     }
   });
 
-  it('leaves the character only what is under its feet', () => {
-    const caps = columnCaps(configFor(HARD_CEILING_MS, islands));
-    const step = STAGE.width / COLUMNS;
+  it('closes over the character instead of leaving a well', () => {
+    const bands = columnBands(configFor(HARD_CEILING_MS, islands));
     const middle = Math.floor(COLUMNS / 2);
-    // Drop stands near the floor, so the water may lap under it and no higher.
-    expect(caps[middle]).toBeCloseTo(
-      STAGE.height - islandUndersideAt(islands[0], (middle + 0.5) * step),
-      6,
-    );
-    expect(caps[middle]).toBeLessThan(STAGE.height * POOL_SHARE);
+    const overhead = STAGE.height - islandTopAt(islands[0], (middle + 0.5) * (STAGE.width / COLUMNS));
+
+    // Caught beside the circle, the level holds at the underside; past the top
+    // of everything standing over this column, it stands where it is — the
+    // pool has surrounded the circle and the hole in it is the circle alone.
+    expect(settleDepth(overhead - 1, bands[middle])).toBeLessThan(overhead - 1);
+    const clear = STAGE.height * POOL_SHARE;
+    expect(settleDepth(clear, bands[middle])).toBe(clear);
   });
 
   it('never wets an island, at any level, after the banks have slumped', () => {
@@ -218,7 +223,6 @@ describe('dry islands', () => {
     for (const level of [0, 60, 200, STAGE.height * POOL_SHARE, STAGE.height]) {
       fillColumns(rain, level);
       for (let i = 0; i < COLUMNS; i += 1) {
-        expect(rain.columns[i]).toBeLessThanOrEqual(rain.caps[i] + 1e-9);
         const x = (i + 0.5) * step;
         const surface = STAGE.height - rain.columns[i];
         for (const island of islands) {
@@ -238,7 +242,9 @@ describe('dry islands', () => {
   it('rises freely across the margins the islands leave alone', () => {
     const config = configFor(HARD_CEILING_MS, islands);
     const rain = createRain(config);
-    const level = STAGE.height * POOL_SHARE;
+    // A level that has reached the circle's body but not its head: the margins
+    // take it, and the columns over Drop hold at the underside, lapping.
+    const level = 200;
     fillColumns(rain, level);
 
     // Not "the outermost column clears the pill" — that would hold for a pill
@@ -247,8 +253,10 @@ describe('dry islands', () => {
     const full = rain.columns.filter((depth) => depth >= level * 0.95).length;
     expect(full / COLUMNS).toBeGreaterThan(1 / 6);
 
-    // Over Drop's head the pool is a puddle by comparison — a fifth of that.
-    expect(rain.columns[Math.floor(COLUMNS / 2)]).toBeLessThan(level / 5);
+    const middle = Math.floor(COLUMNS / 2);
+    const lapping =
+      STAGE.height - islandUndersideAt(islands[0], (middle + 0.5) * (STAGE.width / COLUMNS));
+    expect(rain.columns[middle]).toBeLessThanOrEqual(lapping + 1e-9);
   });
 
   it('notices when the stage has moved out from under a running pool', () => {
@@ -271,13 +279,14 @@ describe('dry islands', () => {
   it('puts a bank between the two rather than a cliff', () => {
     const config = configFor(HARD_CEILING_MS, islands);
     const rain = createRain(config);
-    fillColumns(rain, STAGE.height * POOL_SHARE);
+    // While the level is lapping the circle rather than over it — the one
+    // moment there is an edge for a bank to stand on.
+    const level = 200;
+    fillColumns(rain, level);
 
-    // Somewhere between the dry middle and the full edge there is ground that
-    // is neither — that slope is what makes the water read as going round.
-    const partial = rain.columns.filter(
-      (depth) => depth > 1 && depth < STAGE.height * POOL_SHARE - 1,
-    );
+    // Somewhere between the lapping middle and the full edge there is ground
+    // that is neither — that slope is what makes the water read as going round.
+    const partial = rain.columns.filter((depth) => depth > 60 && depth < level - 1);
     expect(partial.length).toBeGreaterThan(0);
   });
 });

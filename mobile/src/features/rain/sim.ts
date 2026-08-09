@@ -113,8 +113,8 @@ export type Rain = {
   elapsedMs: number;
   /** Pool depth at each column, in dp. */
   columns: number[];
-  /** How deep each column may get before it would wet an island. */
-  caps: number[];
+  /** The stretches of depth each column may not stand in — see `columnBands`. */
+  bands: DepthBand[][];
   drops: Drop[];
   strands: Strand[];
   splashes: Splash[];
@@ -358,38 +358,80 @@ export function spawnHz(config: RainConfig): number {
 
 /* ------------------------------------------------------- the height field */
 
-/** How deep each column may get before the water would touch an island. */
-export function columnCaps(config: RainConfig): number[] {
+/** A stretch of depth a column may not stand in: an island's own body. */
+export type DepthBand = { lo: number; hi: number };
+
+/**
+ * The forbidden depths at each column.
+ *
+ * An island is not a ceiling, it is a thing in the water. Below its underside
+ * a column fills normally; the band is the island itself; and above its top
+ * the column may fill again, which is what lets the pool close over Drop's
+ * head and leave a circle-shaped hole around it rather than an open well all
+ * the way up. Bands that touch — the pill sits right over the circle — are
+ * merged, so the pair reads as one wall to climb past.
+ */
+export function columnBands(config: RainConfig): DepthBand[][] {
   'worklet';
-  const caps: number[] = [];
+  const bands: DepthBand[][] = [];
   const step = config.width / COLUMNS;
   for (let i = 0; i < COLUMNS; i += 1) {
     const x = (i + 0.5) * step;
-    let cap = config.groundY;
+    const column: DepthBand[] = [];
     for (let j = 0; j < config.islands.length; j += 1) {
-      // Under whatever the island's outline hangs down to here — so the water
-      // laps up the sides of a circle rather than stopping flat under its box.
-      const room = config.groundY - islandUndersideAt(config.islands[j], x);
-      if (room < cap) cap = room;
+      const underside = islandUndersideAt(config.islands[j], x);
+      if (underside === -Infinity) continue;
+      const lo = config.groundY - underside;
+      const hi = config.groundY - islandTopAt(config.islands[j], x);
+      column.push({ lo: lo > 0 ? lo : 0, hi });
     }
-    caps.push(Math.max(0, cap));
+    column.sort((a, b) => a.lo - b.lo);
+    const merged: DepthBand[] = [];
+    for (let j = 0; j < column.length; j += 1) {
+      const band = column[j];
+      const last = merged.length > 0 ? merged[merged.length - 1] : null;
+      if (last && band.lo <= last.hi) {
+        if (band.hi > last.hi) last.hi = band.hi;
+      } else {
+        merged.push(band);
+      }
+    }
+    bands.push(merged);
   }
-  return caps;
+  return bands;
+}
+
+/**
+ * Where a target depth actually settles: never inside an island.
+ *
+ * A level caught mid-island holds at the underside — the water lapping the
+ * sides — and a level past the top stands where it is, with the island now
+ * below the surface. Snapping only ever moves down, so one ascending pass
+ * over the sorted bands is the whole answer.
+ */
+export function settleDepth(depth: number, bands: readonly DepthBand[]): number {
+  'worklet';
+  let settled = depth;
+  for (let i = 0; i < bands.length; i += 1) {
+    if (settled > bands[i].lo && settled < bands[i].hi) settled = bands[i].lo;
+  }
+  return settled;
 }
 
 /**
  * Take the field to a level, then let the banks slump.
  *
- * The clamp alone leaves a cliff wherever a cap bites — the column beside Drop
- * standing at half the screen and the one over its head at nothing. Two
- * relaxation passes give that edge a slope. The caps are re-applied inside the
- * pass, so slumping can only ever lower a blocked column, never wet an island.
+ * The snap alone leaves a cliff wherever a band bites — the column beside Drop
+ * standing at half the screen and the one over its head lapping the underside.
+ * Two relaxation passes give that edge a slope. The bands are re-applied
+ * inside the pass, so slumping can move a column only through depths the
+ * islands leave open, never into one.
  */
 export function fillColumns(rain: Rain, level: number): void {
   'worklet';
-  const { caps, columns } = rain;
+  const { bands, columns } = rain;
   for (let i = 0; i < COLUMNS; i += 1) {
-    columns[i] = caps[i] < level ? caps[i] : level;
+    columns[i] = settleDepth(level, bands[i]);
   }
 
   for (let pass = 0; pass < 2; pass += 1) {
@@ -398,7 +440,7 @@ export function fillColumns(rain: Rain, level: number): void {
       const next = i + 1 < COLUMNS ? columns[i + 1] : columns[i];
       const smoothed = previous * 0.25 + columns[i] * 0.5 + next * 0.25;
       previous = columns[i];
-      columns[i] = smoothed < caps[i] ? smoothed : caps[i];
+      columns[i] = settleDepth(smoothed, bands[i]);
     }
   }
 }
@@ -427,16 +469,18 @@ export function sloshOffset(x: number, elapsedMs: number, width: number): number
 /** The pool's depth at an arbitrary x — columns, interpolated, plus slosh. */
 export function depthAt(rain: Rain, x: number): number {
   'worklet';
-  const { config, columns, caps } = rain;
+  const { config, columns, bands } = rain;
   const step = config.width / COLUMNS;
   const at = clamp(x / step - 0.5, 0, COLUMNS - 1);
   const i = Math.floor(at);
   const j = i + 1 < COLUMNS ? i + 1 : i;
   const t = at - i;
   const base = columns[i] + (columns[j] - columns[i]) * t;
-  const capped = caps[i] < caps[j] ? caps[i] : caps[j];
   const slosh = sloshOffset(x, rain.elapsedMs, config.width);
-  return clamp(base + slosh, 0, capped);
+  // Settled against both neighbours, so neither the blend nor the slosh can
+  // put the surface inside an outline the columns themselves stay out of.
+  const depth = base + slosh > 0 ? base + slosh : 0;
+  return settleDepth(settleDepth(depth, bands[i]), bands[j]);
 }
 
 /** Where the water's edge is at an x, in stage coordinates. */
@@ -503,14 +547,14 @@ export function sameGeometry(a: RainConfig, b: RainConfig): boolean {
 
 export function createRain(config: RainConfig): Rain {
   'worklet';
-  const caps = columnCaps(config);
+  const bands = columnBands(config);
   const columns: number[] = [];
   for (let i = 0; i < COLUMNS; i += 1) columns.push(0);
   return {
     config,
     elapsedMs: 0,
     columns,
-    caps,
+    bands,
     drops: [],
     strands: [],
     splashes: [],
@@ -547,7 +591,15 @@ export function repourRain(previous: Rain, config: RainConfig): Rain {
     const y = config.groundY - strand.depth;
     let covered = false;
     for (let j = 0; j < config.islands.length; j += 1) {
-      if (y < islandUndersideAt(config.islands[j], strand.x) - 1e-9) covered = true;
+      // Inside the outline, not merely above the underside — a thread riding
+      // the water over Drop's head is exactly where it should be.
+      const island = config.islands[j];
+      if (
+        y < islandUndersideAt(island, strand.x) - 1e-9 &&
+        y > islandTopAt(island, strand.x) + 1e-9
+      ) {
+        covered = true;
+      }
     }
     if (!covered) rain.strands.push(strand);
   }
@@ -570,7 +622,9 @@ function spawnX(rain: Rain): number {
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const i = Math.floor(nextRandom(rain) * COLUMNS);
     const column = clamp(i, 0, COLUMNS - 1);
-    if (rain.caps[column] >= MIN_USEFUL_CAP) {
+    const bands = rain.bands[column];
+    const room = bands.length > 0 ? bands[0].lo : rain.config.groundY;
+    if (room >= MIN_USEFUL_CAP) {
       return (column + nextRandom(rain)) * step;
     }
   }
@@ -706,18 +760,21 @@ function integrate(rain: Rain, dtMs: number): void {
       continue;
     }
 
-    // Caught by an island: absorbed, no mark. Nothing is drawn over the two
-    // things the whole layer exists to stay off.
-    if (drop.y >= shelterYAt(config, drop.x)) {
-      rain.drops.splice(i, 1);
-      continue;
-    }
-
+    // The fall ends on whichever stands higher over this x: open water, or an
+    // island still out of it. Caught by an island it is absorbed with no mark —
+    // nothing is drawn over the things the whole layer exists to stay off —
+    // but an island under the surface is under water, and rain falling there
+    // is rain falling on the pool that closed over it.
+    const shelter = shelterYAt(config, drop.x);
     const surface = surfaceYAt(rain, drop.x);
-    if (drop.y >= surface) {
+    if (surface <= shelter) {
+      if (drop.y >= surface) {
+        rain.drops.splice(i, 1);
+        addSplash(rain, drop, surface);
+        addStrand(rain, drop);
+      }
+    } else if (drop.y >= shelter) {
       rain.drops.splice(i, 1);
-      addSplash(rain, drop, surface);
-      addStrand(rain, drop);
     }
   }
 
