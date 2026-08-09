@@ -12,7 +12,7 @@ Use it to seed and validate selected U.S. process and transport factors. Do not 
 
 | File | Release represented | Size | SHA-256 | Purpose |
 |---|---:|---:|---|---|
-| `water_logic/datasets/lca_commons/uslci_v1.2026-06.0_olca2_6_1.zolca` | USLCI 1.2026-06.0 | 20.4 MiB | `a8219f729c9ef79c41f416153181c94f63f7b9cbc20c9f46d7ee1ec909b9fd76` | Current openLCA database package |
+| `uslci_v1.2026-06.0_olca2_6_1.zolca` (evaluated, not retained in repo) | USLCI 1.2026-06.0 | 20.4 MiB | `a8219f729c9ef79c41f416153181c94f63f7b9cbc20c9f46d7ee1ec909b9fd76` | Current openLCA database package |
 | `water_logic/datasets/lca_commons/uslci_fy25_q2_01_json_ld.zip` | USLCI FY2025 Q2 | 21.9 MiB | `55437502fc33d193236d50fd87a361880beea82a27139d1803be38ae0f0934b0` | Machine-readable JSON-LD used for this inspection |
 
 Both archives passed ZIP integrity checks. The current JSON-LD export initiated from the Commons UI did not complete within two minutes, so the most recent JSON-LD package available from the project's official support repository was used for field-level inspection.
