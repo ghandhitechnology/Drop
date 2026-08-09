@@ -13,6 +13,8 @@
  * quietly goes stale.
  */
 import { Canvas, Skia } from '@shopify/react-native-skia';
+import Constants from 'expo-constants';
+import * as Updates from 'expo-updates';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   AccessibilityInfo,
@@ -32,7 +34,7 @@ import { Grain } from '../../drawing/grain';
 import { HandFrame } from '../../drawing/HandFrame';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
-import { copy } from '../../lib/copy';
+import { copy, printDate } from '../../lib/copy';
 import { tapSelection } from '../../lib/haptics';
 import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
@@ -67,6 +69,30 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
     [],
   );
   const catalog = useMemo(() => catalogSize(), []);
+
+  /**
+   * The exact build in hand, said once at the tail of the screen.
+   *
+   * A tester's report is only as good as the build it names, so this reads the
+   * running app rather than a constant: the app version with its update
+   * channel, then the OTA update actually loaded — its id's opening run and
+   * the day it was published — or the note that the bundle came with the build.
+   */
+  const build = useMemo(() => {
+    const version = Constants.expoConfig?.version ?? '1.0.0';
+    const channel = Updates.channel;
+    return {
+      app: channel
+        ? copy.settings.version.appChannel(version, channel)
+        : copy.settings.version.app(version),
+      bundle: Updates.updateId
+        ? copy.settings.version.update(
+            Updates.updateId.slice(0, 8),
+            Updates.createdAt ? printDate(Updates.createdAt) : '',
+          )
+        : copy.settings.version.embedded,
+    };
+  }, []);
 
   useEffect(() => {
     AccessibilityInfo.announceForAccessibility(copy.settings.announce.opened);
@@ -196,6 +222,21 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
               ))}
             </View>
           </Section>
+
+          {/* The tail: the build in hand, for naming in a report. */}
+          <View
+            style={styles.version}
+            accessible
+            accessibilityRole="text"
+            accessibilityLabel={`${build.app}. ${build.bundle}.`}
+          >
+            <Text variant="chip" tone="inkSoft">
+              {build.app}
+            </Text>
+            <Text variant="chip" tone="inkSoft">
+              {build.bundle}
+            </Text>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -341,4 +382,6 @@ const styles = StyleSheet.create({
 
   credits: { paddingTop: space.sm, gap: space.lg },
   credit: { gap: 3 },
+
+  version: { paddingTop: space.xxl, alignItems: 'center', gap: 2 },
 });

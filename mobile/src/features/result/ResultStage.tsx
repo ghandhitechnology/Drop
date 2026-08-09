@@ -13,9 +13,11 @@
  *      behind; Drop's silhouette morphs into the card's frame; Drop shrinks and
  *      docks at the corner of the thing it became, while the print rises into
  *      the room the open card leaves above itself.
- *   5. Confirm. A tick draws on, the haptic lands, Drop celebrates, and the
- *      saved card travels into History with the print alongside it. Closing
- *      without saving takes the same material back into the shutter instead.
+ *   5. Confirm. The cards and the character fall away, the print takes the
+ *      centre of the stage, and the litres write themselves onto its chin —
+ *      pencil stroke by pencil stroke, a tick of haptic under each glyph —
+ *      before the finished print travels into History. Closing without saving
+ *      takes the same material back into the shutter instead.
  *
  * One shared value drives beat four end to end, so a thumb can hold the whole
  * transformation anywhere between shut and open. Everything Skia draws here is
@@ -36,6 +38,7 @@ import {
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
   Extrapolation,
   interpolate,
   runOnJS,
@@ -55,10 +58,11 @@ import { spring } from '../../design/motion';
 import { useTheme } from '../../design/theme';
 import { radius as radii, space } from '../../design/tokens';
 import { useMotion } from '../../design/useMotion';
+import { carveTiming } from '../../drawing/handwriting';
 import { seedFromString } from '../../drawing/seededRandom';
 import { insertConfirmed, insertPlate, newEntryId } from '../../data/entries';
 import { discardCapturedPhoto, persistCapturedPhoto } from '../../data/photos';
-import { copy, formatQuantity } from '../../lib/copy';
+import { copy, formatLitres, formatQuantity, printDate } from '../../lib/copy';
 import { tapConfirmed, tapPull, tapRemoving, tapSelection, tapStamp } from '../../lib/haptics';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Touch';
@@ -147,6 +151,13 @@ const PRINT_OPEN_WIDTH_SHARE = 0.82;
 /** Bounds on how far the print may grow or shrink to suit that window. */
 const PRINT_OPEN_MIN = 0.62;
 const PRINT_OPEN_MAX = 1.4;
+/** The print's claim on the stage while its litres are being written. */
+const CEREMONY_WIDTH_SHARE = 0.92;
+const CEREMONY_HEIGHT_SHARE = 0.56;
+/** Where the centred print stands — a touch above true centre reads centred. */
+const CEREMONY_Y_SHARE = 0.46;
+/** How much of its lean the print gives up for the writing. */
+const CEREMONY_STRAIGHTEN = 0.75;
 
 const BEAT_STATES = new Set([
   'captured',
@@ -405,6 +416,47 @@ export function ResultStage({ stage }: ResultStageProps) {
   const exitTargetX = useSharedValue(0);
   const exitTargetY = useSharedValue(0);
   const tick = useSharedValue(0);
+  /** 0 → 1 takes the cards away and carries the print to the stage's centre. */
+  const centering = useSharedValue(0);
+  /** 0 → 1 writes the litres onto the centred print's chin. */
+  const carve = useSharedValue(0);
+
+  /**
+   * What the confirmation writes onto the print, and when.
+   *
+   * The figure is the record's own headline — the saved plate's merged total,
+   * or the single card's litres — so the print leaves for History wearing
+   * exactly the number that was written into it. Until the carve runs, the
+   * figure sits on the print at zero progress: present, invisible, and already
+   * laid out, so the write starts on its first stroke rather than on a layout
+   * pass.
+   */
+  const savedHeadline =
+    state.name === 'plateConfirmed' ? state.saved.headline : estimate?.headline ?? null;
+  const carvedText = savedHeadline
+    ? `${formatLitres(savedHeadline.value_l)} ${copy.result.unitShort}`
+    : null;
+  const writing = useMemo(
+    () => (carvedText ? carveTiming(carvedText) : null),
+    [carvedText],
+  );
+
+  /** The date the shot was taken, worn from the moment the print lands. */
+  const captureDate = printDate(new Date());
+
+  /** Where the print stands, and how large, while the litres are written. */
+  const ceremony = useMemo(
+    () => ({
+      x: stage.width / 2,
+      y: stage.height * CEREMONY_Y_SHARE,
+      scale:
+        Math.min(
+          stage.width * CEREMONY_WIDTH_SHARE,
+          stage.height * CEREMONY_HEIGHT_SHARE,
+        ) / Math.max(1, layout.slot.width),
+    }),
+    [stage.width, stage.height, layout.slot.width],
+  );
 
   /**
    * An item whose figure arrives later has nothing to hide, so it opens itself.
@@ -478,6 +530,8 @@ export function ResultStage({ stage }: ResultStageProps) {
       captureFold.value = 0;
       dissolve.value = 0;
       tick.value = 0;
+      centering.value = 0;
+      carve.value = 0;
       setReceding(false);
       setDetailOpen(false);
       setPlateOpen(false);
@@ -504,6 +558,8 @@ export function ResultStage({ stage }: ResultStageProps) {
     captureFold,
     dissolve,
     tick,
+    centering,
+    carve,
   ]);
 
   /*
@@ -578,43 +634,74 @@ export function ResultStage({ stage }: ResultStageProps) {
     }
   }, [estimate, photoUri, confirmEntry]);
 
-  // The tick, the hold, then the saved card travelling into History.
+  /**
+   * The confirmation, in two shapes.
+   *
+   * A confirm with a print gets the full ceremony: the cards and the character
+   * fall away, the print takes the centre of the stage, the litres write
+   * themselves onto its chin, and only then does the finished print travel to
+   * History. A confirm without one — a search entry has no photo — keeps the
+   * original beat: the tick draws on the card, the card holds, and the whole
+   * result recedes together.
+   */
   useEffect(() => {
     if (state.name !== 'confirmed' && state.name !== 'plateConfirmed') return;
 
-    tick.value = withTiming(1, { duration: motion.reduceMotion ? 0 : beat.tick });
+    const reduced = motion.reduceMotion;
+    const recedeMs = reduced ? 120 : beat.recede;
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
-    const hold = setTimeout(
-      () => {
-        exitTargetX.value = windowWidth - space.lg - HISTORY_CHIP_HALF_WIDTH;
-        exitTargetY.value = insets.top + space.md + 24;
-        setReceding(true);
-        dissolve.value = withTiming(1, {
-          duration: motion.reduceMotion ? 120 : beat.recede,
-        });
-      },
-      motion.reduceMotion ? 0 : beat.hold,
-    );
-
-    const home = setTimeout(
-      () => {
-        // The card has landed on the History door; let the door say so.
-        pulseHistory();
-        setReceding(false);
-        setDetailOpen(false);
-        retake();
-      },
-      (motion.reduceMotion ? 0 : beat.hold) + (motion.reduceMotion ? 120 : beat.recede) + 40,
-    );
-
-    return () => {
-      clearTimeout(hold);
-      clearTimeout(home);
+    const exit = () => {
+      exitTargetX.value = windowWidth - space.lg - HISTORY_CHIP_HALF_WIDTH;
+      exitTargetY.value = insets.top + space.md + 24;
+      setReceding(true);
+      dissolve.value = withTiming(1, { duration: recedeMs });
     };
+
+    const home = () => {
+      // The card has landed on the History door; let the door say so.
+      pulseHistory();
+      setReceding(false);
+      setDetailOpen(false);
+      retake();
+    };
+
+    if (photoUri && writing) {
+      // Nothing under the ceremony takes a finger while it plays.
+      setReceding(true);
+      centering.value = reduced
+        ? withTiming(1, { duration: 120 })
+        : withSpring(1, spring.card);
+
+      // Linear across the whole line: each glyph's slice carries its own
+      // attack, so an ease here would only starve the first and last strokes.
+      const carveDelay = reduced ? 0 : beat.center;
+      const carveMs = reduced ? 120 : writing.durationMs;
+      carve.value = withDelay(
+        carveDelay,
+        withTiming(1, { duration: carveMs, easing: Easing.linear }),
+      );
+
+      const exitAt = carveDelay + carveMs + (reduced ? 120 : beat.carveHold);
+      timers.push(setTimeout(exit, exitAt));
+      timers.push(setTimeout(home, exitAt + recedeMs + 40));
+    } else {
+      tick.value = withTiming(1, { duration: reduced ? 0 : beat.tick });
+
+      const holdMs = reduced ? 0 : beat.hold;
+      timers.push(setTimeout(exit, holdMs));
+      timers.push(setTimeout(home, holdMs + recedeMs + 40));
+    }
+
+    return () => timers.forEach(clearTimeout);
   }, [
     state,
     motion.reduceMotion,
+    photoUri,
+    writing,
     tick,
+    centering,
+    carve,
     dissolve,
     exitTargetX,
     exitTargetY,
@@ -622,6 +709,32 @@ export function ResultStage({ stage }: ResultStageProps) {
     insets.top,
     retake,
   ]);
+
+  /**
+   * The pen felt, stroke by stroke.
+   *
+   * The ratchet reads the carve itself, the same way the stamp reads the fold:
+   * a tick lands exactly as each glyph's first stroke touches the paper, and
+   * the write signs off with the stamp's own thump. Reading the animation
+   * keeps the touches on the strokes under load, where timers would drift off
+   * them.
+   */
+  useAnimatedReaction(
+    () => carve.value,
+    (at, previous) => {
+      if (previous === null || at <= previous) return;
+      if (writing) {
+        for (const start of writing.starts) {
+          if (previous <= start && start < at) {
+            runOnJS(tapSelection)();
+            break;
+          }
+        }
+      }
+      if (previous < 1 && at >= 1) runOnJS(tapStamp)();
+    },
+    [writing],
+  );
 
   /* -------------------------------------------------------- the amount */
 
@@ -694,6 +807,14 @@ export function ResultStage({ stage }: ResultStageProps) {
   /** Whatever catches a departing sheet greets it with the pulse Drop uses. */
   const printPulse = useSharedValue(1);
   const trayPulse = useSharedValue(1);
+
+  /** The tray leaves with the cards: on the exit, or as the ceremony centres. */
+  const trayAway = useDerivedValue(() =>
+    Math.max(
+      dissolve.value,
+      interpolate(centering.value, [0, 0.4], [0, 1], Extrapolation.CLAMP),
+    ),
+  );
 
   const handleExitStart = useCallback(
     (_index: number, intent: SwipeIntent) => {
@@ -1046,6 +1167,7 @@ export function ResultStage({ stage }: ResultStageProps) {
       opacity:
         arrival.value *
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP) *
+        interpolate(centering.value, [0, 0.4], [1, 0], Extrapolation.CLAMP) *
         (unresolved
           ? interpolate(t, [0, 0.52], [1, 0], Extrapolation.CLAMP)
           : 1),
@@ -1064,7 +1186,8 @@ export function ResultStage({ stage }: ResultStageProps) {
   const dockGroundStyle = useAnimatedStyle(() => ({
     opacity:
       interpolate(expansion.value, [0.68, 0.88], [0, 1], Extrapolation.CLAMP) *
-      interpolate(dissolve.value, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
+      interpolate(dissolve.value, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP) *
+      interpolate(centering.value, [0, 0.4], [1, 0], Extrapolation.CLAMP),
   }));
 
   /**
@@ -1085,6 +1208,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const printStyle = useAnimatedStyle(() => {
     const fold = captureFold.value;
     const t = unresolved ? 0 : expansion.value;
+    const centred = centering.value;
     const exit = dissolve.value;
     const side = layout.slot.width;
 
@@ -1095,6 +1219,12 @@ export function ResultStage({ stage }: ResultStageProps) {
 
     const foldedX = heldX + (slotCenter.x - heldX) * fold;
     const foldedY = heldY + (restY - heldY) * fold;
+
+    // The ceremony picks the print up wherever the expansion left it and
+    // carries it to the stage's centre; the exit then leaves from wherever the
+    // ceremony stands, so the three journeys chain instead of arguing.
+    const stagedX = foldedX + (ceremony.x - foldedX) * centred;
+    const stagedY = foldedY + (ceremony.y - foldedY) * centred;
 
     const held = heldSide / Math.max(1, side);
     const stampScale = interpolate(
@@ -1109,10 +1239,12 @@ export function ResultStage({ stage }: ResultStageProps) {
       [0, 0, STAMP_PRESS, 0],
       Extrapolation.CLAMP,
     );
-    const scale =
+    const openScale =
       (held + (1 - held) * fold) *
       stampScale *
-      (1 + (printOpen.scale - 1) * t) *
+      (1 + (printOpen.scale - 1) * t);
+    const scale =
+      (openScale + (ceremony.scale - openScale) * centred) *
       (1 - exit * (1 - EXIT_SCALE)) *
       printPulse.value;
 
@@ -1124,21 +1256,22 @@ export function ResultStage({ stage }: ResultStageProps) {
         interpolate(fold, [0, RETICLE_RELEASE * 0.72], [0, 1], Extrapolation.CLAMP) *
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
       transform: [
-        { translateX: foldedX + (exitTargetX.value - foldedX) * exit - side / 2 },
+        { translateX: stagedX + (exitTargetX.value - stagedX) * exit - side / 2 },
         {
           translateY:
-            foldedY +
-            (exitTargetY.value - foldedY) * exit -
+            stagedY +
+            (exitTargetY.value - stagedY) * exit -
             side / 2 +
             stampPress * (1 - t) * (1 - exit),
         },
         { scale },
         {
-          // The lean waits for the corners to be gone. A square still held by
-          // four straight pencil marks has no business tilting inside them.
+          // The lean waits for the corners to be gone — and mostly straightens
+          // for the writing, the way a hand squares a print to caption it.
           rotate: `${
             printTilt *
-            interpolate(fold, [RETICLE_RELEASE, 0.86], [0, 1], Extrapolation.CLAMP)
+            interpolate(fold, [RETICLE_RELEASE, 0.86], [0, 1], Extrapolation.CLAMP) *
+            (1 - CEREMONY_STRAIGHTEN * centred)
           }deg`,
         },
       ],
@@ -1159,7 +1292,8 @@ export function ResultStage({ stage }: ResultStageProps) {
     return {
       opacity:
         interpolate(expansion.value, [0.55, 0.85], [0, 1], Extrapolation.CLAMP) *
-        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
+        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP) *
+        interpolate(centering.value, [0, 0.45], [1, 0], Extrapolation.CLAMP),
       transform: [
         { translateX: (exitTargetX.value - cardCenterX) * exit },
         {
@@ -1184,7 +1318,8 @@ export function ResultStage({ stage }: ResultStageProps) {
     return {
       opacity:
         interpolate(captureFold.value, [0.38, 0.82], [0, 1], Extrapolation.CLAMP) *
-        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
+        interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP) *
+        interpolate(centering.value, [0, 0.45], [1, 0], Extrapolation.CLAMP),
       transform: [
         { translateX: desiredX - stageCenterX - (cardCenterX - stageCenterX) * scale },
         { translateY: desiredY - stageCenterY - (cardCenterY - stageCenterY) * scale },
@@ -1262,6 +1397,9 @@ export function ResultStage({ stage }: ResultStageProps) {
             seed={photoUri}
             tilt={0}
             label={copy.capture.snapshot}
+            date={captureDate}
+            carved={carvedText ?? undefined}
+            carveProgress={carve}
           />
           {multi && (
             <FindMarks
@@ -1497,11 +1635,12 @@ export function ResultStage({ stage }: ResultStageProps) {
               count={queuedCount}
               top={trayCenter.y}
               pulse={trayPulse}
-              dissolve={dissolve}
+              dissolve={trayAway}
             />
           )}
 
-          {(state.name === 'confirmed' || state.name === 'plateConfirmed') && (
+          {/* The photo-less confirm keeps its tick; a print carries the carve instead. */}
+          {(state.name === 'confirmed' || state.name === 'plateConfirmed') && !photoUri && (
             <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
               <Canvas
                 style={StyleSheet.absoluteFill}
