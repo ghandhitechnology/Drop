@@ -19,6 +19,7 @@ import { create } from 'zustand';
 
 import { copy, litresSentence } from '../../lib/copy';
 import { sameBarcode } from './barcode';
+import { paceFor, type CapturePace } from './pace';
 import { getPipeline, type PipelineRun } from './pipeline';
 import type {
   BarcodeHint,
@@ -104,6 +105,17 @@ export type CaptureActions = {
 export type CaptureStore = {
   state: CaptureState;
   mode: CaptureMode;
+  /**
+   * How long the run in flight expects to take.
+   *
+   * The barcode and the mode are both consumed by `capture()` and neither is
+   * carried on the states that follow it — by design, since nothing downstream
+   * of the shutter gets to re-decide how the photo is read. But the wait itself
+   * is on screen for the whole run and has to be paced against the right clock,
+   * so the one fact that outlives the call is kept here: which of the three
+   * waits this is.
+   */
+  pace: CapturePace;
 } & CaptureActions;
 
 export const useCaptureMachine = create<CaptureStore>((set, get) => {
@@ -123,6 +135,7 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
   return {
     state: { name: 'idle' },
     mode: 'normal',
+    pace: 'normal',
 
     ready: () => {
       if (get().state.name !== 'idle') return;
@@ -165,7 +178,10 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
       stopRun();
       const token = generation;
 
-      set({ state: { name: 'captured', photoUri, anchor } });
+      set({
+        state: { name: 'captured', photoUri, anchor },
+        pace: paceFor(barcode !== undefined, get().mode),
+      });
       announce(copy.capture.announce.captured);
 
       run = getPipeline()(
@@ -353,5 +369,6 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
 
 export const selectState = (store: CaptureStore) => store.state;
 export const selectStateName = (store: CaptureStore) => store.state.name;
+export const selectPace = (store: CaptureStore) => store.pace;
 export const selectBarcodeHint = (store: CaptureStore) =>
   store.state.name === 'framing' ? store.state.barcodeHint : undefined;

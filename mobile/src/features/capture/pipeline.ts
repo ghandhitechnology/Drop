@@ -35,6 +35,7 @@ import { copy } from '../../lib/copy';
 import { clearCandidates, offerCandidates } from '../search/candidates';
 import { estimateFor, type PickedQuantity } from '../search/estimate';
 import { takeSearchPicks, type SearchPick } from '../search/pick';
+import { BARCODE_TIMEOUT_MS, HARD_CEILING_MS } from './pace';
 import type {
   BarcodeHint,
   CaptureMode,
@@ -209,16 +210,11 @@ export const fakePipeline: Pipeline = (input, handlers) => {
  * ======================================================================
  */
 
-/** Nothing takes longer than this, whatever the network is doing. */
-export const HARD_CEILING_MS = 30_000;
-
 /**
  * The service's own budget, kept under the ceiling so a slow answer still
  * leaves room for the engine and the beat that follows it.
  */
 const RECOGNIZE_TIMEOUT_MS = 28_000;
-/** A barcode lookup is a database read with a 4s outbound call behind it. */
-const BARCODE_TIMEOUT_MS = 8_000;
 
 /**
  * Timings for the beats the network does not own.

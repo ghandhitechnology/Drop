@@ -20,6 +20,16 @@ export type StageSize = { width: number; height: number };
 /** Height of the line the character says. */
 export const TEASER_HEIGHT = 38;
 
+/**
+ * The widest that line's pill is allowed to get.
+ *
+ * The pill is as wide as its words, so its real footprint is only knowable
+ * after a measure pass. Anything that has to stay clear of it — the rain layer
+ * keeps its pool out from under it — reserves this instead, which is the most
+ * space the pill can ever claim and therefore always enough.
+ */
+export const TEASER_MAX_WIDTH_SHARE = 0.86;
+
 /** The pull target stacked above that line, and the chevron drawn inside it. */
 export const PULL_ROW = MIN_TOUCH_SIZE;
 
