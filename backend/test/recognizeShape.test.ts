@@ -49,6 +49,34 @@ describe('shapeItems', () => {
     expect(items[0]!.candidates[0]!.repaired).toBe(true);
   });
 
+  it('believes the model\'s unmatched flag — a dog never becomes a hot dog', () => {
+    const items = shapeItems({
+      items: [{
+        ...APPLE,
+        label: 'dog',
+        category: 'product',
+        candidates: [],
+        unmatched: true,
+      }],
+    }, tables);
+    expect(items).toHaveLength(1);
+    expect(items[0]!.unmatched).toBe(true);
+    expect(items[0]!.candidates).toEqual([]);
+  });
+
+  it('does not repair a partial-alias label even when the model tried to match', () => {
+    const items = shapeItems({
+      items: [{
+        ...APPLE,
+        label: 'dog',
+        candidates: [{ catalog_id: 'zzzz', score: 0.9, reason: 'x' }],
+      }],
+    }, tables);
+    expect(items).toHaveLength(1);
+    expect(items[0]!.unmatched).toBe(true);
+    expect(items[0]!.candidates).toEqual([]);
+  });
+
   it('keeps an unmatchable labelled item as unmatched instead of dropping it', () => {
     const items = shapeItems({
       items: [{ ...APPLE, label: 'xylotherium pastry', candidates: [] }],

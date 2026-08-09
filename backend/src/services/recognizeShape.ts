@@ -2,7 +2,7 @@
  * Pure: no network, no globals — the route hands in the raw model JSON and
  * the catalog tables, and gets back items safe to put on the wire. */
 import type { Tables } from '@drop/water-engine';
-import { searchCatalog, validateCatalogId } from './catalogMatch';
+import { matchLabel, validateCatalogId } from './catalogMatch';
 
 export const MAX_ITEMS = 6;
 export const MAX_CANDIDATES_PER_ITEM = 3;
@@ -128,17 +128,22 @@ export function shapeItems(
     const label = (item.label ?? '').trim();
     let candidates = shapeCandidates(item.candidates ?? [], tables);
 
-    // Nothing valid but the model named it: local text match on that name
-    // beats a scene-level search because the label describes this one item.
-    if (candidates.length === 0 && label) {
-      candidates = searchCatalog(label, tables, 2).map((e) => ({
-        catalog_id: e.catalog_id,
-        display_name: e.display_name,
-        category: e.category,
-        score: LOCAL_MATCH_SCORE,
-        reason: 'text match on item label',
-        repaired: true,
-      }));
+    // The model tried to match but its ids didn't validate: a strict local
+    // text match on the label can rescue that. When the model explicitly said
+    // nothing in the catalog fits, believe it — repairing an unmatched item
+    // is how a dog becomes a hot dog.
+    if (candidates.length === 0 && label && item.unmatched !== true) {
+      const found = matchLabel(label, tables);
+      if (found) {
+        candidates = [{
+          catalog_id: found.catalog_id,
+          display_name: found.display_name,
+          category: found.category,
+          score: LOCAL_MATCH_SCORE,
+          reason: 'text match on item label',
+          repaired: true,
+        }];
+      }
     }
 
     if (candidates.length === 0 && !label) continue;
@@ -162,20 +167,20 @@ export function shapeItems(
   // Whole frame drew a blank: fall back to a text match over the scene, so a
   // photo with no listable items still answers the way it always has.
   if (items.length === 0 && raw.scene_description) {
-    const found = searchCatalog(raw.scene_description, tables, 3);
-    if (found.length > 0) {
+    const found = matchLabel(raw.scene_description, tables);
+    if (found) {
       items.push({
         index: 0,
         label: raw.scene_description.slice(0, 80),
         category: null,
-        candidates: found.map((e) => ({
-          catalog_id: e.catalog_id,
-          display_name: e.display_name,
-          category: e.category,
+        candidates: [{
+          catalog_id: found.catalog_id,
+          display_name: found.display_name,
+          category: found.category,
           score: LOCAL_MATCH_SCORE,
           reason: 'text match on scene description',
           repaired: true,
-        })),
+        }],
         quantity: null,
         detected_text: [],
         box: null,

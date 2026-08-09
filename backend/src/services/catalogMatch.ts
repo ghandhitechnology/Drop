@@ -60,6 +60,51 @@ export function validateCatalogId(
   return null;
 }
 
+/** Trailing-s plural fold, so "apples" finds "apple" without a stemmer.
+ * Short words are left alone ("gas" must not become "ga"). */
+function foldPlural(t: string): string {
+  return t.length > 3 && t.endsWith('s') ? t.slice(0, -1) : t;
+}
+
+function tokenize(s: string): string[] {
+  return s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean)
+    .map(foldPlural);
+}
+
+/** Strict alias match for silent repair paths (the recognition label and
+ * scene-description fallbacks). An entry matches only when EVERY token of one
+ * of its aliases (display name or synonym) appears in the query — "dog" can
+ * never pull in "hot dog", while "grilled hot dog" still can. Loose scoring
+ * lives in searchCatalog, where a human picks from the results. Ambiguity
+ * (two entries tied on their best alias) returns null: for an automatic
+ * substitution, no answer beats a coin flip. */
+export function matchLabel(query: string, tables: Tables): CatalogEntry | null {
+  const queryTokens = new Set(tokenize(query.slice(0, MAX_QUERY_LENGTH)));
+  if (queryTokens.size === 0) return null;
+
+  if (queryTokens.size === 1) {
+    const alias = SINGLE_WORD_ALIASES[[...queryTokens][0]!];
+    if (alias && tables.catalog.has(alias)) return tables.catalog.get(alias)!;
+  }
+
+  let best: { e: CatalogEntry; tokens: number } | null = null;
+  let tied = false;
+  for (const e of tables.catalog.values()) {
+    for (const alias of [e.display_name, ...e.synonyms]) {
+      const aliasTokens = tokenize(alias);
+      if (aliasTokens.length === 0) continue;
+      if (!aliasTokens.every((t) => queryTokens.has(t))) continue;
+      if (!best || aliasTokens.length > best.tokens) {
+        best = { e, tokens: aliasTokens.length };
+        tied = false;
+      } else if (aliasTokens.length === best.tokens && e !== best.e) {
+        tied = true;
+      }
+    }
+  }
+  return best && !tied ? best.e : null;
+}
+
 export function searchCatalog(
   query: string, tables: Tables, limit = 8,
 ): CatalogEntry[] {
