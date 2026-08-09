@@ -1,0 +1,125 @@
+# Production Operations
+
+Drop uses two production systems: Railway for the backend API and EAS Update for the mobile application.
+
+## Backend production
+
+The backend runs on Railway:
+
+- API: <https://drop-backend-production-375a.up.railway.app>
+- Health check: <https://drop-backend-production-375a.up.railway.app/v1/health>
+
+The mobile app reads this URL from `expo.extra.apiBaseUrl` in `mobile/app.json`.
+
+Backend deployments take effect immediately. Users do not need to update or restart the mobile app unless the API contract changes alongside mobile code.
+
+### Deploy the backend
+
+From the repository root:
+
+```bash
+set -a
+source .env
+set +a
+
+npx @railway/cli up \
+  --project d231d90a-05c8-41c6-9e43-1660f72eedbc \
+  --environment production \
+  --service drop-backend
+```
+
+Verify the deployment:
+
+```bash
+curl -fsS https://drop-backend-production-375a.up.railway.app/v1/health
+```
+
+## Mobile production updates
+
+The EAS project is [`@heemangstudios/drop`](https://expo.dev/accounts/heemangstudios/projects/drop).
+
+Production configuration:
+
+- Channel: `production`
+- Branch: `production`
+- Runtime version: derived from the app version
+- Current runtime: `1.0.0`
+- Update URL: `https://u.expo.dev/6fc6a34f-493b-49c4-979b-82d04c10a438`
+
+The app checks for updates when it launches. With the current zero-second launch wait, it starts immediately and downloads a new update in the background. The downloaded update is applied on the next cold launch.
+
+### Publish an update
+
+Use EAS Update for TypeScript, JavaScript, UI, styling, copy, application logic, and bundled assets.
+
+Publish iOS and Android separately because the web export currently fails on the `expo-sqlite` WASM dependency:
+
+```bash
+cd mobile
+set -a
+source ../.env
+set +a
+
+CI=1 npx eas-cli update \
+  --channel production \
+  --environment production \
+  --platform ios \
+  --message "Describe the change" \
+  --non-interactive
+
+CI=1 npx eas-cli update \
+  --channel production \
+  --environment production \
+  --platform android \
+  --message "Describe the change" \
+  --non-interactive
+```
+
+Before publishing:
+
+```bash
+npm run typecheck
+npm test
+npx expo-doctor
+```
+
+## When a new binary is required
+
+Create a new native build for changes involving:
+
+- Native packages
+- Camera or system permissions
+- Expo SDK or React Native upgrades
+- iOS or Android native configuration
+- A new app/runtime version
+
+The runtime policy follows the app version. Changing `mobile/app.json` from `1.0.0` to `1.1.0` creates runtime `1.1.0`. Distribute a `1.1.0` binary before publishing updates for that runtime.
+
+### Build production binaries
+
+```bash
+cd mobile
+
+npx eas-cli build --profile production --platform ios
+npx eas-cli build --profile production --platform android
+```
+
+Submit the completed builds through EAS Submit:
+
+```bash
+npx eas-cli submit --profile production --platform ios
+npx eas-cli submit --profile production --platform android
+```
+
+Store-installed production builds receive compatible updates from the `production` channel.
+
+## Rollback
+
+Use the EAS dashboard to select a previous production update, or inspect available rollback commands with:
+
+```bash
+cd mobile
+npx eas-cli update:rollback --help
+```
+
+A rollback must target the same runtime version as the installed binary.

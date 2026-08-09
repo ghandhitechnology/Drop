@@ -7,7 +7,6 @@
     "icon": "./assets/icon.png",
     "scheme": "drop",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "rocks.ourplanet.drop",
       "supportsTablet": true,
@@ -52,6 +51,19 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "apiBaseUrl": "https://drop-backend-production-375a.up.railway.app",
+      "eas": {
+        "projectId": "6fc6a34f-493b-49c4-979b-82d04c10a438"
+      }
+    },
+    "owner": "heemangstudios",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6fc6a34f-493b-49c4-979b-82d04c10a438"
     }
   }
 }

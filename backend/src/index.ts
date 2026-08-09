@@ -1,3 +1,5 @@
+import { execFileSync } from 'node:child_process';
+import { networkInterfaces } from 'node:os';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { etag } from 'hono/etag';
@@ -77,12 +79,45 @@ app.route('/v1/recognize', recognize);
 app.route('/v1/barcode', barcode);
 app.route('/v1/research', research);
 
+/** Tailscale uses the 100.64.0.0/10 CGNAT range for device IPv4s. */
+function isTailnetIp(ip: string): boolean {
+  const [a, b] = ip.split('.').map(Number);
+  return a === 100 && b >= 64 && b <= 127;
+}
+
+/**
+ * The address to serve on. The service speaks about what you are about to
+ * consume, so it never listens outside the tailnet: `HOST` pins a specific
+ * address, otherwise the Tailscale IPv4 is detected and used. Refuses to
+ * serve rather than fall back to 0.0.0.0.
+ */
+function tailnetHost(): string {
+  const pinned = process.env.HOST;
+  if (pinned) return pinned;
+  try {
+    const out = execFileSync('tailscale', ['ip', '-4'], { timeout: 5000 }).toString();
+    const first = out.trim().split(/\s+/)[0];
+    if (first && isTailnetIp(first)) return first;
+  } catch {
+    // no tailscale binary; fall through to interface inspection
+  }
+  for (const ifaces of Object.values(networkInterfaces())) {
+    for (const iface of ifaces ?? []) {
+      if (iface.family === 'IPv4' && !iface.internal && isTailnetIp(iface.address)) {
+        return iface.address;
+      }
+    }
+  }
+  throw new Error('no Tailscale IPv4 found — cannot serve outside the tailnet');
+}
+
 // Tests import `app` for in-process requests (app.request(...)) and must
 // not also bind a real port — vitest sets VITEST=true for every run.
 if (process.env.VITEST !== 'true') {
   const port = Number(process.env.PORT ?? 8787);
-  console.log(`Drop backend on :${port} — factors ${FACTORS_VERSION}`);
-  serve({ fetch: app.fetch, port });
+  const hostname = tailnetHost();
+  console.log(`Drop backend on http://${hostname}:${port} (tailnet only) — factors ${FACTORS_VERSION}`);
+  serve({ fetch: app.fetch, port, hostname });
 }
 
 export { app };
