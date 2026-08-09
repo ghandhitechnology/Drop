@@ -8,26 +8,66 @@
  * Run: node scripts/check-contrast.mjs
  */
 
-const palette = {
-  light: {
-    bg: '#FFFFFF',
-    paper: '#FAF9F6',
-    ink: '#16150F',
-    inkSoft: 'rgba(22,21,15,0.62)',
-    inkFaint: 'rgba(22,21,15,0.18)',
-    accent: '#1E6FD9',
-    accentSoft: '#DCE9FA',
-    positive: '#2E7D5B',
+const palettes = {
+  default: {
+    light: {
+      bg: '#FFFFFF',
+      paper: '#FAF9F6',
+      ink: '#16150F',
+      inkSoft: 'rgba(22,21,15,0.62)',
+      accent: '#1E6FD9',
+      accentSoft: '#DCE9FA',
+      positive: '#2E7D5B',
+    },
+    dark: {
+      bg: '#000000',
+      paper: '#0C0C0E',
+      ink: '#F4F1E8',
+      inkSoft: 'rgba(244,241,232,0.66)',
+      accent: '#7FB4FF',
+      accentSoft: '#122236',
+      positive: '#6FD3A4',
+    },
   },
-  dark: {
-    bg: '#000000',
-    paper: '#0C0C0E',
-    ink: '#F4F1E8',
-    inkSoft: 'rgba(244,241,232,0.66)',
-    inkFaint: 'rgba(244,241,232,0.20)',
-    accent: '#7FB4FF',
-    accentSoft: '#122236',
-    positive: '#6FD3A4',
+  saltyOcean1: {
+    light: {
+      bg: '#ADD8EA',
+      paper: '#CBE7F2',
+      ink: '#52372D',
+      inkSoft: 'rgba(82,55,45,0.84)',
+      accent: '#744D3C',
+      accentSoft: '#96C9DD',
+      positive: '#285F56',
+    },
+    dark: {
+      bg: '#12334E',
+      paper: '#1A425D',
+      ink: '#E8C9AC',
+      inkSoft: 'rgba(232,201,172,0.76)',
+      accent: '#F2BC84',
+      accentSoft: '#30546D',
+      positive: '#8CC9AD',
+    },
+  },
+  absolutely: {
+    light: {
+      bg: '#FAF9F5',
+      paper: '#FFFFFF',
+      ink: '#141413',
+      inkSoft: '#3D3D3A',
+      accent: '#9C452C',
+      accentSoft: '#E8E6DC',
+      positive: '#437426',
+    },
+    dark: {
+      bg: '#30302E',
+      paper: '#262624',
+      ink: '#FAF9F5',
+      inkSoft: '#C2C0B6',
+      accent: '#E58C6B',
+      accentSoft: '#48332B',
+      positive: '#9AC693',
+    },
   },
 };
 
@@ -84,16 +124,18 @@ const CHECKS = [
 
 let failures = 0;
 
-for (const scheme of ['light', 'dark']) {
-  console.log(`\n${scheme}`);
-  for (const [fg, bg, min] of CHECKS) {
-    const ratio = contrast(palette[scheme][fg], palette[scheme][bg]);
-    const ok = ratio >= min;
-    if (!ok) failures += 1;
-    console.log(
-      `  ${ok ? 'PASS' : 'FAIL'}  ${fg} on ${bg}`.padEnd(34) +
-        `${ratio.toFixed(2)}:1 (min ${min})`,
-    );
+for (const [theme, palette] of Object.entries(palettes)) {
+  for (const scheme of ['light', 'dark']) {
+    console.log(`\n${theme} · ${scheme}`);
+    for (const [fg, bg, min] of CHECKS) {
+      const ratio = contrast(palette[scheme][fg], palette[scheme][bg]);
+      const ok = ratio >= min;
+      if (!ok) failures += 1;
+      console.log(
+        `  ${ok ? 'PASS' : 'FAIL'}  ${fg} on ${bg}`.padEnd(34) +
+          `${ratio.toFixed(2)}:1 (min ${min})`,
+      );
+    }
   }
 }
 

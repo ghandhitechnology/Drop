@@ -14,7 +14,7 @@ import { CameraStage, useTakePhoto, type StageSize } from './CameraStage';
 import { FramingNote } from './FramingNote';
 import { CHIP_HEIGHT, HandChip, HandChipStatic } from './HandChip';
 import { LibraryChip } from './LibraryChip';
-import { overlayInk } from './overlay';
+import { useOverlayInk } from './overlay';
 import { PermissionPrompt } from './PermissionPrompt';
 import { Shutter } from './Shutter';
 import { type CaptureState } from './types';
@@ -51,6 +51,7 @@ function isFraming(state: CaptureState): boolean {
  */
 export function CaptureHome() {
   const { colors } = useTheme();
+  const overlayInk = useOverlayInk();
   const { width } = useWindowDimensions();
   const router = useRouter();
 

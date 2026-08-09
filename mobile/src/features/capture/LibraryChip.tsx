@@ -22,7 +22,7 @@ import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
 import { copy } from '../../lib/copy';
 import { CHIP_HEIGHT, HandChip } from './HandChip';
-import { overlayInk } from './overlay';
+import { useOverlayInk } from './overlay';
 
 /** Authored on the same 24×24 grid every other drawn mark uses. */
 const GRID = 24;
@@ -37,6 +37,7 @@ export type LibraryChipProps = {
 };
 
 export function LibraryChip({ onPress, disabled, style }: LibraryChipProps) {
+  const overlayInk = useOverlayInk();
   const path = useMemo(() => {
     const u = GLYPH / GRID;
     const builder = Skia.PathBuilder.Make();

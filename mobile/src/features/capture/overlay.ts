@@ -1,56 +1,95 @@
 /**
  * Colours for marks that sit directly on the camera preview.
  *
- * These deliberately sit outside the theme tokens. Tokens describe ink on
- * paper; a viewfinder is neither, and its brightness changes with whatever the
- * lens is pointed at. Controls over live video are therefore always white,
- * always carried on their own dark scrim, so contrast holds in a bright shop
- * aisle and in a dim kitchen alike.
+ * Default keeps the original white viewfinder ink. The two authored color
+ * themes carry their identity onto the glass: Salty ocean draws in brown and
+ * Absolutely in Claude's red-brown. Each colored mark gets a theme-matched
+ * halo or wash so it remains legible as the live image changes underneath it.
  */
-export const overlayInk = {
-  /** Marks and text on the preview. */
-  mark: '#FFFFFF',
-  /** Secondary marks — still white, carried at lower weight. */
-  markSoft: 'rgba(255,255,255,0.76)',
-  /** The scrim every piece of overlay text sits on. */
-  scrim: 'rgba(0,0,0,0.46)',
-  /**
-   * The wash inside a drawn chip. Warm rather than neutral — it is paper held
-   * up against the light, not a black box laid over it — and translucent enough
-   * that the frame keeps reading through the control sitting on it.
-   */
-  tint: 'rgba(24,20,12,0.42)',
-  /** The pencil line around a drawn chip. */
-  outline: 'rgba(255,255,255,0.88)',
-  /**
-   * Carried under loose marks and annotation text that have no chip beneath
-   * them, so a white line stays readable against a white wall.
-   */
-  halo: 'rgba(0,0,0,0.55)',
-  /** A heavier scrim for the top and bottom bands. */
-  band: 'rgba(0,0,0,0.34)',
-  /** Fill behind the shutter's inner disc. */
-  shutterFill: '#FFFFFF',
-} as const;
+import { usePreferences } from '../../design/preferences';
+import { useTheme } from '../../design/theme';
 
-/**
- * How far the reticle closes on the shutter alone.
- *
- * Writing the photo is not instant, and the corners used to spend that gap
- * finishing their whole trip — arriving at an empty slot and dissolving there,
- * so the print read as a second event that started over from the top. They now
- * close most of the way and hold. The print picks the square up exactly where
- * they parked it, which is why this number is shared: it is one square changing
- * hands, not two shapes doing the same journey one after the other.
- */
+export type OverlayInk = {
+  mark: string;
+  markSoft: string;
+  scrim: string;
+  tint: string;
+  outline: string;
+  halo: string;
+  band: string;
+  shutterFill: string;
+};
+
+const DEFAULT_INK: OverlayInk = {
+  mark: '#FFFFFF',
+  markSoft: 'rgba(255,255,255,0.76)',
+  scrim: 'rgba(0,0,0,0.46)',
+  tint: 'rgba(24,20,12,0.42)',
+  outline: 'rgba(255,255,255,0.88)',
+  halo: 'rgba(0,0,0,0.55)',
+  band: 'rgba(0,0,0,0.34)',
+  shutterFill: '#FFFFFF',
+};
+
+const SALTY_INK: Record<'light' | 'dark', OverlayInk> = {
+  light: {
+    mark: '#52372D',
+    markSoft: 'rgba(82,55,45,0.76)',
+    scrim: 'rgba(203,231,242,0.68)',
+    tint: 'rgba(203,231,242,0.58)',
+    outline: 'rgba(82,55,45,0.88)',
+    halo: 'rgba(203,231,242,0.78)',
+    band: 'rgba(18,51,78,0.30)',
+    shutterFill: '#CBE7F2',
+  },
+  dark: {
+    mark: '#E8C9AC',
+    markSoft: 'rgba(232,201,172,0.76)',
+    scrim: 'rgba(18,51,78,0.72)',
+    tint: 'rgba(26,66,93,0.64)',
+    outline: 'rgba(232,201,172,0.88)',
+    halo: 'rgba(18,51,78,0.78)',
+    band: 'rgba(0,0,0,0.38)',
+    shutterFill: '#12334E',
+  },
+};
+
+const ABSOLUTELY_INK: Record<'light' | 'dark', OverlayInk> = {
+  light: {
+    mark: '#9C452C',
+    markSoft: 'rgba(156,69,44,0.76)',
+    scrim: 'rgba(250,249,245,0.72)',
+    tint: 'rgba(250,249,245,0.62)',
+    outline: 'rgba(156,69,44,0.88)',
+    halo: 'rgba(250,249,245,0.80)',
+    band: 'rgba(20,20,19,0.30)',
+    shutterFill: '#FAF9F5',
+  },
+  dark: {
+    mark: '#E58C6B',
+    markSoft: 'rgba(229,140,107,0.78)',
+    scrim: 'rgba(20,20,19,0.72)',
+    tint: 'rgba(38,38,36,0.66)',
+    outline: 'rgba(229,140,107,0.88)',
+    halo: 'rgba(20,20,19,0.80)',
+    band: 'rgba(0,0,0,0.40)',
+    shutterFill: '#262624',
+  },
+};
+
+export function useOverlayInk(): OverlayInk {
+  const colorTheme = usePreferences((state) => state.theme);
+  const { scheme } = useTheme();
+
+  if (colorTheme === 'saltyOcean1') return SALTY_INK[scheme];
+  if (colorTheme === 'absolutely') return ABSOLUTELY_INK[scheme];
+  return DEFAULT_INK;
+}
+
+/** How far the reticle closes on the shutter alone. */
 export const RETICLE_HANDOFF = 0.55;
 
-/**
- * Share of the print's arrival the corners are still drawn over it for.
- *
- * They let go by dissolving off the print rather than before it, so the last
- * thing the pencil does is hand the frame over.
- */
+/** Share of the print's arrival the corners are still drawn over it for. */
 export const RETICLE_RELEASE = 0.42;
 
 /** How far the preview is dimmed once a result is on screen. */
@@ -59,10 +98,7 @@ export const RESULT_DIM = 0.62;
 /** Blur radius applied to the frozen frame once a result is on screen. */
 export const RESULT_BLUR = 16;
 
-/**
- * Recognition only needs the held frame as context. Obscuring it more heavily
- * keeps simulator timecode and visually loud packaging behind the status line.
- */
+/** Recognition only needs the held frame as context. */
 export const PROCESSING_DIM = 0.88;
 
 /** Blur used while the service is reading the captured frame. */

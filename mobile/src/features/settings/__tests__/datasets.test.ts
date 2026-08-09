@@ -88,12 +88,14 @@ describe('catalogSize', () => {
 describe('parsePreferences', () => {
   it('reads a blob it wrote itself', () => {
     const stored = JSON.stringify({
+      theme: 'saltyOcean1',
       scheme: 'dark',
       motion: 'reduced',
       texture: false,
       legibleText: true,
     });
     expect(parsePreferences(stored)).toEqual({
+      theme: 'saltyOcean1',
       scheme: 'dark',
       motion: 'reduced',
       texture: false,
@@ -116,6 +118,7 @@ describe('parsePreferences', () => {
    */
   it('drops fields it does not understand and keeps the ones it does', () => {
     const stored = JSON.stringify({
+      theme: 'neon',
       scheme: 'sepia',
       motion: 'reduced',
       texture: 'off',
@@ -129,5 +132,33 @@ describe('parsePreferences', () => {
       texture: false,
     });
     expect(parsePreferences(JSON.stringify({}))).toEqual({});
+  });
+
+  it('accepts every authored theme family', () => {
+    expect(parsePreferences(JSON.stringify({ theme: 'default' }))).toEqual({
+      theme: 'default',
+    });
+    expect(parsePreferences(JSON.stringify({ theme: 'saltyOcean1' }))).toEqual({
+      theme: 'saltyOcean1',
+    });
+    expect(parsePreferences(JSON.stringify({ theme: 'absolutely' }))).toEqual({
+      theme: 'absolutely',
+    });
+  });
+
+  it('migrates retired Salty ocean variants to the chosen palette', () => {
+    for (const theme of [
+      'saltyOcean',
+      'saltyOcean2',
+      'saltyOcean3',
+      'saltyOcean4',
+      'saltyOcean5',
+      'saltyOcean6',
+      'saltyOcean7',
+    ]) {
+      expect(parsePreferences(JSON.stringify({ theme }))).toEqual({
+        theme: 'saltyOcean1',
+      });
+    }
   });
 });

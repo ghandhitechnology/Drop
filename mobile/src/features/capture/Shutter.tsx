@@ -17,7 +17,7 @@ import { HandPath } from '../../drawing/HandPath';
 import { Touch } from '../../ui/Touch';
 import { copy } from '../../lib/copy';
 import { tapSelection, tapShutter } from '../../lib/haptics';
-import { overlayInk } from './overlay';
+import { useOverlayInk } from './overlay';
 
 /** Drawn size. Comfortably past the 48dp floor, and reachable with one thumb. */
 export const SHUTTER_SIZE = 76;
@@ -47,6 +47,7 @@ export function Shutter({
   fast,
   disabled = false,
 }: ShutterProps) {
+  const overlayInk = useOverlayInk();
   const motion = useMotion();
   const press = useSharedValue(0);
   const didLongPress = useRef(false);

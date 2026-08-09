@@ -17,15 +17,30 @@ import {
   type PreferencesState,
   type SchemePreference,
 } from '../../design/preferences';
+import type { ColorTheme } from '../../design/tokens';
 
 const KEY = 'preferences.v1';
 
 /** The durable shape. Only the values — the setters are not data. */
 type StoredPreferences = Pick<
   PreferencesState,
-  'scheme' | 'motion' | 'texture' | 'legibleText'
+  'theme' | 'scheme' | 'motion' | 'texture' | 'legibleText'
 >;
 
+const THEMES: ColorTheme[] = [
+  'default',
+  'saltyOcean1',
+  'absolutely',
+];
+const RETIRED_SALTY_OCEANS = [
+  'saltyOcean',
+  'saltyOcean2',
+  'saltyOcean3',
+  'saltyOcean4',
+  'saltyOcean5',
+  'saltyOcean6',
+  'saltyOcean7',
+];
 const SCHEMES: SchemePreference[] = ['system', 'light', 'dark'];
 const MOTIONS: MotionPreference[] = ['system', 'full', 'reduced'];
 
@@ -49,6 +64,13 @@ export function parsePreferences(raw: string | null): Partial<StoredPreferences>
   const source = parsed as Record<string, unknown>;
   const out: Partial<StoredPreferences> = {};
 
+  // Keep anyone who selected a visual-check variant on the chosen ocean
+  // direction now that Salty ocean 1 is the single authored version.
+  if (RETIRED_SALTY_OCEANS.includes(source.theme as string)) {
+    out.theme = 'saltyOcean1';
+  } else if (THEMES.includes(source.theme as ColorTheme)) {
+    out.theme = source.theme as ColorTheme;
+  }
   if (SCHEMES.includes(source.scheme as SchemePreference)) {
     out.scheme = source.scheme as SchemePreference;
   }
@@ -63,6 +85,7 @@ export function parsePreferences(raw: string | null): Partial<StoredPreferences>
 
 function snapshot(state: PreferencesState): StoredPreferences {
   return {
+    theme: state.theme,
     scheme: state.scheme,
     motion: state.motion,
     texture: state.texture,
@@ -72,6 +95,7 @@ function snapshot(state: PreferencesState): StoredPreferences {
 
 function same(a: StoredPreferences, b: StoredPreferences): boolean {
   return (
+    a.theme === b.theme &&
     a.scheme === b.scheme &&
     a.motion === b.motion &&
     a.texture === b.texture &&

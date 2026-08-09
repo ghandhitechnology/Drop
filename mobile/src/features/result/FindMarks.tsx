@@ -31,7 +31,7 @@ import {
 import { duration } from '../../design/motion';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
-import { overlayInk } from '../capture/overlay';
+import { useOverlayInk } from '../capture/overlay';
 import { MAX_PLATE_ITEMS } from '../capture/pipeline';
 import type { NormalizedBox } from '../capture/types';
 
@@ -188,6 +188,7 @@ function FindMark({
   from: number;
   to: number;
 }) {
+  const overlayInk = useOverlayInk();
   const end = useDerivedValue(() => {
     const p = interpolate(run.value, [from, to], [0, 1], Extrapolation.CLAMP);
     // Ease-out, so each arm arrives rather than stops.
