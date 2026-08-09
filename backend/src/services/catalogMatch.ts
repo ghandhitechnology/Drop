@@ -66,7 +66,7 @@ function foldPlural(t: string): string {
   return t.length > 3 && t.endsWith('s') ? t.slice(0, -1) : t;
 }
 
-function tokenize(s: string): string[] {
+export function tokenize(s: string): string[] {
   return s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean)
     .map(foldPlural);
 }

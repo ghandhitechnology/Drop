@@ -95,7 +95,7 @@ function shapeCandidates(raw: RawCandidate[], tables: Tables): OutCandidate[] {
   return out;
 }
 
-function shapeBox(raw: RawItem['box']): OutBox | null {
+export function shapeBox(raw: RawItem['box']): OutBox | null {
   if (!raw) return null;
   const x = clamp01(raw.x ?? 0);
   const y = clamp01(raw.y ?? 0);
@@ -107,7 +107,9 @@ function shapeBox(raw: RawItem['box']): OutBox | null {
   return { x, y, w, h };
 }
 
-function shapeQuantity(raw: RawItem['quantity']): RecognizedItemOut['quantity'] {
+export function shapeQuantity(
+  raw: RawItem['quantity'],
+): RecognizedItemOut['quantity'] {
   if (!raw || typeof raw.value !== 'number' || !raw.unit || !raw.basis) {
     return null;
   }
