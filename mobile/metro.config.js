@@ -32,4 +32,10 @@ config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
 ];
 
+// expo-sqlite's web worker imports wa-sqlite's WebAssembly binary directly, and
+// `.wasm` is not one of the extensions Metro resolves by default — so the web
+// bundle fails on a file that is sitting right there in node_modules. Native
+// builds never reach this import; registering the extension only affects web.
+config.resolver.assetExts = [...config.resolver.assetExts, 'wasm'];
+
 module.exports = config;
