@@ -47,10 +47,7 @@ function announce(message: string) {
  * pile ends the run, and what that means — write the queue, or fold the whole
  * thing back into the shutter — is the stage's decision, not the machine's.
  */
-function movable(
-  state: Extract<CaptureState, { name: 'plating' }>,
-  index: number,
-): boolean {
+function movable(state: Extract<CaptureState, { name: 'plating' }>, index: number): boolean {
   if (index < 0 || index >= state.items.length) return false;
   if (state.dismissed.includes(index) || state.queued.includes(index)) return false;
   const onPile = state.items.length - state.dismissed.length - state.queued.length;
@@ -190,7 +187,11 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
           onRecognizing: () =>
             forRun(token, (current) =>
               current.name === 'captured'
-                ? { name: 'recognizing', photoUri: current.photoUri, anchor: current.anchor }
+                ? {
+                    name: 'recognizing',
+                    photoUri: current.photoUri,
+                    anchor: current.anchor,
+                  }
                 : null,
             ),
 
@@ -210,10 +211,7 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
             forRun(token, (current) => {
               if (current.name !== 'analyzing') return null;
               announce(
-                copy.capture.announce.presenting(
-                  estimate.display_name,
-                  litresSentence(estimate),
-                ),
+                copy.capture.announce.presenting(estimate.display_name, litresSentence(estimate)),
               );
               return {
                 name: 'presenting',
@@ -245,6 +243,18 @@ export const useCaptureMachine = create<CaptureStore>((set, get) => {
                 name: 'unresolved',
                 photoUri: current.photoUri,
                 anchor: current.anchor,
+              };
+            }),
+
+          onLimited: (usage) =>
+            forRun(token, (current) => {
+              if (!('photoUri' in current) || !('anchor' in current)) return null;
+              announce(copy.usage.announce.limited);
+              return {
+                name: 'limited',
+                photoUri: current.photoUri,
+                anchor: current.anchor,
+                usage,
               };
             }),
         },

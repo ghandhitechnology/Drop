@@ -34,6 +34,34 @@ Verify the deployment:
 curl -fsS https://drop-backend-production-375a.up.railway.app/v1/health
 ```
 
+### Daily camera usage storage
+
+The per-installation daily camera allowance requires a Railway Postgres
+service. Link its private connection string into `drop-backend` as
+`DATABASE_URL`, then set:
+
+```text
+USAGE_ENFORCEMENT=on
+USAGE_LEGACY_POLICY=allow
+```
+
+The backend start script applies the versioned usage migrations under a
+Postgres advisory lock before opening the HTTP listener. A production health
+response must report `usage_store: "ready"` before the new mobile build is
+released.
+
+The compatibility rollout is intentionally staged:
+
+1. Deploy the backend with `USAGE_LEGACY_POLICY=allow`.
+2. Release the native mobile build containing Secure Store and Crypto.
+3. Leave compatibility enabled for seven days while watching the structured
+   `[usage] legacy analysis allowed` log.
+4. Set `USAGE_LEGACY_POLICY=reject`; old builds then receive HTTP 426.
+
+`USAGE_ENFORCEMENT=off` is the incident-only kill switch. It serves a virtual
+zero-usage snapshot and lets analysis proceed without Postgres; restore it to
+`on` after the incident is resolved.
+
 ## Mobile production updates
 
 The EAS project is [`@heemangstudios/drop`](https://expo.dev/accounts/heemangstudios/projects/drop).
@@ -92,6 +120,9 @@ Create a new native build for changes involving:
 - Expo SDK or React Native upgrades
 - iOS or Android native configuration
 - A new app/runtime version
+
+The daily usage feature adds `expo-secure-store` and `expo-crypto`, so its first
+release requires new iOS and Android binaries rather than an OTA-only update.
 
 The runtime policy follows the app version. Changing `mobile/app.json` from `1.0.0` to `1.1.0` creates runtime `1.1.0`. Distribute a `1.1.0` binary before publishing updates for that runtime.
 

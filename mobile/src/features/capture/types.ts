@@ -150,7 +150,13 @@ export type CaptureState =
   | { name: 'presenting'; photoUri: string; anchor: Rect; estimate: Estimate }
   | { name: 'expanded'; photoUri: string; anchor: Rect; estimate: Estimate }
   | { name: 'adjusting'; photoUri: string; anchor: Rect; estimate: Estimate }
-  | { name: 'confirmed'; photoUri: string; anchor: Rect; estimate: Estimate; entryId: string }
+  | {
+      name: 'confirmed';
+      photoUri: string;
+      anchor: Rect;
+      estimate: Estimate;
+      entryId: string;
+    }
   | {
       name: 'plating';
       photoUri: string;
@@ -182,7 +188,13 @@ export type CaptureState =
       /** What actually went into history — the merged plate, or the one survivor. */
       saved: Estimate;
     }
-  | { name: 'unresolved'; photoUri: string; anchor: Rect };
+  | { name: 'unresolved'; photoUri: string; anchor: Rect }
+  | {
+      name: 'limited';
+      photoUri: string;
+      anchor: Rect;
+      usage: import('../../data/api/usage').UsageSnapshot;
+    };
 
 export type CaptureStateName = CaptureState['name'];
 
@@ -203,9 +215,7 @@ export function estimateOf(state: CaptureState): Estimate | null {
 
 /** Every card of a plate, whichever side of the confirm it is on. */
 export function plateItemsOf(state: CaptureState): PlateItem[] | null {
-  return state.name === 'plating' || state.name === 'plateConfirmed'
-    ? state.items
-    : null;
+  return state.name === 'plating' || state.name === 'plateConfirmed' ? state.items : null;
 }
 
 /**
@@ -222,9 +232,7 @@ export function keptItemsOf(state: CaptureState): PlateItem[] {
 /** Indices of the cards a save would write, in the order they read off the photo. */
 export function keptIndicesOf(state: CaptureState): number[] {
   if (state.name !== 'plating') return [];
-  return state.items
-    .map((_, index) => index)
-    .filter((index) => !state.dismissed.includes(index));
+  return state.items.map((_, index) => index).filter((index) => !state.dismissed.includes(index));
 }
 
 /**
@@ -241,16 +249,12 @@ export function pileIndicesOf(state: CaptureState): number[] {
   if (state.name !== 'plating') return [];
   return state.items
     .map((_, index) => index)
-    .filter(
-      (index) => !state.dismissed.includes(index) && !state.queued.includes(index),
-    );
+    .filter((index) => !state.dismissed.includes(index) && !state.queued.includes(index));
 }
 
 /** How many cards are waiting in the tray, unwritten. */
 export function queuedCountOf(state: CaptureState): number {
-  return state.name === 'plating' || state.name === 'plateConfirmed'
-    ? state.queued.length
-    : 0;
+  return state.name === 'plating' || state.name === 'plateConfirmed' ? state.queued.length : 0;
 }
 
 /**
@@ -300,5 +304,5 @@ export function acceptsCapture(state: CaptureState): boolean {
 
 /** True while the full captured photo must stay behind the framed print. */
 export function isFrameObscured(state: CaptureState): boolean {
-  return isBusy(state) || state.name === 'unresolved';
+  return isBusy(state) || state.name === 'unresolved' || state.name === 'limited';
 }

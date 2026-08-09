@@ -10,6 +10,9 @@
     "ios": {
       "bundleIdentifier": "rocks.ourplanet.drop",
       "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "Drop connects to the development server and local recognition service while you test on your iPhone.",
         "UIViewControllerBasedStatusBarAppearance": true
@@ -53,7 +56,8 @@
         {
           "photosPermission": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

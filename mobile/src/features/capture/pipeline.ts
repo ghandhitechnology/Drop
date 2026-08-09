@@ -32,17 +32,12 @@ import { hydrateCatalog } from '../../data/catalogStore';
 import { getDb } from '../../data/db';
 import { FACTORS_VERSION, getTables } from '../../data/tables';
 import { copy } from '../../lib/copy';
+import { createAnalysisId, releaseAnalysis, reserveAnalysis, type UsageSnapshot } from '../usage';
 import { clearCandidates, offerCandidates } from '../search/candidates';
 import { estimateFor, type PickedQuantity } from '../search/estimate';
 import { takeSearchPicks, type SearchPick } from '../search/pick';
 import { BARCODE_TIMEOUT_MS, HARD_CEILING_MS } from './pace';
-import type {
-  BarcodeHint,
-  CaptureMode,
-  Estimate,
-  PlateItem,
-  RecognizedItem,
-} from './types';
+import type { BarcodeHint, CaptureMode, Estimate, PlateItem, RecognizedItem } from './types';
 
 export type PipelineInput = {
   photoUri: string;
@@ -63,6 +58,8 @@ export type PipelineHandlers = {
   onPresentingMany: (items: PlateItem[]) => void;
   /** The photo is held and the person is invited to find it by name. */
   onUnresolved: () => void;
+  /** The server-authoritative daily allowance has been used. */
+  onLimited: (usage: UsageSnapshot) => void;
 };
 
 export type PipelineRun = { cancel: () => void };
@@ -135,7 +132,11 @@ const SAMPLE_ITEM: RecognizedItem = {
 };
 
 /** Stand-in latencies, chosen to feel like the real thing rather than instant. */
-export const FAKE_TIMINGS = { recognizing: 220, analyzing: 760, presenting: 620 } as const;
+export const FAKE_TIMINGS = {
+  recognizing: 220,
+  analyzing: 760,
+  presenting: 620,
+} as const;
 
 /* ------------------------------------------------------------ fake impl */
 
@@ -246,7 +247,14 @@ function fromBarcode(
   quantity: PickedQuantity | null,
   gtin14: string,
 ): Resolution {
-  return { catalogId, displayName, quantity, gtin14, shortlist: [], source: 'barcode' };
+  return {
+    catalogId,
+    displayName,
+    quantity,
+    gtin14,
+    shortlist: [],
+    source: 'barcode',
+  };
 }
 
 /**
@@ -268,6 +276,14 @@ export const realPipeline: Pipeline = (input, handlers) => {
   let settled = false;
   let cancelled = false;
   const controller = new AbortController();
+  let analysisId: string | null = null;
+  let reservationPending = false;
+
+  const releasePending = () => {
+    if (!analysisId || !reservationPending) return;
+    reservationPending = false;
+    releaseAnalysis(analysisId).catch(() => {});
+  };
 
   /** Exactly one ending, whoever gets there first. */
   const finish = (emit: () => void) => {
@@ -317,6 +333,10 @@ export const realPipeline: Pipeline = (input, handlers) => {
       };
     }
 
+    analysisId = createAnalysisId();
+    await reserveAnalysis(analysisId, { signal: controller.signal });
+    reservationPending = true;
+
     /**
      * A net weight read off the packet, kept even when the code itself
      * resolved to nothing. "330 ml" is printed on the tin whatever the
@@ -327,11 +347,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
 
     const visionController = input.mode === 'fast' ? new AbortController() : null;
     if (visionController) {
-      controller.signal.addEventListener(
-        'abort',
-        () => visionController.abort(),
-        { once: true },
-      );
+      controller.signal.addEventListener('abort', () => visionController.abort(), { once: true });
     }
 
     const readPhoto = async () => {
@@ -342,6 +358,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
         timeoutMs: RECOGNIZE_TIMEOUT_MS,
         signal: visionController?.signal ?? controller.signal,
         mode: input.mode,
+        analysisId: analysisId!,
         ...(input.barcode ? { hint: `retail code ${input.barcode.value}` } : {}),
       });
     };
@@ -349,12 +366,13 @@ export const realPipeline: Pipeline = (input, handlers) => {
     // Fast mode starts vision immediately. The settled wrapper prevents a
     // quick vision failure becoming an unhandled rejection while barcode —
     // which always has precedence — is still in flight.
-    const parallelVision = input.mode === 'fast'
-      ? readPhoto().then(
-          (seen) => ({ ok: true as const, seen }),
-          (error: unknown) => ({ ok: false as const, error }),
-        )
-      : null;
+    const parallelVision =
+      input.mode === 'fast'
+        ? readPhoto().then(
+            (seen) => ({ ok: true as const, seen }),
+            (error: unknown) => ({ ok: false as const, error }),
+          )
+        : null;
 
     // 2 — a code in frame. In fast mode the photo is already being read.
     if (input.barcode) {
@@ -362,6 +380,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
         const hit = await lookupBarcode(input.barcode.value, {
           timeoutMs: BARCODE_TIMEOUT_MS,
           signal: controller.signal,
+          analysisId: analysisId!,
         });
         if (hit.quantity?.basis === 'package_label') labelQuantity = hit.quantity;
 
@@ -369,7 +388,13 @@ export const realPipeline: Pipeline = (input, handlers) => {
         if (!hit.coverage_miss && catalogId && tables.catalog.has(catalogId)) {
           const entry = tables.catalog.get(catalogId)!;
           visionController?.abort();
-          console.log('[capture/pipeline] barcode', hit.ean, '→', catalogId, hit.mapping.match_level);
+          console.log(
+            '[capture/pipeline] barcode',
+            hit.ean,
+            '→',
+            catalogId,
+            hit.mapping.match_level,
+          );
           return {
             kind: 'single',
             resolution: fromBarcode(
@@ -407,9 +432,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
     // A frame holding several things becomes a plate. A packet's label
     // quantity stays on the single arm — one tin's 330 ml says nothing about
     // the rest of a plate.
-    const usable = seen.items.filter(
-      (item) => item.candidates.length > 0 || item.label !== '',
-    );
+    const usable = seen.items.filter((item) => item.candidates.length > 0 || item.label !== '');
     if (usable.length > 1) {
       console.log('[capture/pipeline] recognized plate of', usable.length);
       return { kind: 'many', items: usable.slice(0, MAX_PLATE_ITEMS) };
@@ -500,6 +523,10 @@ export const realPipeline: Pipeline = (input, handlers) => {
       finish(handlers.onUnresolved);
       return;
     }
+    // A presentable barcode or recognition response consumes the reservation
+    // on the server. Releasing a consumed row is harmless, but avoiding the
+    // extra call keeps the success path quiet.
+    reservationPending = false;
 
     if (identified.kind === 'picked') {
       const first = identified.plate[0]!;
@@ -558,12 +585,19 @@ export const realPipeline: Pipeline = (input, handlers) => {
     finish(() => handlers.onPresenting(outcome.estimate));
   }
 
-  run().catch((error) => {
-    console.log('[capture/pipeline] held', describe(error));
-    finish(handlers.onUnresolved);
-  }).finally(() => {
-    clearTimeout(ceiling);
-  });
+  run()
+    .catch((error) => {
+      console.log('[capture/pipeline] held', describe(error));
+      if (error instanceof ApiError && error.kind === 'rate_limited' && error.usage) {
+        finish(() => handlers.onLimited(error.usage!));
+      } else {
+        finish(handlers.onUnresolved);
+      }
+    })
+    .finally(() => {
+      clearTimeout(ceiling);
+      releasePending();
+    });
 
   return {
     cancel: () => {
@@ -571,6 +605,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
       settled = true;
       clearTimeout(ceiling);
       controller.abort();
+      releasePending();
     },
   };
 };

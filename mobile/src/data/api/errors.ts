@@ -10,6 +10,8 @@
  * without a native module in sight.
  */
 
+import type { UsageSnapshot } from './usage';
+
 export type ApiFailureKind =
   /** The request never reached the service — radio off, or nothing listening. */
   | 'offline'
@@ -19,17 +21,26 @@ export type ApiFailureKind =
   | 'server'
   /** The service answered with something this client cannot read. */
   | 'malformed'
+  /** The installation has used today's successful camera analyses. */
+  | 'rate_limited'
   /** The caller withdrew the request — a retake, or a superseded run. */
   | 'cancelled';
 
 export class ApiError extends Error {
   readonly kind: ApiFailureKind;
   readonly status: number | null;
+  readonly usage: UsageSnapshot | null;
 
-  constructor(kind: ApiFailureKind, message: string, status: number | null = null) {
+  constructor(
+    kind: ApiFailureKind,
+    message: string,
+    status: number | null = null,
+    usage: UsageSnapshot | null = null,
+  ) {
     super(message);
     this.name = 'ApiError';
     this.kind = kind;
     this.status = status;
+    this.usage = usage;
   }
 }

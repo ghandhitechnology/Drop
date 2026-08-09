@@ -76,12 +76,7 @@ import {
   type Rect,
 } from '../capture/types';
 import { characterSideForAnchor } from '../capture/anchor';
-import {
-  captureLayout,
-  PULL_ROW,
-  TEASER_HEIGHT,
-  TEASER_MAX_WIDTH_SHARE,
-} from '../capture/layout';
+import { captureLayout, PULL_ROW, TEASER_HEIGHT, TEASER_MAX_WIDTH_SHARE } from '../capture/layout';
 import { RETICLE_HANDOFF, RETICLE_RELEASE } from '../capture/overlay';
 import { Snapshot, snapshotTilt } from '../capture/Snapshot';
 import { useCaptureMachine } from '../capture/useCaptureMachine';
@@ -99,6 +94,7 @@ import { ResultCard } from './ResultCard';
 import { ResultStack } from './ResultStack';
 import { buildRays, type Box } from './silhouette';
 import { UnresolvedCard } from './UnresolvedCard';
+import { UsageLimitCard } from './UsageLimitCard';
 import { SwipeVerdict } from './SwipeVerdict';
 import { crossedStamp, STAMP_BOTTOM, STAMP_PRESS } from './stamp';
 import { beat, useExpansion } from './useExpansion';
@@ -262,7 +258,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const multi = state.name === 'plating' || state.name === 'plateConfirmed';
   const plateItems = useMemo(() => plateItemsOf(state) ?? [], [state]);
   const estimates = useMemo(() => estimatesOf(state), [state]);
-  const estimate = 'estimate' in state ? state.estimate : estimates[0] ?? null;
+  const estimate = 'estimate' in state ? state.estimate : (estimates[0] ?? null);
   const anyFigure = estimates.some((entry) => entry.headline !== null);
   /**
    * Two lists, and the difference between them is the whole feature.
@@ -277,20 +273,15 @@ export function ResultStage({ stage }: ResultStageProps) {
   );
   const onPile = useMemo(() => pileIndicesOf(state), [state]);
   const queuedCount = queuedCountOf(state);
-  const seeds = useMemo(
-    () => plateItems.map((entry) => entry.estimate.catalog_id),
-    [plateItems],
-  );
-  const plateBoxes = useMemo(
-    () => plateItems.map((entry) => entry.box),
-    [plateItems],
-  );
+  const seeds = useMemo(() => plateItems.map((entry) => entry.estimate.catalog_id), [plateItems]);
+  const plateBoxes = useMemo(() => plateItems.map((entry) => entry.box), [plateItems]);
 
   const item = state.name === 'analyzing' ? state.item : null;
   const anchor: Rect | null = 'anchor' in state ? state.anchor : null;
   const photoUri = 'photoUri' in state ? state.photoUri : null;
   const live = BEAT_STATES.has(state.name);
-  const unresolved = state.name === 'unresolved';
+  const limited = state.name === 'limited';
+  const unresolved = state.name === 'unresolved' || limited;
   const stageVisible = live || unresolved;
 
   const [detailOpen, setDetailOpen] = useState(false);
@@ -325,12 +316,7 @@ export function ResultStage({ stage }: ResultStageProps) {
    * trick of beat one.
    */
   const layout = useMemo(
-    () =>
-      captureLayout(
-        { width: stage.width, height: stage.height },
-        insets.bottom,
-        anchorHero,
-      ),
+    () => captureLayout({ width: stage.width, height: stage.height }, insets.bottom, anchorHero),
     [stage.width, stage.height, insets.bottom, anchorHero],
   );
 
@@ -379,10 +365,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     };
   }, [layout.bubble.x, layout.bubble.y, heroSize]);
 
-  const dockCenter = useMemo(
-    () => ({ x: cardBox.x + 26, y: cardBox.y }),
-    [cardBox.x, cardBox.y],
-  );
+  const dockCenter = useMemo(() => ({ x: cardBox.x + 26, y: cardBox.y }), [cardBox.x, cardBox.y]);
 
   /** The lean the print settles at. Stable per photo, so it never re-shuffles. */
   const printTilt = useMemo(() => snapshotTilt(photoUri ?? 'drop'), [photoUri]);
@@ -432,14 +415,11 @@ export function ResultStage({ stage }: ResultStageProps) {
    * pass.
    */
   const savedHeadline =
-    state.name === 'plateConfirmed' ? state.saved.headline : estimate?.headline ?? null;
+    state.name === 'plateConfirmed' ? state.saved.headline : (estimate?.headline ?? null);
   const carvedText = savedHeadline
     ? `${formatLitres(savedHeadline.value_l)} ${copy.result.unitShort}`
     : null;
-  const writing = useMemo(
-    () => (carvedText ? carveTiming(carvedText) : null),
-    [carvedText],
-  );
+  const writing = useMemo(() => (carvedText ? carveTiming(carvedText) : null), [carvedText]);
 
   /** The date the shot was taken, worn from the moment the print lands. */
   const captureDate = printDate(new Date());
@@ -450,10 +430,8 @@ export function ResultStage({ stage }: ResultStageProps) {
       x: stage.width / 2,
       y: stage.height * CEREMONY_Y_SHARE,
       scale:
-        Math.min(
-          stage.width * CEREMONY_WIDTH_SHARE,
-          stage.height * CEREMONY_HEIGHT_SHARE,
-        ) / Math.max(1, layout.slot.width),
+        Math.min(stage.width * CEREMONY_WIDTH_SHARE, stage.height * CEREMONY_HEIGHT_SHARE) /
+        Math.max(1, layout.slot.width),
     }),
     [stage.width, stage.height, layout.slot.width],
   );
@@ -472,8 +450,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     ? plateOpen || state.name === 'plateConfirmed' || unsupported
     : OPEN_STATES.has(state.name) || unsupported || unresolved;
 
-  const backdropDismissible =
-    BACKDROP_DISMISS_STATES.has(state.name) && !(multi && open);
+  const backdropDismissible = BACKDROP_DISMISS_STATES.has(state.name) && !(multi && open);
 
   /*
    * Opening and closing carry the note, rather than any of the controls that
@@ -598,10 +575,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     if (state.name !== 'presenting' && state.name !== 'plating') return;
     setDetailOpen(false);
     if (motion.reduceMotion) return;
-    pop.value = withSequence(
-      withTiming(1.14, { duration: 110 }),
-      withSpring(1, spring.drop),
-    );
+    pop.value = withSequence(withTiming(1.14, { duration: 110 }), withSpring(1, spring.drop));
   }, [state.name, motion.reduceMotion, pop]);
 
   /* --------------------------------------------- beat 5: the way in */
@@ -669,9 +643,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     if (photoUri && writing) {
       // Nothing under the ceremony takes a finger while it plays.
       setReceding(true);
-      centering.value = reduced
-        ? withTiming(1, { duration: 120 })
-        : withSpring(1, spring.card);
+      centering.value = reduced ? withTiming(1, { duration: 120 }) : withSpring(1, spring.card);
 
       // Linear across the whole line: each glyph's slice carries its own
       // attack, so an ease here would only starve the first and last strokes.
@@ -757,6 +729,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   );
 
   const openSearch = useCallback(() => router.push('/search'), [router]);
+  const openUsage = useCallback(() => router.push('/settings'), [router]);
 
   const handleRetake = useCallback(() => {
     setDetailOpen(false);
@@ -810,20 +783,14 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   /** The tray leaves with the cards: on the exit, or as the ceremony centres. */
   const trayAway = useDerivedValue(() =>
-    Math.max(
-      dissolve.value,
-      interpolate(centering.value, [0, 0.4], [0, 1], Extrapolation.CLAMP),
-    ),
+    Math.max(dissolve.value, interpolate(centering.value, [0, 0.4], [0, 1], Extrapolation.CLAMP)),
   );
 
   const handleExitStart = useCallback(
     (_index: number, intent: SwipeIntent) => {
       if (motion.reduceMotion) return;
       const catcher = intent === 'queue' ? trayPulse : printPulse;
-      catcher.value = withSequence(
-        withTiming(1.05, { duration: 110 }),
-        withSpring(1, spring.drop),
-      );
+      catcher.value = withSequence(withTiming(1.05, { duration: 110 }), withSpring(1, spring.drop));
     },
     [motion.reduceMotion, printPulse, trayPulse],
   );
@@ -892,8 +859,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const handleResolved = useCallback(
     (index: number, intent: SwipeIntent, last: boolean) => {
       if (last) {
-        const saving =
-          intent === 'queue' ? kept : kept.filter((entry) => entry !== index);
+        const saving = intent === 'queue' ? kept : kept.filter((entry) => entry !== index);
         const savable = savableEstimates(
           saving
             .map((entry) => plateItems[entry]?.estimate)
@@ -916,9 +882,7 @@ export function ResultStage({ stage }: ResultStageProps) {
       }
 
       dismissCard(index);
-      AccessibilityInfo.announceForAccessibility(
-        copy.result.announce.dismissed(label, left),
-      );
+      AccessibilityInfo.announceForAccessibility(copy.result.announce.dismissed(label, left));
     },
     [
       kept,
@@ -989,7 +953,10 @@ export function ResultStage({ stage }: ResultStageProps) {
   );
 
   const cardCenter = useMemo(
-    () => ({ x: cardBox.x + cardBox.width / 2, y: cardBox.y + cardBox.height / 2 }),
+    () => ({
+      x: cardBox.x + cardBox.width / 2,
+      y: cardBox.y + cardBox.height / 2,
+    }),
     [cardBox],
   );
 
@@ -1034,12 +1001,9 @@ export function ResultStage({ stage }: ResultStageProps) {
       })
       .onEnd((event) => {
         const flicked = Math.abs(event.velocityX) > FLICK_VELOCITY;
-        const direction = flicked
-          ? Math.sign(event.velocityX)
-          : Math.sign(event.translationX);
+        const direction = flicked ? Math.sign(event.velocityX) : Math.sign(event.translationX);
         const committed =
-          direction !== 0 &&
-          (flicked || Math.abs(event.translationX) >= SWIPE_TRIGGER);
+          direction !== 0 && (flicked || Math.abs(event.translationX) >= SWIPE_TRIGGER);
 
         // The card always comes back to centre. What happens next is a whole
         // beat of its own — the tick, or the fold into the shutter — and both
@@ -1071,8 +1035,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     transform: [
       { translateX: singleSwipeX.value },
       {
-        translateY:
-          SWIPE_SAG * Math.min(1, Math.abs(singleSwipeX.value) / SWIPE_TRAVEL),
+        translateY: SWIPE_SAG * Math.min(1, Math.abs(singleSwipeX.value) / SWIPE_TRAVEL),
       },
     ],
   }));
@@ -1113,16 +1076,7 @@ export function ResultStage({ stage }: ResultStageProps) {
           trayCenter,
           frontTilt,
         )
-      : frontSheetOffset(
-          singleSwipeX.value,
-          0,
-          1,
-          0,
-          cardCenter,
-          printCenter,
-          trayCenter,
-          0,
-        );
+      : frontSheetOffset(singleSwipeX.value, 0, 1, 0, cardCenter, printCenter, trayCenter, 0);
     return [
       { translateX: at.x },
       { translateY: at.y },
@@ -1168,14 +1122,8 @@ export function ResultStage({ stage }: ResultStageProps) {
         arrival.value *
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP) *
         interpolate(centering.value, [0, 0.4], [1, 0], Extrapolation.CLAMP) *
-        (unresolved
-          ? interpolate(t, [0, 0.52], [1, 0], Extrapolation.CLAMP)
-          : 1),
-      transform: [
-        { translateX: cx - heroSize / 2 },
-        { translateY: cy - heroSize / 2 },
-        { scale },
-      ],
+        (unresolved ? interpolate(t, [0, 0.52], [1, 0], Extrapolation.CLAMP) : 1),
+      transform: [{ translateX: cx - heroSize / 2 }, { translateY: cy - heroSize / 2 }, { scale }],
     };
   });
 
@@ -1239,10 +1187,7 @@ export function ResultStage({ stage }: ResultStageProps) {
       [0, 0, STAMP_PRESS, 0],
       Extrapolation.CLAMP,
     );
-    const openScale =
-      (held + (1 - held) * fold) *
-      stampScale *
-      (1 + (printOpen.scale - 1) * t);
+    const openScale = (held + (1 - held) * fold) * stampScale * (1 + (printOpen.scale - 1) * t);
     const scale =
       (openScale + (ceremony.scale - openScale) * centred) *
       (1 - exit * (1 - EXIT_SCALE)) *
@@ -1256,7 +1201,9 @@ export function ResultStage({ stage }: ResultStageProps) {
         interpolate(fold, [0, RETICLE_RELEASE * 0.72], [0, 1], Extrapolation.CLAMP) *
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP),
       transform: [
-        { translateX: stagedX + (exitTargetX.value - stagedX) * exit - side / 2 },
+        {
+          translateX: stagedX + (exitTargetX.value - stagedX) * exit - side / 2,
+        },
         {
           translateY:
             stagedY +
@@ -1321,8 +1268,12 @@ export function ResultStage({ stage }: ResultStageProps) {
         interpolate(exit, [0, 0.76, 1], [1, 1, 0], Extrapolation.CLAMP) *
         interpolate(centering.value, [0, 0.45], [1, 0], Extrapolation.CLAMP),
       transform: [
-        { translateX: desiredX - stageCenterX - (cardCenterX - stageCenterX) * scale },
-        { translateY: desiredY - stageCenterY - (cardCenterY - stageCenterY) * scale },
+        {
+          translateX: desiredX - stageCenterX - (cardCenterX - stageCenterX) * scale,
+        },
+        {
+          translateY: desiredY - stageCenterY - (cardCenterY - stageCenterY) * scale,
+        },
         { scale },
       ],
     };
@@ -1338,7 +1289,7 @@ export function ResultStage({ stage }: ResultStageProps) {
           estimate.display_name,
           formatQuantity(estimate.quantity.value, estimate.quantity.unit),
         )
-      : item?.display_name ?? workingLine(state.name);
+      : (item?.display_name ?? workingLine(state.name));
 
   return (
     <View style={styles.root} pointerEvents="box-none">
@@ -1349,11 +1300,7 @@ export function ResultStage({ stage }: ResultStageProps) {
           // request to see it — the number is the whole point of the beat.
           // Only an open card treats the backdrop as the way out. A pile
           // still waiting on its pull is the same moment wearing more cards.
-          onPress={
-            state.name === 'presenting' || state.name === 'plating'
-              ? handleOpen
-              : retake
-          }
+          onPress={state.name === 'presenting' || state.name === 'plating' ? handleOpen : retake}
           accessible={false}
           testID="result-backdrop-dismiss"
         />
@@ -1506,7 +1453,11 @@ export function ResultStage({ stage }: ResultStageProps) {
                 setCardHeight((current) => (current === height ? current : height));
               }}
             >
-              <UnresolvedCard onSearch={openSearch} onRetake={handleRetake} />
+              {limited ? (
+                <UsageLimitCard onSearch={openSearch} onSettings={openUsage} />
+              ) : (
+                <UnresolvedCard onSearch={openSearch} onRetake={handleRetake} />
+              )}
             </Animated.View>
           ) : multi ? (
             plateItems.length > 0 && (
@@ -1654,11 +1605,7 @@ export function ResultStage({ stage }: ResultStageProps) {
 
           <GestureDetector gesture={gesture}>
             <Animated.View
-              style={[
-                styles.avatar,
-                { width: heroSize, height: heroSize },
-                avatarStyle,
-              ]}
+              style={[styles.avatar, { width: heroSize, height: heroSize }, avatarStyle]}
             >
               <Animated.View
                 style={[
@@ -1677,32 +1624,21 @@ export function ResultStage({ stage }: ResultStageProps) {
                 the gesture for the same touch. What the tap was missing was a
                 note, and that belongs to the open and the close themselves.
               */}
-              <DropCharacter
-                state={character}
-                size={heroSize}
-                seed={seed}
-                announce={!unresolved}
-              />
-              {backdropDismissible &&
-                state.name !== 'presenting' &&
-                state.name !== 'plating' && (
-                  <Pressable
-                    style={StyleSheet.absoluteFill}
-                    onPress={(event) => event.stopPropagation()}
-                    accessible={false}
-                    testID="result-character-touch-guard"
-                  />
-                )}
+              <DropCharacter state={character} size={heroSize} seed={seed} announce={!unresolved} />
+              {backdropDismissible && state.name !== 'presenting' && state.name !== 'plating' && (
+                <Pressable
+                  style={StyleSheet.absoluteFill}
+                  onPress={(event) => event.stopPropagation()}
+                  accessible={false}
+                  testID="result-character-touch-guard"
+                />
+              )}
             </Animated.View>
           </GestureDetector>
 
           {teaser && (
             <Animated.View
-              style={[
-                styles.teaser,
-                { top: layout.teaserTop },
-                teaserStyle,
-              ]}
+              style={[styles.teaser, { top: layout.teaserTop }, teaserStyle]}
               pointerEvents={open ? 'none' : 'box-none'}
             >
               {/*

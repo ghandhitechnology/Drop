@@ -20,6 +20,7 @@ import { Shutter } from './Shutter';
 import { type CaptureState } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 import { useLibraryPick } from './useLibraryPick';
+import { usageIsFull, useUsage } from '../usage';
 
 /** At and above this width the camera shares the screen instead of owning it. */
 export const TABLET_BREAKPOINT = 768;
@@ -63,6 +64,7 @@ export function CaptureHome() {
   const state = useCaptureMachine((s) => s.state);
   const mode = useCaptureMachine((s) => s.mode);
   const toggleFastMode = useCaptureMachine((s) => s.toggleFastMode);
+  const usageFull = useUsage(usageIsFull);
 
   const beginShutter = useCallback(() => setShutterActive(true), []);
   const resetShutter = useCallback(() => setShutterActive(false), []);
@@ -136,7 +138,11 @@ export function CaptureHome() {
         {showControls && (
           <View style={styles.controls} pointerEvents="box-none">
             <FramingNote>
-              {mode === 'fast' ? copy.capture.framingFast : copy.capture.framing}
+              {usageFull
+                ? copy.usage.framingFull
+                : mode === 'fast'
+                  ? copy.capture.framingFast
+                  : copy.capture.framing}
             </FramingNote>
 
             <View style={styles.controlRow} pointerEvents="box-none">
@@ -156,18 +162,17 @@ export function CaptureHome() {
                 onPress={takePhoto}
                 onToggleFast={toggleFastMode}
                 fast={mode === 'fast'}
-                disabled={shutterActive}
+                disabled={shutterActive || usageFull}
               />
 
               <LibraryChip
                 onPress={pickFromLibrary}
-                disabled={shutterActive}
+                disabled={shutterActive || usageFull}
                 style={styles.secondaryRight}
               />
             </View>
           </View>
         )}
-
       </SafeAreaView>
 
       {/*
@@ -219,5 +224,4 @@ const styles = StyleSheet.create({
   },
   secondary: { position: 'absolute', left: space.xl, bottom: 0 },
   secondaryRight: { position: 'absolute', right: space.xl, bottom: 0 },
-
 });

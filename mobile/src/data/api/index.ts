@@ -16,6 +16,7 @@ import { ApiError } from './errors';
 import { getJson, postJson, type RequestOptions } from './client';
 import { readBarcode, readRecognize, readResearch } from './normalize';
 import type { BarcodeResponse, RecognizeResponse, ResearchResponse } from './types';
+import { usageHeaders } from '../../features/usage/api';
 
 export { ApiError, type ApiFailureKind } from './errors';
 export {
@@ -24,8 +25,10 @@ export {
   apiBaseUrl,
   getJson,
   postJson,
+  deleteJson,
   type RequestOptions,
 } from './client';
+export * from './usage';
 export { MAX_PHOTO_BYTES, encodePhoto, type EncodedPhoto } from './photo';
 export * from './normalize';
 export * from './types';
@@ -47,6 +50,8 @@ export type RecognizeOptions = RequestOptions & {
   hint?: string;
   /** Fast capture lowers reasoning effort without changing the response budget. */
   mode?: 'normal' | 'fast';
+  /** Shared by barcode and vision for one shutter press. */
+  analysisId?: string;
 };
 
 /**
@@ -60,7 +65,10 @@ export async function recognize(
   photoBase64: string,
   options: RecognizeOptions = {},
 ): Promise<RecognizeResponse> {
-  const { mime, hint, mode, ...request } = options;
+  const { mime, hint, mode, analysisId, ...request } = options;
+  const headers = analysisId
+    ? { ...request.headers, ...(await usageHeaders(analysisId)) }
+    : request.headers;
   const body = await postJson<unknown>(
     '/v1/recognize',
     {
@@ -69,7 +77,7 @@ export async function recognize(
       ...(hint ? { hint } : {}),
       ...(mode ? { mode } : {}),
     },
-    request,
+    { ...request, headers },
   );
   return readRecognize(body);
 }
@@ -86,13 +94,20 @@ export async function recognize(
  */
 export async function barcode(
   ean: string,
-  options: RequestOptions = {},
+  options: RequestOptions & { analysisId?: string } = {},
 ): Promise<BarcodeResponse> {
   const digits = ean.replace(/\D/g, '');
   if (digits.length < 8) {
     throw new ApiError('malformed', `${ean} is too short to be a retail code`);
   }
-  const body = await getJson<unknown>(`/v1/barcode/${digits}`, options);
+  const { analysisId, ...request } = options;
+  const headers = analysisId
+    ? { ...request.headers, ...(await usageHeaders(analysisId)) }
+    : request.headers;
+  const body = await getJson<unknown>(`/v1/barcode/${digits}`, {
+    ...request,
+    headers,
+  });
   return readBarcode(body, digits);
 }
 
