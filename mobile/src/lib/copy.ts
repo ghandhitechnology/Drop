@@ -583,6 +583,16 @@ export function metricLabel(metric: MetricType): string {
   return METRIC_WORD[metric];
 }
 
+/** "Aug 9, 2026" — the date a print wears in its corner. */
+const PRINT_MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+] as const;
+
+export function printDate(at: Date): string {
+  return `${PRINT_MONTHS[at.getMonth()]} ${at.getDate()}, ${at.getFullYear()}`;
+}
+
 /** Group digits without pulling in Intl formatting differences across engines. */
 export function formatLitres(value: number): string {
   const rounded = value >= 100 ? Math.round(value) : Math.round(value * 10) / 10;

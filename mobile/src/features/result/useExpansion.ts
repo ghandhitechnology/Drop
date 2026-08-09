@@ -141,6 +141,10 @@ export const beat = {
   tick: 380,
   /** How long the celebration holds before the card recedes. */
   hold: 760,
+  /** The cards falling away and the print taking the centre of the stage. */
+  center: 380,
+  /** How long the freshly written litres hold before the print travels home. */
+  carveHold: 640,
   /** The card travelling back to the anchor and dissolving. */
   recede: duration.settle,
   /** How long the way back stays offered. */

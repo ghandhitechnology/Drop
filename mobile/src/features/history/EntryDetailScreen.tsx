@@ -18,7 +18,7 @@ import { radius, space } from '../../design/tokens';
 import { getEntry } from '../../data/entries';
 import { isPlate } from '../../data/plate';
 import type { Entry } from '../../data/types';
-import { copy, formatLitres, heroFigure, litresSentence } from '../../lib/copy';
+import { copy, formatLitres, heroFigure, litresSentence, printDate } from '../../lib/copy';
 import { localDay } from '../../lib/time';
 import { SketchButton } from '../../ui/SketchButton';
 import { SketchLink } from '../../ui/SketchLink';
@@ -179,13 +179,20 @@ export function EntryDetailScreen() {
           </Text>
         </View>
 
-        {/* The same print that stood over the result, kept with the record. */}
+        {/* The same print that stood over the result, kept with the record —
+            still wearing the day it was taken and the litres written into it. */}
         {entry.photo_uri && (
           <Snapshot
             uri={entry.photo_uri}
             size={PRINT}
             seed={entry.photo_uri}
             label={copy.history.detail.photo}
+            date={printDate(new Date(entry.created_at))}
+            carved={
+              frozen.headline
+                ? `${formatLitres(frozen.headline.value_l)} ${copy.result.unitShort}`
+                : undefined
+            }
             style={styles.print}
           />
         )}
