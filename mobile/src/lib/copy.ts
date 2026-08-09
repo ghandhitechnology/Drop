@@ -547,6 +547,18 @@ export const copy = {
       body: 'Your history keeps the figures it was recorded with. New captures use the new release.',
     },
 
+    /** The tail of the screen — the exact build a tester names in a report. */
+    version: {
+      app: (version = '1.0.0') => `Drop ${version}`,
+      appChannel: (version = '1.0.0', channel = 'preview') =>
+        `Drop ${version} · ${channel}`,
+      /** Reads as "Update 019fe6d7 · Aug 9, 2026" under the app line. */
+      update: (id = '019fe6d7', date = '') =>
+        date ? `Update ${id} · ${date}` : `Update ${id}`,
+      /** Shown while the app runs the bundle its build shipped with. */
+      embedded: 'Bundled with the build',
+    },
+
     /**
      * The switches and the theme chips carry real platform roles and states, so
      * a screen reader speaks their changes itself. Only arriving needs saying.
