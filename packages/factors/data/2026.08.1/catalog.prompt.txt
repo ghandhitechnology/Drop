@@ -322,45 +322,106 @@ potato_starch|Potato Starch||food|0.02kg
 potatoes_frozen|Potatoes||food|0.1kg
 poultry_fat|Poultry Fat||food|0.1kg
 prawns_giant|Prawns Giant||food|0.15kg
-product_311111|Pet food||product|20usd
-product_313200|Fabric||product|15usd
-product_314110|Carpets & rugs||product|80usd
-product_314120|Curtains & bed linens||product|40usd
-product_315000|Clothing||product|25usd
-product_316000|Shoes & leather goods||product|60usd
-product_322120|Paper||product|8usd
-product_322230|Stationery & notebooks||product|6usd
-product_322291|Tissues, napkins & diapers||product|12usd
-product_323110|Books, newspapers & magazines||product|18usd
-product_325412|Medicines||product|20usd
-product_325610|Soap & cleaning products||product|8usd
-product_325620|Toiletries & cosmetics||product|15usd
-product_326210|Tires||product|150usd
-product_327100|Ceramics & dishes||product|25usd
-product_327200|Glassware||product|15usd
-product_332200|Cutlery & hand tools||product|20usd
-product_333112|Lawn & garden equipment||product|150usd
-product_333991|Power tools||product|90usd
-product_334111|Computers & laptops||product|800usd
-product_334210|Phones||product|700usd
-product_334300|Audio & video gear||product|150usd
-product_334610|Hard drives & storage media||product|80usd
-product_335110|Light bulbs||product|8usd
-product_335210|Small kitchen appliances||product|50usd
-product_335221|Stoves & ovens||product|600usd
-product_335222|Refrigerators & freezers||product|900usd
-product_335224|Washers & dryers||product|700usd
-product_335912|Batteries||product|10usd
-product_336111|Cars (purchase)||product|30000usd
-product_336112|Pickups, vans & SUVs (purchase)||product|40000usd
-product_336991|Bicycles & motorcycles||product|400usd
-product_337121|Sofas & upholstered furniture||product|500usd
-product_337122|Wooden furniture||product|250usd
-product_337900|Mattresses & blinds||product|400usd
-product_339910|Jewelry||product|100usd
-product_339920|Sporting goods||product|50usd
-product_339930|Toys & games||product|25usd
-product_339940|Office supplies||product|10usd
+product_111400|Houseplants & cut flowers|plant,houseplant,flowers,bouquet,succulent|product|15usd
+product_311111|Pet food|dog food,cat food,kibble|product|20usd
+product_312200|Cigarettes & tobacco|cigarettes,tobacco,vape,cigars|product|10usd
+product_313100|Yarn & thread|yarn,thread,wool,knitting,crochet|product|8usd
+product_313200|Fabric|fabric,cloth,textile,material|product|15usd
+product_314110|Carpets & rugs|carpet,rug,mat|product|80usd
+product_314120|Curtains & bed linens|curtains,sheets,bedding,pillowcase,duvet,towels|product|40usd
+product_314900|Bags & textile goods|tote bag,backpack,canvas bag,rope|product|15usd
+product_315000|Clothing|shirt,pants,jacket,dress,clothes,옷|product|25usd
+product_316000|Shoes & leather goods|shoes,sneakers,boots,handbag,belt,wallet|product|60usd
+product_321100|Lumber & wood boards|lumber,wood,boards,timber,planks|product|50usd
+product_321200|Plywood & panels|plywood,mdf,particle board|product|40usd
+product_321910|Wood flooring, windows & doors|hardwood floor,wooden door,window frame|product|200usd
+product_322120|Paper|paper,printer paper,a4|product|8usd
+product_322210|Cardboard boxes & packaging|cardboard box,moving box,shipping box|product|15usd
+product_322220|Paper bags & gift wrap|paper bag,gift wrap,wrapping paper|product|6usd
+product_322230|Stationery & notebooks|notebook,notepad,journal,envelope|product|6usd
+product_322291|Tissues, napkins & diapers|tissues,napkins,diapers,toilet paper,wipes|product|12usd
+product_322299|Disposable plates & cups|paper plate,paper cup,disposable cutlery,party supplies|product|8usd
+product_323110|Books, newspapers & magazines|book,magazine,newspaper,novel|product|18usd
+product_324122|Roofing shingles|shingles,roofing|product|100usd
+product_324190|Motor oil & lubricants|motor oil,engine oil,lubricant,wd40|product|10usd
+product_325120|Propane & compressed gas|propane,gas canister,camping gas|product|40usd
+product_325310|Fertilizer|fertilizer,plant food,compost|product|20usd
+product_325320|Pesticides & weed killers|pesticide,herbicide,insecticide,weed killer,bug spray|product|15usd
+product_325412|Medicines|medicine,pills,vitamins,supplements,painkillers|product|20usd
+product_325413|Home test kits|pregnancy test,covid test,glucose test|product|15usd
+product_325510|Paint|paint,varnish,primer,coating|product|40usd
+product_325520|Glue & adhesives|glue,super glue,epoxy,adhesive|product|8usd
+product_325610|Soap & cleaning products|soap,detergent,cleaner,bleach,dish soap|product|8usd
+product_325620|Toiletries & cosmetics|shampoo,toothpaste,deodorant,makeup,lotion,sunscreen|product|15usd
+product_325910|Printer ink & toner|ink cartridge,toner|product|30usd
+product_3259a0|Pool & spa chemicals|chlorine,pool chemicals|product|25usd
+product_326110|Plastic bags & wrap|plastic bag,cling wrap,ziplock,trash bag|product|8usd
+product_326160|Plastic bottles & containers|plastic bottle,container,tupperware,water bottle|product|10usd
+product_326190|Plastic household goods|plastic bin,hanger,bucket,storage box|product|12usd
+product_326210|Tires|tire,tyre|product|150usd
+product_326290|Rubber gloves & household rubber goods|rubber gloves,latex gloves,eraser|product|10usd
+product_327100|Ceramics & dishes|plate,bowl,mug,ceramic,vase|product|25usd
+product_327200|Glassware|glass,wine glass,jar,bottle|product|15usd
+product_327310|Cement & mortar|cement,mortar,grout|product|15usd
+product_327320|Ready-mix concrete|concrete|product|150usd
+product_327330|Bricks & concrete blocks|bricks,cinder blocks,pavers|product|60usd
+product_327400|Drywall & plaster|drywall,plaster,sheetrock,gypsum board|product|15usd
+product_327910|Sandpaper & abrasives|sandpaper,grinding disc|product|10usd
+product_327993|Insulation|insulation,mineral wool,fiberglass insulation|product|50usd
+product_332200|Cutlery & hand tools|knife,fork,spoon,hammer,screwdriver,wrench|product|20usd
+product_332500|Locks, hinges & hardware|lock,hinge,doorknob,handle,padlock|product|15usd
+product_332720|Screws, nuts & bolts|screws,nails,bolts,fasteners|product|8usd
+product_332913|Faucets & plumbing fittings|faucet,tap,shower head,valve|product|60usd
+product_332999|Pots, pans & metal kitchenware|pot,pan,saucepan,wok,baking tray|product|30usd
+product_333112|Lawn & garden equipment|lawnmower,trimmer,leaf blower,chainsaw|product|150usd
+product_333314|Camera lenses & optics|lens,binoculars,telescope,scope|product|150usd
+product_333316|Cameras|camera,gopro,dslr,mirrorless,camcorder|product|300usd
+product_333413|Air purifiers & fans|air purifier,fan,humidifier,dehumidifier|product|120usd
+product_333414|Water heaters|water heater,boiler,hot water tank|product|400usd
+product_333415|Air conditioners|air conditioner,ac,portable ac|product|350usd
+product_333991|Power tools|drill,saw,sander,grinder,impact driver|product|90usd
+product_33399a|Welding & soldering equipment|welder,soldering iron|product|120usd
+product_334111|Computers & laptops|laptop,computer,pc,macbook,tablet,ipad|product|800usd
+product_334118|Computer accessories|keyboard,mouse,monitor,webcam,printer|product|60usd
+product_334210|Phones|smartphone,iphone,android,cell phone,mobile|product|700usd
+product_334220|Wi-Fi routers & network gear|router,wifi,modem,hotspot|product|80usd
+product_334300|Audio & video gear|tv,television,headphones,earbuds,speaker,soundbar|product|150usd
+product_334510|Home medical devices|blood pressure monitor,cpap,glucose meter,thermometer|product|150usd
+product_334512|Smart thermostats & home controls|thermostat,nest,smart home|product|80usd
+product_33451a|Watches & clocks|watch,smartwatch,clock,apple watch|product|80usd
+product_334610|Hard drives & storage media|hard drive,ssd,usb stick,memory card,sd card|product|80usd
+product_335110|Light bulbs|light bulb,led bulb,lamp bulb|product|8usd
+product_335120|Lamps & light fixtures|lamp,chandelier,ceiling light,fixture|product|60usd
+product_335210|Small kitchen appliances|toaster,blender,coffee maker,microwave,kettle,air fryer|product|50usd
+product_335221|Stoves & ovens|stove,oven,range,cooktop|product|600usd
+product_335222|Refrigerators & freezers|fridge,refrigerator,freezer|product|900usd
+product_335224|Washers & dryers|washing machine,dryer,laundry machine|product|700usd
+product_335228|Dishwashers & other major appliances|dishwasher,appliance|product|500usd
+product_335911|Rechargeable batteries & power banks|power bank,rechargeable battery,car battery,charger pack|product|30usd
+product_335912|Batteries|battery,aa,aaa,alkaline|product|10usd
+product_335930|Plugs, switches & extension cords|extension cord,power strip,plug,outlet,adapter|product|12usd
+product_336111|Cars (purchase)|car,automobile,sedan|product|30000usd
+product_336112|Pickups, vans & SUVs (purchase)|suv,pickup truck,van|product|40000usd
+product_336213|Motorhomes & RVs|rv,motorhome,camper van|product|60000usd
+product_336214|Travel trailers & campers|caravan,camper trailer|product|20000usd
+product_336390|Auto parts & accessories|car parts,brake pads,wipers,floor mats|product|80usd
+product_336612|Boats|boat,kayak,canoe,jet ski|product|15000usd
+product_336991|Bicycles & motorcycles|bicycle,bike,motorcycle,ebike,scooter|product|400usd
+product_336999|ATVs, scooters & golf carts|atv,quad,golf cart,moped|product|2000usd
+product_337110|Kitchen cabinets & countertops|kitchen cabinet,countertop|product|1500usd
+product_337121|Sofas & upholstered furniture|sofa,couch,armchair,recliner|product|500usd
+product_337122|Wooden furniture|table,chair,dresser,wardrobe,bed frame,nightstand|product|250usd
+product_33712n|Metal & plastic furniture|folding chair,metal shelf,plastic chair|product|150usd
+product_337215|Shelving & storage units|shelf,shelving,bookcase,storage rack|product|80usd
+product_33721a|Desks & office furniture|desk,office chair,filing cabinet|product|200usd
+product_337900|Mattresses & blinds|mattress,blinds,shades|product|400usd
+product_339113|First aid & medical supplies|first aid,bandage,brace,crutches|product|20usd
+product_339115|Eyeglasses & sunglasses|glasses,sunglasses,spectacles,frames|product|150usd
+product_339910|Jewelry|jewelry,ring,necklace,earrings,bracelet|product|100usd
+product_339920|Sporting goods|dumbbell,yoga mat,tennis racket,gym equipment,golf clubs|product|50usd
+product_339930|Toys & games|toy,lego,board game,doll,puzzle|product|25usd
+product_339940|Office supplies|pen,pencil,stapler,scissors,tape|product|10usd
+product_339990|Musical instruments|guitar,piano,keyboard,violin,drums|product|200usd
 pumpkin|Pumpkin||food|0.1kg
 quorne|Quorne||food|0.1kg
 raisins|Raisins||food|0.03kg

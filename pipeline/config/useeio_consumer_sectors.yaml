@@ -2,43 +2,119 @@
 # Everyday non-food products only; food is covered by SU-EATABLE.
 # display: consumer-facing name; typical_price_usd: rough default purchase
 # price used only to seed the quantity prompt (user can edit).
+# synonyms: extra words the classifier can match a photo against (max 6
+# reach the prompt).
 sectors:
-  315000: {display: "Clothing", typical_price_usd: 25}
-  316000: {display: "Shoes & leather goods", typical_price_usd: 60}
-  313200: {display: "Fabric", typical_price_usd: 15}
-  314110: {display: "Carpets & rugs", typical_price_usd: 80}
-  314120: {display: "Curtains & bed linens", typical_price_usd: 40}
-  334111: {display: "Computers & laptops", typical_price_usd: 800}
-  334210: {display: "Phones", typical_price_usd: 700}
-  334300: {display: "Audio & video gear", typical_price_usd: 150}
-  334610: {display: "Hard drives & storage media", typical_price_usd: 80}
-  335110: {display: "Light bulbs", typical_price_usd: 8}
-  335210: {display: "Small kitchen appliances", typical_price_usd: 50}
-  335221: {display: "Stoves & ovens", typical_price_usd: 600}
-  335222: {display: "Refrigerators & freezers", typical_price_usd: 900}
-  335224: {display: "Washers & dryers", typical_price_usd: 700}
-  335912: {display: "Batteries", typical_price_usd: 10}
-  337121: {display: "Sofas & upholstered furniture", typical_price_usd: 500}
-  337122: {display: "Wooden furniture", typical_price_usd: 250}
-  337900: {display: "Mattresses & blinds", typical_price_usd: 400}
-  339910: {display: "Jewelry", typical_price_usd: 100}
-  339920: {display: "Sporting goods", typical_price_usd: 50}
-  339930: {display: "Toys & games", typical_price_usd: 25}
-  339940: {display: "Office supplies", typical_price_usd: 10}
-  322120: {display: "Paper", typical_price_usd: 8}
-  322230: {display: "Stationery & notebooks", typical_price_usd: 6}
-  322291: {display: "Tissues, napkins & diapers", typical_price_usd: 12}
-  323110: {display: "Books, newspapers & magazines", typical_price_usd: 18}
-  325610: {display: "Soap & cleaning products", typical_price_usd: 8}
-  325620: {display: "Toiletries & cosmetics", typical_price_usd: 15}
-  325412: {display: "Medicines", typical_price_usd: 20}
-  326210: {display: "Tires", typical_price_usd: 150}
-  311111: {display: "Pet food", typical_price_usd: 20}
-  336111: {display: "Cars (purchase)", typical_price_usd: 30000}
-  336112: {display: "Pickups, vans & SUVs (purchase)", typical_price_usd: 40000}
-  336991: {display: "Bicycles & motorcycles", typical_price_usd: 400}
-  332200: {display: "Cutlery & hand tools", typical_price_usd: 20}
-  327100: {display: "Ceramics & dishes", typical_price_usd: 25}
-  327200: {display: "Glassware", typical_price_usd: 15}
-  333112: {display: "Lawn & garden equipment", typical_price_usd: 150}
-  333991: {display: "Power tools", typical_price_usd: 90}
+  # ---- clothing & textiles ---------------------------------------------
+  315000: {display: "Clothing", typical_price_usd: 25, synonyms: [shirt, pants, jacket, dress, clothes, 옷]}
+  316000: {display: "Shoes & leather goods", typical_price_usd: 60, synonyms: [shoes, sneakers, boots, handbag, belt, wallet]}
+  313200: {display: "Fabric", typical_price_usd: 15, synonyms: [fabric, cloth, textile, material]}
+  313100: {display: "Yarn & thread", typical_price_usd: 8, synonyms: [yarn, thread, wool, knitting, crochet]}
+  314110: {display: "Carpets & rugs", typical_price_usd: 80, synonyms: [carpet, rug, mat]}
+  314120: {display: "Curtains & bed linens", typical_price_usd: 40, synonyms: [curtains, sheets, bedding, pillowcase, duvet, towels]}
+  314900: {display: "Bags & textile goods", typical_price_usd: 15, synonyms: [tote bag, backpack, canvas bag, rope]}
+  # ---- electronics -------------------------------------------------------
+  334111: {display: "Computers & laptops", typical_price_usd: 800, synonyms: [laptop, computer, pc, macbook, tablet, ipad]}
+  334118: {display: "Computer accessories", typical_price_usd: 60, synonyms: [keyboard, mouse, monitor, webcam, printer]}
+  334210: {display: "Phones", typical_price_usd: 700, synonyms: [smartphone, iphone, android, cell phone, mobile]}
+  334220: {display: "Wi-Fi routers & network gear", typical_price_usd: 80, synonyms: [router, wifi, modem, hotspot]}
+  334300: {display: "Audio & video gear", typical_price_usd: 150, synonyms: [tv, television, headphones, earbuds, speaker, soundbar]}
+  334610: {display: "Hard drives & storage media", typical_price_usd: 80, synonyms: [hard drive, ssd, usb stick, memory card, sd card]}
+  333316: {display: "Cameras", typical_price_usd: 300, synonyms: [camera, gopro, dslr, mirrorless, camcorder]}
+  333314: {display: "Camera lenses & optics", typical_price_usd: 150, synonyms: [lens, binoculars, telescope, scope]}
+  33451A: {display: "Watches & clocks", typical_price_usd: 80, synonyms: [watch, smartwatch, clock, apple watch]}
+  # ---- home appliances ---------------------------------------------------
+  335110: {display: "Light bulbs", typical_price_usd: 8, synonyms: [light bulb, led bulb, lamp bulb]}
+  335120: {display: "Lamps & light fixtures", typical_price_usd: 60, synonyms: [lamp, chandelier, ceiling light, fixture]}
+  335210: {display: "Small kitchen appliances", typical_price_usd: 50, synonyms: [toaster, blender, coffee maker, microwave, kettle, air fryer]}
+  335221: {display: "Stoves & ovens", typical_price_usd: 600, synonyms: [stove, oven, range, cooktop]}
+  335222: {display: "Refrigerators & freezers", typical_price_usd: 900, synonyms: [fridge, refrigerator, freezer]}
+  335224: {display: "Washers & dryers", typical_price_usd: 700, synonyms: [washing machine, dryer, laundry machine]}
+  335228: {display: "Dishwashers & other major appliances", typical_price_usd: 500, synonyms: [dishwasher, appliance]}
+  333415: {display: "Air conditioners", typical_price_usd: 350, synonyms: [air conditioner, ac, portable ac]}
+  333413: {display: "Air purifiers & fans", typical_price_usd: 120, synonyms: [air purifier, fan, humidifier, dehumidifier]}
+  333414: {display: "Water heaters", typical_price_usd: 400, synonyms: [water heater, boiler, hot water tank]}
+  334512: {display: "Smart thermostats & home controls", typical_price_usd: 80, synonyms: [thermostat, nest, smart home]}
+  # ---- batteries & power -------------------------------------------------
+  335912: {display: "Batteries", typical_price_usd: 10, synonyms: [battery, aa, aaa, alkaline]}
+  335911: {display: "Rechargeable batteries & power banks", typical_price_usd: 30, synonyms: [power bank, rechargeable battery, car battery, charger pack]}
+  335930: {display: "Plugs, switches & extension cords", typical_price_usd: 12, synonyms: [extension cord, power strip, plug, outlet, adapter]}
+  # ---- furniture & home --------------------------------------------------
+  337121: {display: "Sofas & upholstered furniture", typical_price_usd: 500, synonyms: [sofa, couch, armchair, recliner]}
+  337122: {display: "Wooden furniture", typical_price_usd: 250, synonyms: [table, chair, dresser, wardrobe, bed frame, nightstand]}
+  33712N: {display: "Metal & plastic furniture", typical_price_usd: 150, synonyms: [folding chair, metal shelf, plastic chair]}
+  337110: {display: "Kitchen cabinets & countertops", typical_price_usd: 1500, synonyms: [kitchen cabinet, countertop]}
+  337215: {display: "Shelving & storage units", typical_price_usd: 80, synonyms: [shelf, shelving, bookcase, storage rack]}
+  33721A: {display: "Desks & office furniture", typical_price_usd: 200, synonyms: [desk, office chair, filing cabinet]}
+  337900: {display: "Mattresses & blinds", typical_price_usd: 400, synonyms: [mattress, blinds, shades]}
+  # ---- kitchen & household goods -----------------------------------------
+  339910: {display: "Jewelry", typical_price_usd: 100, synonyms: [jewelry, ring, necklace, earrings, bracelet]}
+  339920: {display: "Sporting goods", typical_price_usd: 50, synonyms: [dumbbell, yoga mat, tennis racket, gym equipment, golf clubs]}
+  339930: {display: "Toys & games", typical_price_usd: 25, synonyms: [toy, lego, board game, doll, puzzle]}
+  339940: {display: "Office supplies", typical_price_usd: 10, synonyms: [pen, pencil, stapler, scissors, tape]}
+  339990: {display: "Musical instruments", typical_price_usd: 200, synonyms: [guitar, piano, keyboard, violin, drums]}
+  339115: {display: "Eyeglasses & sunglasses", typical_price_usd: 150, synonyms: [glasses, sunglasses, spectacles, frames]}
+  339113: {display: "First aid & medical supplies", typical_price_usd: 20, synonyms: [first aid, bandage, brace, crutches]}
+  334510: {display: "Home medical devices", typical_price_usd: 150, synonyms: [blood pressure monitor, cpap, glucose meter, thermometer]}
+  325413: {display: "Home test kits", typical_price_usd: 15, synonyms: [pregnancy test, covid test, glucose test]}
+  332200: {display: "Cutlery & hand tools", typical_price_usd: 20, synonyms: [knife, fork, spoon, hammer, screwdriver, wrench]}
+  332999: {display: "Pots, pans & metal kitchenware", typical_price_usd: 30, synonyms: [pot, pan, saucepan, wok, baking tray]}
+  327100: {display: "Ceramics & dishes", typical_price_usd: 25, synonyms: [plate, bowl, mug, ceramic, vase]}
+  327200: {display: "Glassware", typical_price_usd: 15, synonyms: [glass, wine glass, jar, bottle]}
+  # ---- paper & disposables -------------------------------------------------
+  322120: {display: "Paper", typical_price_usd: 8, synonyms: [paper, printer paper, a4]}
+  322230: {display: "Stationery & notebooks", typical_price_usd: 6, synonyms: [notebook, notepad, journal, envelope]}
+  322291: {display: "Tissues, napkins & diapers", typical_price_usd: 12, synonyms: [tissues, napkins, diapers, toilet paper, wipes]}
+  322210: {display: "Cardboard boxes & packaging", typical_price_usd: 15, synonyms: [cardboard box, moving box, shipping box]}
+  322220: {display: "Paper bags & gift wrap", typical_price_usd: 6, synonyms: [paper bag, gift wrap, wrapping paper]}
+  322299: {display: "Disposable plates & cups", typical_price_usd: 8, synonyms: [paper plate, paper cup, disposable cutlery, party supplies]}
+  323110: {display: "Books, newspapers & magazines", typical_price_usd: 18, synonyms: [book, magazine, newspaper, novel]}
+  # ---- personal care & household chemicals ---------------------------------
+  325610: {display: "Soap & cleaning products", typical_price_usd: 8, synonyms: [soap, detergent, cleaner, bleach, dish soap]}
+  325620: {display: "Toiletries & cosmetics", typical_price_usd: 15, synonyms: [shampoo, toothpaste, deodorant, makeup, lotion, sunscreen]}
+  325412: {display: "Medicines", typical_price_usd: 20, synonyms: [medicine, pills, vitamins, supplements, painkillers]}
+  325510: {display: "Paint", typical_price_usd: 40, synonyms: [paint, varnish, primer, coating]}
+  325520: {display: "Glue & adhesives", typical_price_usd: 8, synonyms: [glue, super glue, epoxy, adhesive]}
+  325910: {display: "Printer ink & toner", typical_price_usd: 30, synonyms: [ink cartridge, toner]}
+  325310: {display: "Fertilizer", typical_price_usd: 20, synonyms: [fertilizer, plant food, compost]}
+  325320: {display: "Pesticides & weed killers", typical_price_usd: 15, synonyms: [pesticide, herbicide, insecticide, weed killer, bug spray]}
+  3259A0: {display: "Pool & spa chemicals", typical_price_usd: 25, synonyms: [chlorine, pool chemicals]}
+  325120: {display: "Propane & compressed gas", typical_price_usd: 40, synonyms: [propane, gas canister, camping gas]}
+  324190: {display: "Motor oil & lubricants", typical_price_usd: 10, synonyms: [motor oil, engine oil, lubricant, wd40]}
+  # ---- plastics ------------------------------------------------------------
+  326110: {display: "Plastic bags & wrap", typical_price_usd: 8, synonyms: [plastic bag, cling wrap, ziplock, trash bag]}
+  326160: {display: "Plastic bottles & containers", typical_price_usd: 10, synonyms: [plastic bottle, container, tupperware, water bottle]}
+  326190: {display: "Plastic household goods", typical_price_usd: 12, synonyms: [plastic bin, hanger, bucket, storage box]}
+  326290: {display: "Rubber gloves & household rubber goods", typical_price_usd: 10, synonyms: [rubber gloves, latex gloves, eraser]}
+  # ---- DIY & building materials --------------------------------------------
+  321100: {display: "Lumber & wood boards", typical_price_usd: 50, synonyms: [lumber, wood, boards, timber, planks]}
+  321200: {display: "Plywood & panels", typical_price_usd: 40, synonyms: [plywood, mdf, particle board]}
+  321910: {display: "Wood flooring, windows & doors", typical_price_usd: 200, synonyms: [hardwood floor, wooden door, window frame]}
+  324122: {display: "Roofing shingles", typical_price_usd: 100, synonyms: [shingles, roofing]}
+  327310: {display: "Cement & mortar", typical_price_usd: 15, synonyms: [cement, mortar, grout]}
+  327320: {display: "Ready-mix concrete", typical_price_usd: 150, synonyms: [concrete]}
+  327330: {display: "Bricks & concrete blocks", typical_price_usd: 60, synonyms: [bricks, cinder blocks, pavers]}
+  327400: {display: "Drywall & plaster", typical_price_usd: 15, synonyms: [drywall, plaster, sheetrock, gypsum board]}
+  327910: {display: "Sandpaper & abrasives", typical_price_usd: 10, synonyms: [sandpaper, grinding disc]}
+  327993: {display: "Insulation", typical_price_usd: 50, synonyms: [insulation, mineral wool, fiberglass insulation]}
+  332500: {display: "Locks, hinges & hardware", typical_price_usd: 15, synonyms: [lock, hinge, doorknob, handle, padlock]}
+  332720: {display: "Screws, nuts & bolts", typical_price_usd: 8, synonyms: [screws, nails, bolts, fasteners]}
+  332913: {display: "Faucets & plumbing fittings", typical_price_usd: 60, synonyms: [faucet, tap, shower head, valve]}
+  # ---- garden & workshop equipment -----------------------------------------
+  333112: {display: "Lawn & garden equipment", typical_price_usd: 150, synonyms: [lawnmower, trimmer, leaf blower, chainsaw]}
+  333991: {display: "Power tools", typical_price_usd: 90, synonyms: [drill, saw, sander, grinder, impact driver]}
+  33399A: {display: "Welding & soldering equipment", typical_price_usd: 120, synonyms: [welder, soldering iron]}
+  # ---- vehicles & recreational equipment -------------------------------------
+  326210: {display: "Tires", typical_price_usd: 150, synonyms: [tire, tyre]}
+  336111: {display: "Cars (purchase)", typical_price_usd: 30000, synonyms: [car, automobile, sedan]}
+  336112: {display: "Pickups, vans & SUVs (purchase)", typical_price_usd: 40000, synonyms: [suv, pickup truck, van]}
+  336390: {display: "Auto parts & accessories", typical_price_usd: 80, synonyms: [car parts, brake pads, wipers, floor mats]}
+  336991: {display: "Bicycles & motorcycles", typical_price_usd: 400, synonyms: [bicycle, bike, motorcycle, ebike, scooter]}
+  336612: {display: "Boats", typical_price_usd: 15000, synonyms: [boat, kayak, canoe, jet ski]}
+  336213: {display: "Motorhomes & RVs", typical_price_usd: 60000, synonyms: [rv, motorhome, camper van]}
+  336214: {display: "Travel trailers & campers", typical_price_usd: 20000, synonyms: [caravan, camper trailer]}
+  336999: {display: "ATVs, scooters & golf carts", typical_price_usd: 2000, synonyms: [atv, quad, golf cart, moped]}
+  # ---- other everyday --------------------------------------------------------
+  311111: {display: "Pet food", typical_price_usd: 20, synonyms: [dog food, cat food, kibble]}
+  111400: {display: "Houseplants & cut flowers", typical_price_usd: 15, synonyms: [plant, houseplant, flowers, bouquet, succulent]}
+  312200: {display: "Cigarettes & tobacco", typical_price_usd: 10, synonyms: [cigarettes, tobacco, vape, cigars]}

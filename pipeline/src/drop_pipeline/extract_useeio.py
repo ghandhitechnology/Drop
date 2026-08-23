@@ -135,6 +135,7 @@ def main():
             entry["consumer"] = {
                 "display": consumer[code]["display"],
                 "typical_price_usd": consumer[code]["typical_price_usd"],
+                "synonyms": consumer[code].get("synonyms", []),
             }
         sectors.append(entry)
 

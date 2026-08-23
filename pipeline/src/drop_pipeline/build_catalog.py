@@ -309,7 +309,7 @@ def main():
         add({
             "catalog_id": cid,
             "display_name": c["display"],
-            "synonyms": [],
+            "synonyms": c.get("synonyms", []),
             "category": "product",
             "subcategory": "product/" + s["sector_code"],
             "state": "solid",

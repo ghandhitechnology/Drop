@@ -1,15 +1,15 @@
 {
  "files": [
   {
-   "bytes": 328062,
+   "bytes": 376119,
    "path": "catalog.json",
-   "rows": 463,
-   "sha256": "87d74c5f9d02d560afc1eef68935a9d41b1c8463de942dbdf4f28b903be83f89"
+   "rows": 524,
+   "sha256": "31fd30c45af4dc97632d8d692e23022914923f03ebfdc0c310c022a9620bce65"
   },
   {
-   "bytes": 21985,
+   "bytes": 28557,
    "path": "catalog.prompt.txt",
-   "sha256": "8526668c3fa38afbfa28f4cc3c90b120d0ed9bd344c11ba1ec9c3386ba75f948"
+   "sha256": "1fabb3ab320b439a0ccd388c0aa7a7285b4f1e8d4c3e3989e81d51fd57ee4b6e"
   },
   {
    "bytes": 115627,
@@ -30,10 +30,10 @@
    "sha256": "7d8b7c86d92ff65b6246c16bc9e060c46e04ff39d5e5c0ca9162e1222f9d5737"
   },
   {
-   "bytes": 263379,
+   "bytes": 277974,
    "path": "sector_useeio.json",
    "rows": 411,
-   "sha256": "b699e1053e85572e63470ba2829412b65adfdcf2e4b0a2d6a78bb668f8a47c6a"
+   "sha256": "91c9b9f8bcf963e53843284271477c0c0891421df312b43725644e37443375a9"
   },
   {
    "bytes": 69947,
@@ -48,7 +48,7 @@
    "sha256": "16165c3e1f0252de1feee973b9128685071588fe1f837f45ed35de9f9c4d677d"
   }
  ],
- "generated_at": "2026-08-07T16:51:55+00:00",
- "git_commit": "6b132a5c2f448e74c919a13d1fe1571c4ba0d093",
+ "generated_at": "2026-08-08T08:20:37+00:00",
+ "git_commit": "2559a2b2aee3fe53465afd2910924bab85246eea",
  "version": "2026.08.1"
 }
