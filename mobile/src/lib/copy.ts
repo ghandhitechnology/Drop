@@ -25,8 +25,8 @@ export const copy = {
     },
     /** Shown once the OS prompt has been answered and the answer lives in Settings. */
     settings: {
-      title: 'Camera access lives in Settings',
-      body: 'Switch the camera on for Drop and come straight back — the frame will be waiting.',
+      title: 'Choose how to capture',
+      body: 'Camera access lives in Settings. The catalogue stays ready here with Find by name.',
       action: 'Open Settings',
     },
     checking: 'Waking the camera',
@@ -64,6 +64,29 @@ export const copy = {
       unresolved: 'Frame held. Find by name is ready.',
       barcode: 'Barcode in frame.',
       plate: (count: number) => `${count} things in this frame.`,
+    },
+    tablet: {
+      eyebrow: 'Capture to history',
+      ready: {
+        title: 'Start with what is in front of you',
+        body: 'Take a photo, choose one, or find it by name. Each path continues into the same review.',
+      },
+      reading: {
+        title: 'Reading this capture',
+        body: 'Drop is matching this capture to the catalogue and grounded water data.',
+      },
+      review: {
+        title: 'Review the water',
+        body: 'Open the result on the frame, adjust the amount, then add it to your history.',
+      },
+      recover: {
+        title: 'Find by name stays ready',
+        body: 'Continue this capture through the catalogue beside the camera.',
+      },
+      saved: {
+        title: 'Added to your history',
+        body: 'The same frame is ready for whatever comes next.',
+      },
     },
   },
 

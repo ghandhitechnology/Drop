@@ -12,26 +12,30 @@ import { dropPath } from '../onboarding/marks';
 import { copy } from '../../lib/copy';
 import { SketchButton } from '../../ui/SketchButton';
 import { Text } from '../../ui/Text';
+import { permissionPromptModel, type PermissionPromptMode } from './permission';
 
 const MARK_WIDTH = 240;
 const MARK_HEIGHT = 120;
 
 export type PermissionPromptProps = {
   /** `ask` before the OS has been consulted, `settings` once the answer lives there. */
-  mode: 'ask' | 'settings';
+  mode: PermissionPromptMode;
   onRequest: () => void;
+  /** Opens the bundled catalogue without consulting camera permission. */
+  onManual: () => void;
 };
 
 /**
  * The screen before the camera.
  *
- * It says what the camera is for and offers one action. No warning tone, no
- * explanation of what happens when permission is withheld — the person can
- * simply come back.
+ * It says what the camera is for and keeps the catalogue beside the permission
+ * action. Withholding camera access changes the input, never access to the
+ * result and confirmation workflow.
  */
-export function PermissionPrompt({ mode, onRequest }: PermissionPromptProps) {
+export function PermissionPrompt({ mode, onRequest, onManual }: PermissionPromptProps) {
   const { colors } = useTheme();
   const words = mode === 'ask' ? copy.permission.ask : copy.permission.settings;
+  const prompt = permissionPromptModel(mode);
 
   // The same drop the welcome draws, so the two screens a person meets in
   // their first ten seconds are drawn with one shape rather than two sketches
@@ -42,7 +46,7 @@ export function PermissionPrompt({ mode, onRequest }: PermissionPromptProps) {
   );
 
   const handlePress = () => {
-    if (mode === 'ask') {
+    if (prompt.primary.destination === 'request') {
       onRequest();
       return;
     }
@@ -69,7 +73,7 @@ export function PermissionPrompt({ mode, onRequest }: PermissionPromptProps) {
             />
           </Canvas>
 
-          <Text variant="title" tone="ink" style={styles.title}>
+          <Text variant="title" tone="ink" style={styles.title} accessibilityRole="header">
             {words.title}
           </Text>
           <Text variant="body" tone="inkSoft" style={styles.copy}>
@@ -83,10 +87,25 @@ export function PermissionPrompt({ mode, onRequest }: PermissionPromptProps) {
             radius={radius.pill}
             style={styles.action}
             contentStyle={styles.actionContent}
-            accessibilityLabel={words.action}
+            accessibilityLabel={prompt.primary.label}
           >
             <Text variant="label" tone="accent">
               {words.action}
+            </Text>
+          </SketchButton>
+
+          <SketchButton
+            onPress={onManual}
+            seed={`capture/permission/${mode}/manual`}
+            tone="ink"
+            radius={radius.pill}
+            style={styles.manualAction}
+            contentStyle={styles.actionContent}
+            accessibilityLabel={prompt.manual.label}
+            accessibilityHint={prompt.manual.hint}
+          >
+            <Text variant="label" tone="ink">
+              {prompt.manual.label}
             </Text>
           </SketchButton>
         </View>
@@ -109,5 +128,6 @@ const styles = StyleSheet.create({
   title: { textAlign: 'center' },
   copy: { textAlign: 'center', maxWidth: 340 },
   action: { marginTop: space.lg, minHeight: 56 },
+  manualAction: { minHeight: 56 },
   actionContent: { minHeight: 56, paddingHorizontal: space.xxl },
 });

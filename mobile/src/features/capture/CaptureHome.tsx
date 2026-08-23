@@ -1,7 +1,7 @@
 import type { CameraView } from 'expo-camera';
 import { useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,14 +16,14 @@ import { CHIP_HEIGHT, HandChip, HandChipStatic } from './HandChip';
 import { LibraryChip } from './LibraryChip';
 import { useOverlayInk } from './overlay';
 import { PermissionPrompt } from './PermissionPrompt';
+import { capturePermissionSurface } from './permission';
+import { isTabletCaptureViewport } from './presentation';
 import { Shutter } from './Shutter';
+import { TabletCapturePanel } from './TabletCapturePanel';
 import { type CaptureState } from './types';
 import { useCaptureMachine } from './useCaptureMachine';
 import { useLibraryPick } from './useLibraryPick';
 import { usageIsFull, useUsage } from '../usage';
-
-/** At and above this width the camera shares the screen instead of owning it. */
-export const TABLET_BREAKPOINT = 768;
 
 /** Share of the width the camera keeps on a tablet. */
 const CAMERA_SHARE = 0.62;
@@ -53,7 +53,7 @@ function isFraming(state: CaptureState): boolean {
 export function CaptureHome() {
   const { colors } = useTheme();
   const overlayInk = useOverlayInk();
-  const { width } = useWindowDimensions();
+  const viewport = useWindowDimensions();
   const router = useRouter();
 
   const [permission, requestPermission] = useCameraPermissions();
@@ -71,13 +71,18 @@ export function CaptureHome() {
   const takePhoto = useTakePhoto(cameraRef, stage, beginShutter, resetShutter);
   const pickFromLibrary = useLibraryPick(stage);
 
-  // A retake starts a fresh framing run, including a fresh reticle. Adjusting
-  // during the state transition avoids an extra effect-driven render.
-  const [previousStateName, setPreviousStateName] = useState(state.name);
-  if (previousStateName !== state.name) {
-    setPreviousStateName(state.name);
-    if (state.name === 'framing') setShutterActive(false);
-  }
+  // A retake starts a fresh framing run, including a fresh reticle. Subscribe
+  // at the store boundary because this local flag synchronizes an animation
+  // with the external capture machine rather than deriving rendered content.
+  useEffect(
+    () =>
+      useCaptureMachine.subscribe((next, previous) => {
+        if (next.state.name === 'framing' && previous.state.name !== 'framing') {
+          setShutterActive(false);
+        }
+      }),
+    [],
+  );
 
   const handleStageSize = useCallback((size: StageSize) => {
     setStage((current) =>
@@ -97,16 +102,27 @@ export function CaptureHome() {
     );
   }
 
-  if (!permission.granted) {
+  const permissionSurface = capturePermissionSurface(permission.granted, state.name);
+
+  if (permissionSurface === 'prompt') {
     return (
       <PermissionPrompt
         mode={permission.canAskAgain ? 'ask' : 'settings'}
         onRequest={requestPermission}
+        onManual={openSearch}
       />
     );
   }
 
-  const isTablet = width >= TABLET_BREAKPOINT;
+  if (permissionSurface === 'manual-run') {
+    return (
+      <View style={[styles.root, { backgroundColor: colors.bg }]}>
+        <ResultStage stage={{ width: viewport.width, height: viewport.height }} />
+      </View>
+    );
+  }
+
+  const isTablet = isTabletCaptureViewport(viewport);
   // The controls belong to a live frame only. The moment one is held they hand
   // the spot over: the character stands where the shutter was and says from
   // there what it is doing with the photo.
@@ -149,17 +165,19 @@ export function CaptureHome() {
             </FramingNote>
 
             <View style={styles.controlRow} pointerEvents="box-none">
-              <HandChip
-                seed="capture/find-by-name"
-                onPress={openSearch}
-                style={styles.secondary}
-                accessibilityLabel={copy.capture.findByName}
-                accessibilityHint={copy.capture.findByNameHint}
-              >
-                <Text variant="label" tone={overlayInk.mark}>
-                  {copy.capture.findByName}
-                </Text>
-              </HandChip>
+              {!isTablet && (
+                <HandChip
+                  seed="capture/find-by-name"
+                  onPress={openSearch}
+                  style={styles.secondary}
+                  accessibilityLabel={copy.capture.findByName}
+                  accessibilityHint={copy.capture.findByNameHint}
+                >
+                  <Text variant="label" tone={overlayInk.mark}>
+                    {copy.capture.findByName}
+                  </Text>
+                </HandChip>
+              )}
 
               <Shutter
                 onPress={takePhoto}
@@ -168,11 +186,13 @@ export function CaptureHome() {
                 disabled={shutterActive || usageFull}
               />
 
-              <LibraryChip
-                onPress={pickFromLibrary}
-                disabled={shutterActive || usageFull}
-                style={styles.secondaryRight}
-              />
+              {!isTablet && (
+                <LibraryChip
+                  onPress={pickFromLibrary}
+                  disabled={shutterActive || usageFull}
+                  style={styles.secondaryRight}
+                />
+              )}
             </View>
           </View>
         )}
@@ -194,11 +214,15 @@ export function CaptureHome() {
   return (
     <View style={[styles.root, styles.split, { backgroundColor: colors.bg }]}>
       {cameraColumn}
-      {/* Reserved for the running record. The Signature and History phases fill it. */}
-      <View
-        style={[styles.panel, { backgroundColor: colors.bg, borderColor: colors.inkFaint }]}
-        accessible={false}
-      />
+      <View style={styles.panel}>
+        <TabletCapturePanel
+          state={state.name}
+          showActions={showControls}
+          libraryDisabled={shutterActive || usageFull}
+          onSearch={openSearch}
+          onLibrary={pickFromLibrary}
+        />
+      </View>
     </View>
   );
 }
@@ -208,7 +232,7 @@ const styles = StyleSheet.create({
   split: { flexDirection: 'row' },
   center: { alignItems: 'center', justifyContent: 'center' },
   column: { flex: 1 },
-  panel: { flex: 1 - CAMERA_SHARE, borderLeftWidth: 1 },
+  panel: { flex: 1 - CAMERA_SHARE },
 
   overlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   spacer: { flex: 1 },
