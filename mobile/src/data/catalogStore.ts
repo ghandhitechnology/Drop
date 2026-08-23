@@ -8,9 +8,9 @@
  */
 import { create } from 'zustand';
 
-import { loadCatalogItems, seedCatalogItems } from './catalog';
+import { activeCatalogItems, loadCatalogItems, seedCatalogItems } from './catalog';
 import { searchCatalog, type SearchHit } from './search';
-import { FACTORS_VERSION } from './tables';
+import { FACTORS_VERSION, subscribeFactorsVersion } from './tables';
 import type { CatalogItem } from './types';
 
 export type CatalogStatus = 'idle' | 'hydrating' | 'ready' | 'failed';
@@ -43,9 +43,22 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
     const run = (async () => {
       set({ status: 'hydrating', error: null });
       const startedAt = Date.now();
+      const targetVersion = FACTORS_VERSION;
       try {
         await seedCatalogItems(force);
         const items = await loadCatalogItems();
+        // Activation can finish while SQLite hydration is yielding. Never put
+        // that old release back over the synchronous active-release swap.
+        if (FACTORS_VERSION !== targetVersion) {
+          set({
+            status: 'ready',
+            items: activeCatalogItems(),
+            version: FACTORS_VERSION,
+            hydrationMs: Date.now() - startedAt,
+            error: null,
+          });
+          return;
+        }
         set({
           status: 'ready',
           items,
@@ -69,6 +82,17 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
 
   search: (query, limit) => searchCatalog(get().items, query, limit),
 }));
+
+/** Keep search/default quantities in the exact same synchronous release swap. */
+subscribeFactorsVersion(() => {
+  useCatalogStore.setState({
+    status: 'ready',
+    items: activeCatalogItems(),
+    version: FACTORS_VERSION,
+    hydrationMs: 0,
+    error: null,
+  });
+});
 
 /** Non-hook access, for callers outside React. */
 export function catalogItems(): CatalogItem[] {

@@ -3,8 +3,8 @@
  *
  * This is the Wire phase of the seam in `capture/pipeline.ts`: the machine
  * still only ever calls `getPipeline()`, and this installs a run that produces
- * **real engine output** — `estimate()` against the factor tables bundled with
- * the app. No network, no service, nothing to mock at the edges of the screen:
+ * **real engine output** — `estimate()` against the one active factor release.
+ * No network, no service, nothing to mock at the edges of the screen:
  * every number the result card shows comes from the same code path that will
  * serve a live recognition result.
  *
@@ -19,10 +19,11 @@
 import {
   estimate as runEstimate,
   type Estimate as EngineEstimate,
+  type Tables,
 } from '@drop/water-engine';
 
 import { getDb } from '../../data/db';
-import { getTables } from '../../data/tables';
+import { getTables, initializeFactorTables } from '../../data/tables';
 import { FAKE_TIMINGS, setPipeline, type Pipeline } from '../capture/pipeline';
 import type { Estimate, RecognizedItem } from '../capture/types';
 
@@ -68,6 +69,8 @@ export type LocalEstimateInput = {
   quantity?: number;
   /** Set once a person has moved the stepper. */
   userEntered?: boolean;
+  /** Freeze one release across the local pipeline's timed presentation. */
+  tables?: Tables;
 };
 
 /** One serving of an item, as the catalogue defines it. */
@@ -87,8 +90,9 @@ export function localEstimate({
   catalogId,
   quantity,
   userEntered,
+  tables: frozenTables,
 }: LocalEstimateInput): Estimate | null {
-  const tables = getTables();
+  const tables = frozenTables ?? getTables();
   const entry = tables.catalog.get(catalogId);
   if (!entry) return null;
 
@@ -125,6 +129,7 @@ export function toEngineEstimate(value: Estimate): EngineEstimate {
  * are built.
  */
 export const localPipeline: Pipeline = (input, handlers) => {
+  const tables = getTables();
   const timers: ReturnType<typeof setTimeout>[] = [];
   let cancelled = false;
 
@@ -151,7 +156,7 @@ export const localPipeline: Pipeline = (input, handlers) => {
 
   elapsed += FAKE_TIMINGS.analyzing;
   at(elapsed, () => {
-    const entry = getTables().catalog.get(catalogId);
+    const entry = tables.catalog.get(catalogId);
     if (!entry) {
       handlers.onUnresolved();
       return;
@@ -166,7 +171,7 @@ export const localPipeline: Pipeline = (input, handlers) => {
 
   elapsed += input.mode === 'fast' ? 0 : FAKE_TIMINGS.presenting;
   at(elapsed, () => {
-    const result = localEstimate({ catalogId });
+    const result = localEstimate({ catalogId, tables });
     if (result) handlers.onPresenting(result);
     else handlers.onUnresolved();
   });
@@ -204,5 +209,8 @@ export function installLocalPipeline(): void {
       console.log('[result/pipeline] table warmup', error);
     }
     getDb().catch((error) => console.log('[result/pipeline] database warmup', error));
+    initializeFactorTables().catch((error) =>
+      console.log('[result/pipeline] factor restore', error),
+    );
   }, 0);
 }

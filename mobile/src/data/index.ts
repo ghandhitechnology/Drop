@@ -5,12 +5,18 @@ export {
   clearAllData,
   factorsCacheGet,
   factorsCachePut,
+  activeFactorReleaseVersion,
+  clearActiveFactorRelease,
   getDb,
   journalMode,
   kvGet,
   kvSet,
+  readFactorRelease,
   schemaVersion,
+  setActiveFactorRelease,
+  stageFactorRelease,
   type CachedFactors,
+  type StoredFactorRelease,
 } from './db';
 
 export { MIGRATIONS, SCHEMA_VERSION, migrate, type Migration } from './schema';
@@ -18,6 +24,8 @@ export { MIGRATIONS, SCHEMA_VERSION, migrate, type Migration } from './schema';
 export {
   getCatalogItem,
   loadCatalogItems,
+  activeCatalogItems,
+  rowToItem,
   seedCatalogItems,
   toCatalogItemRow,
 } from './catalog';
@@ -65,7 +73,17 @@ export {
   type SearchHit,
 } from './search';
 
-export { FACTORS_VERSION, getTables, rawTables, tableSizes } from './tables';
+export {
+  BUNDLED_FACTORS_VERSION,
+  FACTORS_VERSION,
+  activateFactorRelease,
+  getFactorsVersion,
+  getTables,
+  initializeFactorTables,
+  rawTables,
+  subscribeFactorsVersion,
+  tableSizes,
+} from './tables';
 
 export type {
   CatalogItem,

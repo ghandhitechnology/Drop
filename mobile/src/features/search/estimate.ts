@@ -12,7 +12,11 @@
  * caller is told which one it got so the card can say so.
  */
 
-import { estimate as runEstimate, type QuantityUnit } from '@drop/water-engine';
+import {
+  estimate as runEstimate,
+  type QuantityUnit,
+  type Tables,
+} from '@drop/water-engine';
 
 import { getTables } from '../../data/tables';
 import type { QuantityBasis, WireUnit } from '../../data/api';
@@ -36,6 +40,8 @@ export type EstimateRequest = {
   /** The amount as it arrived, in its own unit. */
   quantity?: PickedQuantity | null;
   source: QuantitySource;
+  /** Freeze one release across a longer asynchronous capture run. */
+  tables?: Tables;
 };
 
 export type EstimateOutcome = {
@@ -67,8 +73,9 @@ export function estimateFor({
   catalogId,
   quantity,
   source,
+  tables: frozenTables,
 }: EstimateRequest): EstimateOutcome | null {
-  const tables = getTables();
+  const tables = frozenTables ?? getTables();
   const entry = tables.catalog.get(catalogId);
   if (!entry) return null;
 

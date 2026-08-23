@@ -8,7 +8,7 @@
  * alternatives go under the name, drawn small, and the choice stays where it
  * belongs.
  *
- * Switching re-runs the engine against the bundled tables with the amount
+ * Switching re-runs the engine against the active tables with the amount
  * recognition already read, so the hero number moves on the press with nothing
  * to wait for and nothing to fetch. The chips disappear entirely when
  * recognition was sure, which is most of the time.

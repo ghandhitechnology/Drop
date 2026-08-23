@@ -30,7 +30,7 @@ import {
 } from '../../data/api';
 import { hydrateCatalog } from '../../data/catalogStore';
 import { getDb } from '../../data/db';
-import { FACTORS_VERSION, getTables } from '../../data/tables';
+import { getTables, initializeFactorTables } from '../../data/tables';
 import { copy } from '../../lib/copy';
 import { createAnalysisId, releaseAnalysis, reserveAnalysis, type UsageSnapshot } from '../usage';
 import { clearCandidates, offerCandidates } from '../search/candidates';
@@ -187,8 +187,8 @@ export const fakePipeline: Pipeline = (input, handlers) => {
  * ============================ THE WIRED RUN ============================
  *
  * The service names things. The device does the arithmetic. Every litre on
- * screen comes from `@drop/water-engine` running against the factor tables in
- * the bundle, whether the answer arrived over the network or out of the
+ * screen comes from `@drop/water-engine` running against one validated factor
+ * release, whether the answer arrived over the network or out of the
  * catalogue sheet — which is why an estimate is byte-identical with the radio
  * on and off.
  *
@@ -321,6 +321,10 @@ function runRealPipeline(
   handlers: PipelineHandlers,
   dependencies: RealPipelineDependencies,
 ): PipelineRun {
+  // One immutable set owns the entire asynchronous run. Activation can happen
+  // in parallel, but it takes effect only for the next capture.
+  const tables = dependencies.getTables();
+  const factorsVersion = tables.version;
   let settled = false;
   let cancelled = false;
   const controller = new AbortController();
@@ -355,10 +359,9 @@ function runRealPipeline(
   /* ------------------------------------------------------ identification */
 
   async function identify(): Promise<Identified | null> {
-    const tables = dependencies.getTables();
-
     // 1 — the catalogue sheet already decided.
     const picks = dependencies.takeSearchPicks();
+    if (picks.some((pick) => pick.factorsVersion !== factorsVersion)) return null;
     if (picks.length > 1) {
       const plate = picks
         .slice(0, MAX_PLATE_ITEMS)
@@ -432,6 +435,16 @@ function runRealPipeline(
           signal: controller.signal,
           analysisId: analysisId!,
         });
+        if (hit.catalog_version !== factorsVersion) {
+          console.log(
+            '[capture/pipeline] barcode catalog mismatch',
+            hit.catalog_version,
+            '!=',
+            factorsVersion,
+          );
+          visionController?.abort();
+          return null;
+        }
         if (hit.quantity?.basis === 'package_label') labelQuantity = hit.quantity;
 
         const catalogId = hit.mapping.catalog_id;
@@ -478,6 +491,15 @@ function runRealPipeline(
       throw settledVision.error;
     }
     const seen = settledVision.seen;
+    if (seen.catalog_version !== factorsVersion) {
+      console.log(
+        '[capture/pipeline] recognition catalog mismatch',
+        seen.catalog_version,
+        '!=',
+        factorsVersion,
+      );
+      return null;
+    }
 
     // A frame holding several things becomes a plate. A packet's label
     // quantity stays on the single arm — one tin's 330 ml says nothing about
@@ -523,6 +545,7 @@ function runRealPipeline(
       catalogId: pick.catalogId,
       quantity: pick.quantity,
       source: pick.userEntered ? 'user_entered' : 'catalog_default',
+      tables,
     });
     return outcome ? { estimate: outcome.estimate, box: null } : null;
   }
@@ -535,7 +558,6 @@ function runRealPipeline(
    * against unreliable per-item quantities.
    */
   function toPlateItem(item: RecognizeItem): PlateItem {
-    const tables = dependencies.getTables();
     const box = item.box ?? null;
     const known = item.candidates.filter((c) => tables.catalog.has(c.catalog_id));
     const top = known[0];
@@ -550,10 +572,11 @@ function runRealPipeline(
             : item.quantity
               ? 'vision_estimate'
               : 'catalog_default',
+        tables,
       });
       if (outcome) return { estimate: outcome.estimate, box };
     }
-    return { estimate: arrivingLater(item), box };
+    return { estimate: arrivingLater(item, factorsVersion), box };
   }
 
   /* -------------------------------------------------------------- the run */
@@ -621,6 +644,7 @@ function runRealPipeline(
       catalogId: resolved.catalogId,
       quantity: resolved.quantity,
       source: quantitySource(resolved),
+      tables,
     });
 
     if (!outcome) {
@@ -697,7 +721,7 @@ function quantitySource(resolved: Resolution) {
  * to draw the "arriving later" face — and exactly what `insertConfirmed`
  * refuses, so an unknown can never be counted as zero litres by accident.
  */
-function arrivingLater(item: RecognizeItem): Estimate {
+function arrivingLater(item: RecognizeItem, factorsVersion: string): Estimate {
   const q = item.quantity;
   return {
     catalog_id: '',
@@ -714,7 +738,7 @@ function arrivingLater(item: RecognizeItem): Estimate {
     assumptions: [],
     secondary: [],
     unsupported: { reason: 'not_in_catalog' },
-    factors_version: FACTORS_VERSION,
+    factors_version: factorsVersion,
   };
 }
 
@@ -764,8 +788,8 @@ export function installRealPipeline(): void {
       console.log('[capture/pipeline] table warmup', describe(error));
     }
     getDb().catch((error) => console.log('[capture/pipeline] database warmup', describe(error)));
-    hydrateCatalog().catch((error) =>
-      console.log('[capture/pipeline] catalogue warmup', describe(error)),
-    );
+    initializeFactorTables()
+      .then(() => hydrateCatalog({ force: true }))
+      .catch((error) => console.log('[capture/pipeline] factor restore', describe(error)));
   }, 0);
 }

@@ -1,10 +1,9 @@
 /**
- * The searchable catalog: bundled JSON in, `catalog_items` rows out, then a
+ * The searchable catalog: active release JSON in, `catalog_items` rows out, then a
  * single in-memory array for search.
  *
- * The table is rebuilt whenever the bundled factors version changes, so an app
- * update that ships new items replaces them wholesale on first launch and every
- * launch after that is a plain read.
+ * The table is rebuilt whenever the active factors version changes, whether it
+ * arrived in an app build or as a validated download.
  */
 import type { CatalogEntry } from '@drop/water-engine';
 
@@ -61,7 +60,7 @@ export function toCatalogItemRow(entry: SeedEntry): CatalogItemRow {
   };
 }
 
-function rowToItem(row: CatalogItemRow): CatalogItem {
+export function rowToItem(row: CatalogItemRow): CatalogItem {
   let aliases: string[] = [];
   try {
     const parsed: unknown = JSON.parse(row.aliases);
@@ -85,15 +84,16 @@ function rowToItem(row: CatalogItemRow): CatalogItem {
 }
 
 /**
- * Fills `catalog_items` from the bundle when the stored version differs from
- * the bundled one. Returns the number of rows now in the table.
+ * Fills `catalog_items` from the active release when the stored version differs.
+ * Returns the number of rows now in the table.
  */
 export async function seedCatalogItems(force = false): Promise<number> {
   const db = await getDb();
   const seeded = await kvGet(SEEDED_VERSION_KEY);
+  const targetVersion = FACTORS_VERSION;
   const entries = rawTables.catalog.entries as SeedEntry[];
 
-  if (!force && seeded === FACTORS_VERSION) {
+  if (!force && seeded === targetVersion) {
     const existing = await db.getFirstAsync<{ n: number }>(
       'SELECT COUNT(*) AS n FROM catalog_items',
     );
@@ -131,8 +131,15 @@ export async function seedCatalogItems(force = false): Promise<number> {
     }
   });
 
-  await kvSet(SEEDED_VERSION_KEY, FACTORS_VERSION);
+  await kvSet(SEEDED_VERSION_KEY, targetVersion);
   return rows.length;
+}
+
+/** The active release's catalogue, ready for an atomic in-memory store swap. */
+export function activeCatalogItems(): CatalogItem[] {
+  return (rawTables.catalog.entries as SeedEntry[]).map((entry) =>
+    rowToItem(toCatalogItemRow(entry)),
+  );
 }
 
 /** Every catalog item, ordered the way a browse list wants them. */

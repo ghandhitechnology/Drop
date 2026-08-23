@@ -16,7 +16,8 @@ import { startUsageSync } from '../src/features/usage';
  * The recognition seam is bound here, once, before the first frame renders.
  * `installRealPipeline` points the capture machine at the wired run: the
  * service names what is in the photo, and every number is computed on the
- * device by the engine against the factor tables in the bundle. A catalogue
+ * device by the engine against one validated factor release (with the bundle
+ * as its permanent fallback). A catalogue
  * pick takes the same path with the naming step already answered, which is why
  * a search result and a photo produce byte-identical output.
  *

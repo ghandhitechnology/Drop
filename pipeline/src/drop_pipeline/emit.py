@@ -8,6 +8,8 @@ import subprocess
 from pathlib import Path
 
 FACTORS_VERSION = "2026.08.2"
+RELEASE_FORMAT_VERSION = 1
+FACTOR_SCHEMA_VERSION = 1
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = REPO_ROOT / "packages" / "factors" / "data" / FACTORS_VERSION
 DATASETS = REPO_ROOT / "water_logic" / "datasets"
@@ -63,6 +65,8 @@ def rebuild_manifest(generated_at: str) -> Path:
         files.append(entry)
     manifest = {
         "version": FACTORS_VERSION,
+        "release_format_version": RELEASE_FORMAT_VERSION,
+        "factor_schema_version": FACTOR_SCHEMA_VERSION,
         "generated_at": generated_at,
         "git_commit": git_commit(),
         "files": files,

@@ -8,19 +8,25 @@
  *
  * The last section is the point of the screen. Drop's whole claim is that a
  * litre traces to a published study, and this is where that claim is checkable:
- * the names, releases, and rights are read out of the factor tables in the
- * bundle at the moment the screen opens, not typed into a credits list that
- * quietly goes stale.
+ * the names, releases, and rights are read out of the active factor release,
+ * not typed into a credits list that quietly goes stale.
  */
 import { Canvas, Skia } from '@shopify/react-native-skia';
 import Constants from 'expo-constants';
 import { useFocusEffect } from 'expo-router';
 import * as Updates from 'expo-updates';
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { FACTORS_VERSION } from '../../data/tables';
+import { getFactorsVersion, subscribeFactorsVersion } from '../../data/tables';
 import { readAvailableRelease, type AvailableRelease } from '../../data/sync';
 import { usePreferences } from '../../design/preferences';
 import { useTheme } from '../../design/theme';
@@ -57,6 +63,11 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
 
   const [release, setRelease] = useState<AvailableRelease | null>(null);
   const refreshUsage = useUsage((state) => state.refresh);
+  const factorsVersion = useSyncExternalStore(
+    subscribeFactorsVersion,
+    getFactorsVersion,
+    getFactorsVersion,
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -64,16 +75,14 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
     }, [refreshUsage]),
   );
 
-  const credits = useMemo(
-    () =>
-      datasetCredits({
-        release: copy.settings.about.release,
-        rights: copy.settings.about.rights,
-        source: copy.settings.about.source,
-      }),
-    [],
-  );
-  const catalog = useMemo(() => catalogSize(), []);
+  // The external-store subscription rerenders this screen when the complete
+  // active table set changes, so attribution is always read from that set.
+  const credits = datasetCredits({
+    release: copy.settings.about.release,
+    rights: copy.settings.about.rights,
+    source: copy.settings.about.source,
+  });
+  const catalog = catalogSize();
 
   /**
    * The exact build in hand, said once at the tail of the screen.
@@ -185,7 +194,7 @@ export function SettingsScreen({ onDone }: SettingsScreenProps) {
 
             <View style={styles.facts}>
               <Text variant="label" tone="ink">
-                {copy.settings.about.tables(FACTORS_VERSION)}
+                {copy.settings.about.tables(factorsVersion)}
               </Text>
               <Text variant="label" tone="inkSoft">
                 {copy.settings.about.catalog(String(catalog))}
