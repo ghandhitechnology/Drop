@@ -159,7 +159,7 @@ describe('usage HTTP protocol', () => {
     });
   });
 
-  it('consumes a presentable recognition once and exposes the new snapshot', async () => {
+  it('consumes a presentable recognition and counts a compatible cache hit', async () => {
     vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
     vi.stubEnv('RECOGNIZE_PIPELINE', 'mono');
     const upstream = vi.fn().mockResolvedValue(
@@ -228,10 +228,27 @@ describe('usage HTTP protocol', () => {
     expect(replay.status).toBe(409);
     expect(upstream).toHaveBeenCalledOnce();
 
+    const replayAnalysisId = id(201);
+    const replayReservation = await app.request('/v1/usage/reservations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers(replayAnalysisId) },
+      body: JSON.stringify({ analysis_id: replayAnalysisId }),
+    });
+    expect(replayReservation.status).toBe(201);
+
+    const compatibleReplay = await app.request('/v1/recognize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers(replayAnalysisId) },
+      body: JSON.stringify({ image_base64: 'metered-success-fixture' }),
+    });
+    expect(compatibleReplay.status).toBe(200);
+    expect(compatibleReplay.headers.get('X-Drop-Usage-Used')).toBe('2');
+    expect(upstream).toHaveBeenCalledOnce();
+
     const status = await app.request('/v1/usage', { headers: headers() });
     await expect(status.json()).resolves.toMatchObject({
-      used: 1,
-      remaining: 19,
+      used: 2,
+      remaining: 18,
     });
   });
 });

@@ -44,6 +44,17 @@ const MODEL_RECOGNITION = {
   scene_description: null,
 };
 
+function recognition(label: string, catalogId: string) {
+  return {
+    ...MODEL_RECOGNITION,
+    items: [{
+      ...MODEL_RECOGNITION.items[0],
+      label,
+      candidates: [{ catalog_id: catalogId, score: 0.92, reason: `is ${label}` }],
+    }],
+  };
+}
+
 function modelResponse(payload: unknown): Response {
   return new Response(JSON.stringify({
     choices: [{ message: { content: JSON.stringify(payload) } }],
@@ -174,6 +185,50 @@ describe('POST /v1/recognize mono rollback switch', () => {
     expect(request.reasoning).toEqual({ effort: 'high', exclude: true });
     expect(request.max_tokens).toBe(12_000);
     expect(JSON.stringify(request.messages)).toContain('CONTROLLED CATALOG');
+  });
+
+  it('does not share cached results across image, MIME, hint, or mode changes', async () => {
+    const upstream = vi.fn()
+      .mockResolvedValueOnce(modelResponse(recognition('apple', 'apple')))
+      .mockResolvedValueOnce(modelResponse(recognition('rice', 'rice')))
+      .mockResolvedValueOnce(modelResponse(recognition('banana', 'banana')))
+      .mockResolvedValueOnce(modelResponse(recognition('beef', 'beef')))
+      .mockResolvedValueOnce(modelResponse(recognition('bread', 'bread_wheat')));
+    vi.stubGlobal('fetch', upstream);
+
+    const recognize = async (overrides: Record<string, unknown> = {}) => {
+      const response = await app.request('/v1/recognize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_base64: 'same-image-different-semantics-fixture',
+          mime: 'image/jpeg',
+          ...overrides,
+        }),
+      });
+      expect(response.status).toBe(200);
+      return response.json() as Promise<{ items: Array<{ label: string }> }>;
+    };
+
+    await expect(recognize()).resolves.toMatchObject({ items: [{ label: 'apple' }] });
+    await expect(recognize({ image_base64: 'different-image-fixture' })).resolves.toMatchObject({
+      items: [{ label: 'rice' }],
+    });
+    await expect(recognize({ mime: 'image/png' })).resolves.toMatchObject({
+      items: [{ label: 'banana' }],
+    });
+    await expect(recognize({ hint: 'wrapped steak' })).resolves.toMatchObject({
+      items: [{ label: 'beef' }],
+    });
+    await expect(recognize({ mode: 'fast' })).resolves.toMatchObject({
+      items: [{ label: 'bread' }],
+    });
+
+    // An exactly compatible replay still uses the cache.
+    await expect(recognize({ hint: 'wrapped steak' })).resolves.toMatchObject({
+      items: [{ label: 'beef' }],
+    });
+    expect(upstream).toHaveBeenCalledTimes(5);
   });
 });
 
