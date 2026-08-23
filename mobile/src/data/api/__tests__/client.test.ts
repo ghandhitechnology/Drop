@@ -17,7 +17,7 @@ vi.mock('react-native', () => ({
 
 // Mocks must be registered before this native-facing module is evaluated.
 // eslint-disable-next-line import/first
-import { apiBaseUrl, hostFromUri, postJson } from '../client';
+import { apiBaseUrl, getText, hostFromUri, postJson } from '../client';
 // eslint-disable-next-line import/first
 import { ApiError } from '../errors';
 // eslint-disable-next-line import/first
@@ -80,5 +80,11 @@ describe('rate-limit transport', () => {
   it('accepts an empty 204 response for reservation cleanup', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })));
     await expect(postJson<void>('/cleanup', {})).resolves.toBeUndefined();
+  });
+
+  it('returns exact response text for hash-covered release artifacts', async () => {
+    const artifact = '{\n "version": "2026.09.1"\n}\n';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(artifact)));
+    await expect(getText('/v1/manifest')).resolves.toBe(artifact);
   });
 });

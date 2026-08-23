@@ -18,6 +18,10 @@ export default defineConfig({
         __dirname,
         'src/data/__tests__/expoSqliteNodeAdapter.ts',
       ),
+      'expo-crypto': resolve(
+        __dirname,
+        'src/data/__tests__/expoCryptoNodeAdapter.ts',
+      ),
     },
   },
   test: {

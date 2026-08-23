@@ -2,8 +2,8 @@
  * The credits, read out of the data itself.
  *
  * Nothing here is a hand-written list of sources. Every name, release, and
- * rights line is lifted from the factor tables in the bundle at the moment the
- * settings screen opens, so a factors release that changes a citation changes
+ * rights line is lifted from the active factor tables when settings renders,
+ * so a factors release that changes a citation changes
  * this screen with it and a table that is swapped out takes its credit along.
  * A hard-coded credits list is a promise that goes stale in silence.
  *

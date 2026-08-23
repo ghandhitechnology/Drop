@@ -11,18 +11,29 @@
  *  2. **It asks at most once a day.** The check timestamp is written before the
  *     request goes out, so a cold-start loop cannot turn into a poll.
  *  3. **It changes nothing a person has already seen.** A downloaded release
- *     lands in `factors_cache` and raises a note in settings. History keeps the
- *     figures it was recorded with; recomputing a past entry behind someone's
- *     back would rewrite a record they confirmed.
+ *     is validated and activated as one unit. History keeps the figures it was
+ *     recorded with; recomputing a past entry behind someone's back would
+ *     rewrite a record they confirmed.
  *
- * The engine still reads `src/data/tables.ts` — the bundled tables. Promoting a
- * cached release into the running engine is a deliberate later step, and this
- * module's job stops at "a newer release is here".
+ * The engine reads one in-memory set from `src/data/tables.ts`. Until a complete
+ * release passes manifest, byte hash, row count, schema, and engine smoke tests,
+ * that set remains the bundled fallback.
  */
-import { getJson } from './api/client';
-import { factorsCachePut, kvGet, kvSet } from './db';
-import { cacheKey, isCheckDue, readManifestVersion } from './syncPolicy';
-import { FACTORS_VERSION } from './tables';
+import { getText } from './api/client';
+import { kvGet, kvSet, stageFactorRelease } from './db';
+import {
+  RELEASE_FILES,
+  ReleaseValidationError,
+  compareFactorVersions,
+  parseFactorManifest,
+  releasePath,
+  validateFactorRelease,
+  type ReleaseFile,
+  type ReleaseFileTexts,
+} from './factorRelease';
+import { hydrateCatalog } from './catalogStore';
+import { activateFactorRelease, FACTORS_VERSION } from './tables';
+import { isCheckDue } from './syncPolicy';
 
 export {
   SYNC_INTERVAL_MS,
@@ -31,16 +42,12 @@ export {
   readManifestVersion,
 } from './syncPolicy';
 
-/** The tables a release is made of, in the order they are fetched. */
-export const SYNC_TABLES = [
-  'food_sueatable',
-  'food_hestia_country',
-  'food_owid_proxy',
-  'transport_factors',
-  'sector_useeio',
-] as const;
+/** The factor endpoints, retained as a public diagnostic list. */
+export const SYNC_TABLES = RELEASE_FILES.filter((file) => file !== 'catalog.json').map(
+  (file) => file.slice(0, -'.json'.length),
+) as readonly string[];
 
-export type SyncTable = (typeof SYNC_TABLES)[number];
+export type SyncTable = string;
 
 /**
  * A manifest is small; a table is not. The manifest call is kept short so a
@@ -65,10 +72,14 @@ export type AvailableRelease = {
 export type SyncOutcome =
   /** Checked recently enough. Nothing left the device. */
   | { status: 'recent'; available: AvailableRelease | null }
-  /** The service answered and its release is the one in the bundle. */
+  /** The service answered with the active release or an older one. */
   | { status: 'current'; version: string }
   /** A newer release was fetched and cached. */
   | { status: 'fetched'; available: AvailableRelease }
+  /** A complete newer release was validated, persisted, and made active. */
+  | { status: 'activated'; version: string }
+  /** The server answered, but the advertised release was unsafe to use. */
+  | { status: 'rejected'; reason: ReleaseValidationError['kind'] }
   /** The service was out of reach, or answered with something unreadable. */
   | { status: 'unreachable' };
 
@@ -113,41 +124,80 @@ export async function syncFactors(options: SyncOptions = {}): Promise<SyncOutcom
 
   await kvSet(LAST_CHECK_KEY, String(now));
 
-  let version: string | null;
+  let manifestText: string;
   try {
-    const manifest = await getJson<unknown>('/v1/manifest', {
+    manifestText = await getText('/v1/manifest', {
       timeoutMs: MANIFEST_TIMEOUT_MS,
     });
-    version = readManifestVersion(manifest);
   } catch {
     return { status: 'unreachable' };
   }
 
-  if (!version) return { status: 'unreachable' };
-  if (version === FACTORS_VERSION) {
-    // The bundle caught up with the service. Clear any stale note.
-    await kvSet(AVAILABLE_KEY, '');
-    return { status: 'current', version };
+  let manifest;
+  try {
+    manifest = parseFactorManifest(manifestText);
+  } catch (error) {
+    if (error instanceof ReleaseValidationError) {
+      return { status: 'rejected', reason: error.kind };
+    }
+    return { status: 'unreachable' };
   }
 
-  const fetched: string[] = [];
-  for (const table of SYNC_TABLES) {
+  if (compareFactorVersions(manifest.version, FACTORS_VERSION) <= 0) {
+    // The bundle caught up with the service. Clear any stale note.
+    await kvSet(AVAILABLE_KEY, '');
+    return { status: 'current', version: FACTORS_VERSION };
+  }
+
+  const files = {} as ReleaseFileTexts;
+  for (const file of RELEASE_FILES) {
     try {
-      const payload = await getJson<unknown>(`/v1/factors/${table}`, {
+      files[file] = await getText(releasePath(file), {
         timeoutMs: TABLE_TIMEOUT_MS,
       });
-      await factorsCachePut(cacheKey(version, table), payload);
-      fetched.push(table);
     } catch {
-      // A release is only worth announcing whole. One table short and the
-      // note stays down; tomorrow's check starts the download again.
+      // Nothing is persisted until every file has arrived and validated.
       return { status: 'unreachable' };
     }
   }
 
-  const available: AvailableRelease = { version, fetchedAt: now, tables: fetched };
-  await kvSet(AVAILABLE_KEY, JSON.stringify(available));
-  return { status: 'fetched', available };
+  let validated;
+  try {
+    validated = await validateFactorRelease(manifestText, files);
+  } catch (error) {
+    if (error instanceof ReleaseValidationError) {
+      return { status: 'rejected', reason: error.kind };
+    }
+    return { status: 'unreachable' };
+  }
+
+  const metadata = Object.fromEntries(
+    validated.manifest.files
+      .filter((file): file is typeof file & { path: ReleaseFile } =>
+        RELEASE_FILES.includes(file.path as ReleaseFile),
+      )
+      .map((file) => [file.path, { sha256: file.sha256, bytes: file.bytes }]),
+  );
+
+  try {
+    await stageFactorRelease(
+      {
+        version: validated.manifest.version,
+        manifestText,
+        files: validated.files,
+      },
+      metadata,
+      now,
+    );
+    await activateFactorRelease(validated.manifest.version);
+    await kvSet(AVAILABLE_KEY, '');
+    await hydrateCatalog({ force: true });
+    return { status: 'activated', version: validated.manifest.version };
+  } catch {
+    // The previous active set remains live; a restart will make the same safe
+    // choice from the durable pointer.
+    return { status: 'unreachable' };
+  }
 }
 
 /**

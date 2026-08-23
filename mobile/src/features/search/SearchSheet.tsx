@@ -60,6 +60,7 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
   const status = useCatalogStore((s) => s.status);
   const items = useCatalogStore((s) => s.items);
   const search = useCatalogStore((s) => s.search);
+  const catalogVersion = useCatalogStore((s) => s.version);
 
   const [query, setQuery] = useState('');
   const [chosen, setChosen] = useState<CatalogItem | null>(null);
@@ -106,12 +107,13 @@ export function SearchSheet({ onDismiss }: SearchSheetProps) {
 
   const pickFrom = useCallback(
     (item: CatalogItem, quantity: number, userEntered: boolean): SearchPick => ({
+      factorsVersion: catalogVersion,
       catalogId: item.id,
       displayName: item.label,
       quantity: { value: quantity, unit: item.defaultUnit as WireUnit },
       userEntered,
     }),
-    [],
+    [catalogVersion],
   );
 
   const handleGo = useCallback(

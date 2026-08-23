@@ -59,7 +59,7 @@ beforeEach(async () => {
 describe('schema', () => {
   it('opens in WAL at the current schema version', async () => {
     expect(await journalMode()).toBe('wal');
-    expect(await schemaVersion()).toBe(1);
+    expect(await schemaVersion()).toBe(2);
   });
 
   it('indexes local_day and created_at on entries', async () => {
@@ -81,6 +81,8 @@ describe('schema', () => {
       'catalog_items',
       'daily_totals',
       'entries',
+      'factor_release_files',
+      'factor_releases',
       'factors_cache',
       'kv',
     ]);

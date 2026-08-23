@@ -91,6 +91,12 @@ A rebuild emits a new version directory. Both sides pin it explicitly: `FACTORS_
 `backend/src/data.ts`, and in the mobile app from the bundled `mobile/src/data/seed/manifest.json`.
 Bumping a version means updating the backend constant and re-copying the seed tables.
 
+Mobile refreshes newer releases through a staged, all-or-nothing activation path. It checks the
+manifest compatibility fields plus every runtime file's exact byte hash, byte count, row count, and
+engine schema before storing or activating anything; startup revalidates the active release and
+falls back to the bundled tables on any failure. The integrity model and the explicit unsigned-
+manifest limitation are documented in [`docs/FACTOR_REFRESH.md`](docs/FACTOR_REFRESH.md).
+
 ## Dev screens
 
 Three routes exist for development only and have no in-app entry point — reach them by deep link

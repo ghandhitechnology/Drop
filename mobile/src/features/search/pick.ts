@@ -15,6 +15,8 @@
 import type { WireUnit } from '../../data/api';
 
 export type SearchPick = {
+  /** The exact catalogue/factor release that supplied this pick and amount. */
+  factorsVersion: string;
   catalogId: string;
   /** Shown the instant the sequence starts, before the engine has run. */
   displayName: string;

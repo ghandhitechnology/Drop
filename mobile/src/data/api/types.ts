@@ -5,7 +5,7 @@
  * device computes.** Nothing here carries a litre figure, a factor row, or a
  * confidence about water. Recognition returns catalogue ids and an amount;
  * barcode lookup returns a catalogue id and a label quantity; the estimate is
- * then built on the phone by `@drop/water-engine` against the bundled tables.
+ * then built on the phone by `@drop/water-engine` against one active release.
  * That is what keeps a number identical whether the radio is on or off.
  */
 

@@ -5,7 +5,7 @@
  * `research` fetches published reading about an item. None of them returns a
  * litre figure, and none of them is on the path of one: every number Drop
  * shows is computed on the device by `@drop/water-engine` against the factor
- * tables in the bundle. The service is a naming service.
+ * one validated active table release. The service is a naming service.
  *
  * Each wrapper hands its answer to `./normalize`, which believes a field only
  * once it has checked it — so a field the service renames surfaces as a

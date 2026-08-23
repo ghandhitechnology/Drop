@@ -9,6 +9,8 @@ import * as SQLite from 'expo-sqlite';
 
 import { migrate } from './schema';
 
+const ACTIVE_FACTORS_KEY = 'factors.active_version';
+
 export const DATABASE_NAME = 'drop.db';
 
 let handle: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -99,6 +101,102 @@ export async function factorsCachePut(key: string, payload: unknown): Promise<vo
   );
 }
 
+/* ----------------------------------------------------- factor releases --- */
+
+export type StoredFactorRelease = {
+  version: string;
+  manifestText: string;
+  files: Record<string, string>;
+};
+
+/**
+ * Persist a complete, already validated release in one transaction. A crash
+ * before commit leaves no release row and therefore nothing activatable.
+ */
+export async function stageFactorRelease(
+  release: StoredFactorRelease,
+  metadata: Record<string, { sha256: string; bytes: number }>,
+  now = Date.now(),
+): Promise<void> {
+  const db = await getDb();
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    await tx.runAsync('DELETE FROM factor_releases WHERE version = ?', release.version);
+    await tx.runAsync(
+      'INSERT INTO factor_releases (version, manifest_json, staged_at) VALUES (?, ?, ?)',
+      release.version,
+      release.manifestText,
+      now,
+    );
+    const statement = await tx.prepareAsync(
+      `INSERT INTO factor_release_files
+         (version, path, payload_text, sha256, bytes, fetched_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    );
+    try {
+      for (const [path, payload] of Object.entries(release.files)) {
+        const file = metadata[path];
+        if (!file) throw new Error(`missing staged metadata for ${path}`);
+        await statement.executeAsync([
+          release.version,
+          path,
+          payload,
+          file.sha256,
+          file.bytes,
+          now,
+        ]);
+      }
+    } finally {
+      await statement.finalizeAsync();
+    }
+  });
+}
+
+export async function readFactorRelease(version: string): Promise<StoredFactorRelease | null> {
+  const db = await getDb();
+  const release = await db.getFirstAsync<{ manifest_json: string }>(
+    'SELECT manifest_json FROM factor_releases WHERE version = ?',
+    version,
+  );
+  if (!release) return null;
+  const rows = await db.getAllAsync<{ path: string; payload_text: string }>(
+    'SELECT path, payload_text FROM factor_release_files WHERE version = ? ORDER BY path',
+    version,
+  );
+  return {
+    version,
+    manifestText: release.manifest_json,
+    files: Object.fromEntries(rows.map((row) => [row.path, row.payload_text])),
+  };
+}
+
+export async function activeFactorReleaseVersion(): Promise<string | null> {
+  return kvGet(ACTIVE_FACTORS_KEY);
+}
+
+/** Switch the durable pointer only if its complete release row still exists. */
+export async function setActiveFactorRelease(version: string): Promise<void> {
+  const db = await getDb();
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    const release = await tx.getFirstAsync<{ version: string }>(
+      'SELECT version FROM factor_releases WHERE version = ?',
+      version,
+    );
+    if (!release) throw new Error(`factor release ${version} is not staged`);
+    await tx.runAsync(
+      `INSERT INTO kv (key, value, updated_at) VALUES (?, ?, ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+      ACTIVE_FACTORS_KEY,
+      version,
+      Date.now(),
+    );
+  });
+}
+
+export async function clearActiveFactorRelease(): Promise<void> {
+  const db = await getDb();
+  await db.runAsync('DELETE FROM kv WHERE key = ?', ACTIVE_FACTORS_KEY);
+}
+
 /* ------------------------------------------------------------ dev only ---- */
 
 /**
@@ -113,6 +211,8 @@ export async function clearAllData(): Promise<void> {
       DELETE FROM daily_totals;
       DELETE FROM catalog_items;
       DELETE FROM factors_cache;
+      DELETE FROM factor_release_files;
+      DELETE FROM factor_releases;
       DELETE FROM kv;
     `);
   });

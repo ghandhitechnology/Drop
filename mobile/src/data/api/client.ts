@@ -114,6 +114,7 @@ async function request<T>(
   path: string,
   body: unknown,
   options: RequestOptions = {},
+  responseType: 'json' | 'text' = 'json',
 ): Promise<T> {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const controller = new AbortController();
@@ -163,6 +164,8 @@ async function request<T>(
 
     if (response.status === 204) return undefined as T;
 
+    if (responseType === 'text') return (await response.text()) as T;
+
     try {
       return (await response.json()) as T;
     } catch {
@@ -181,6 +184,11 @@ async function request<T>(
 
 export function getJson<T>(path: string, options?: RequestOptions): Promise<T> {
   return request<T>('GET', path, undefined, options);
+}
+
+/** Exact response text, used when bytes are covered by a release hash. */
+export function getText(path: string, options?: RequestOptions): Promise<string> {
+  return request<string>('GET', path, undefined, options, 'text');
 }
 
 export function postJson<T>(path: string, body: unknown, options?: RequestOptions): Promise<T> {

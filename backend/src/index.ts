@@ -6,7 +6,7 @@ import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { estimate } from '@drop/water-engine';
 import type { EstimateInput } from '@drop/water-engine';
-import { FACTORS_VERSION, raw, rawTable, tables } from './data';
+import { FACTORS_VERSION, raw, rawTableText, rawText, tables } from './data';
 import { MODEL } from './services/openrouter';
 import { searchCatalog } from './services/catalogMatch';
 import { createRecognize } from './routes/recognize';
@@ -87,18 +87,20 @@ export function createApp({ usage }: AppDependencies) {
     }
   });
 
-  app.get('/v1/manifest', (c) => c.json(raw.manifest));
+  app.get('/v1/manifest', (c) =>
+    c.body(rawText.manifest, 200, { 'Content-Type': 'application/json; charset=utf-8' }),
+  );
 
   app.get('/v1/catalog', (c) => {
     c.header('Cache-Control', 'public, max-age=86400');
-    return c.json(raw.catalog);
+    return c.body(rawText.catalog, 200, { 'Content-Type': 'application/json; charset=utf-8' });
   });
 
   app.get('/v1/factors/:table', (c) => {
-    const t = rawTable(c.req.param('table'));
+    const t = rawTableText(c.req.param('table'));
     if (!t) return c.json({ error: 'unknown table' }, 404);
     c.header('Cache-Control', 'public, max-age=86400');
-    return c.json(t as object);
+    return c.body(t, 200, { 'Content-Type': 'application/json; charset=utf-8' });
   });
 
   app.get('/v1/search', (c) => {

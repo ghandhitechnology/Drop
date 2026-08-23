@@ -83,6 +83,32 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    version: 2,
+    label: 'complete factor releases and active pointer',
+    up: async (db) => {
+      await db.execAsync(`
+        CREATE TABLE factor_releases (
+          version       TEXT    PRIMARY KEY NOT NULL,
+          manifest_json TEXT    NOT NULL,
+          staged_at     INTEGER NOT NULL
+        );
+
+        CREATE TABLE factor_release_files (
+          version      TEXT    NOT NULL,
+          path         TEXT    NOT NULL,
+          payload_text TEXT    NOT NULL,
+          sha256       TEXT    NOT NULL,
+          bytes        INTEGER NOT NULL,
+          fetched_at   INTEGER NOT NULL,
+          PRIMARY KEY (version, path),
+          FOREIGN KEY (version) REFERENCES factor_releases(version) ON DELETE CASCADE
+        );
+
+        DELETE FROM kv WHERE key = 'sync.factors.available';
+      `);
+    },
+  },
 ];
 
 export const SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]!.version;

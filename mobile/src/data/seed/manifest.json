@@ -1,4 +1,5 @@
 {
+ "factor_schema_version": 1,
  "files": [
   {
    "bytes": 940226,
@@ -56,5 +57,6 @@
  ],
  "generated_at": "2026-08-08T15:29:46+00:00",
  "git_commit": "0c0d5c4029d8c4387e563d0d228ccd66320c3ce6",
+ "release_format_version": 1,
  "version": "2026.08.2"
 }
