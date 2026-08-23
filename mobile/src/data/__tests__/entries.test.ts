@@ -134,6 +134,28 @@ describe('insertConfirmed', () => {
     expect(stored?.estimate.factor?.factor_id).toBe(value.factor?.factor_id);
   });
 
+  it('freezes factor validity provenance inside estimate_json', async () => {
+    const value = BUS();
+    expect(value.factor).toMatchObject({
+      valid_from: '2009-12-31',
+      valid_until: '2009-12-31',
+    });
+    const entry = await insertConfirmed(value, {
+      inputMethod: 'sample',
+      createdAt: MORNING,
+      timeZone: TZ,
+    });
+    const stored = await getEntry(entry.id);
+    expect(stored?.estimate.factor).toMatchObject({
+      valid_from: '2009-12-31',
+      valid_until: '2009-12-31',
+    });
+    expect(JSON.parse(stored!.estimate_json).factor).toMatchObject({
+      valid_from: '2009-12-31',
+      valid_until: '2009-12-31',
+    });
+  });
+
   it('keeps a headline-free estimate out of history', async () => {
     const unsupported: Estimate = { ...APPLE(), headline: null };
     await expect(

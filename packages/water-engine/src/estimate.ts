@@ -308,6 +308,8 @@ function hestiaRef(h: HestiaFactor): FactorRef {
     factor_id: h.factor_id,
     dataset: h.dataset,
     dataset_release: h.dataset_release,
+    ...(h.start_year != null ? { valid_from: String(h.start_year) } : {}),
+    ...(h.end_year != null ? { valid_until: String(h.end_year) } : {}),
     geography: h.geography,
     system_boundary: h.system_boundary,
     functional_unit: h.functional_unit,
@@ -407,6 +409,8 @@ function transportRef(tf: TransportFactor): FactorRef {
     dataset: 'drop_transport',
     dataset_release:
       `activity: ${activity.dataset_release}; water intensity: ${water.citation}`,
+    ...(activity.valid_from != null ? { valid_from: activity.valid_from } : {}),
+    ...(activity.valid_until != null ? { valid_until: activity.valid_until } : {}),
     geography: tf.geography,
     system_boundary: tf.system_boundary ?? null,
     functional_unit: tf.functional_unit,

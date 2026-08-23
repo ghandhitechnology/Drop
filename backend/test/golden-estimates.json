@@ -255,6 +255,8 @@
    "factor_id": "drop:transport:petrol_car",
    "dataset": "drop_transport",
    "dataset_release": "activity: USLCI FY2025 Q2 (uslci_fy25_q2_01_json_ld.zip), Federal LCA Commons, National Renewable Energy Laboratory; water intensity: Wu, M., Mintz, M., Wang, M. and Arora, S. (2009). \"Water Consumption in the Production of Ethanol and Petroleum Gasoline.\" Environmental Management 44(5): 981-997. doi:10.1007/s00267-009-9370-0 (Argonne National Laboratory ANL/ESD/09-1, the water analysis that underpins the GREET water module.)",
+   "valid_from": "2009-12-31",
+   "valid_until": "2009-12-31",
    "geography": "US",
    "system_boundary": "Fuel cycle only: crude production/recovery, crude transport, refining, and distribution to the pump (well-to-pump). Excludes vehicle manufacture, vehicle maintenance, road/rail/airport infrastructure, and end-of-life.",
    "functional_unit": "l_water_per_pkm",
