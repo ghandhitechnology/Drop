@@ -79,10 +79,12 @@ export function EntryRow({ entry, onOpen, onRemove }: EntryRowProps) {
         .activeOffsetX([-14, 14])
         .failOffsetY([-10, 10])
         .onUpdate((event) => {
+          // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
           translateX.value = Math.max(-REVEAL, Math.min(0, event.translationX));
         })
         .onEnd(() => {
           if (translateX.value <= -TRIGGER) {
+            // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
             translateX.value = withTiming(
               -screenWidth,
               { duration: exitMs },

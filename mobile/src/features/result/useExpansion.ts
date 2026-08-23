@@ -94,10 +94,12 @@ export function useExpansion({
     .activeOffsetY([-8, 8])
     .onBegin(() => {
       origin.value = expansion.value;
+      // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
       scrubbing.value = 1;
     })
     .onUpdate((event) => {
       const travelled = -event.translationY / SCRUB_TRAVEL;
+      // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
       expansion.value = Math.min(1, Math.max(0, origin.value + travelled));
     })
     .onEnd((event) => {
@@ -106,6 +108,7 @@ export function useExpansion({
       const shouldOpen = dropped ? false : flicked || expansion.value >= COMMIT_POINT;
 
       settle(expansion, shouldOpen ? 1 : 0, reduceMotion);
+      // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
       scrubbing.value = 0;
 
       if (shouldOpen !== open) {
@@ -113,6 +116,7 @@ export function useExpansion({
       }
     })
     .onFinalize(() => {
+      // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
       scrubbing.value = 0;
     });
 

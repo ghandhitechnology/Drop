@@ -62,7 +62,7 @@ export function HandSwitch({ value, name }: HandSwitchProps) {
     on.value = motion.reduceMotion
       ? withTiming(value ? 1 : 0, { duration: 0 })
       : withSpring(value ? 1 : 0, motion.springOf('card'));
-  }, [value, motion.reduceMotion, on]);
+  }, [value, motion, on]);
 
   const geometry = useMemo(() => {
     const inner = rect(PAD, PAD, TRACK_W - PAD * 2, TRACK_H - PAD * 2);

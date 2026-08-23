@@ -86,6 +86,7 @@ export function Touch({
 
   const handlePressIn = useCallback(
     (event: GestureResponderEvent) => {
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       press.value = withSpring(1, motion.springOf('card'));
       if (haptic !== 'none') haptics[haptic]();
       onPressIn?.(event);
@@ -95,6 +96,7 @@ export function Touch({
 
   const handlePressOut = useCallback(
     (event: GestureResponderEvent) => {
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       press.value = withSpring(0, motion.springOf('card'));
       onPressOut?.(event);
     },

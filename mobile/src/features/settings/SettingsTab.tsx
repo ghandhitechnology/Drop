@@ -50,6 +50,7 @@ export function SettingsTab() {
   // value captured at zero can never strand the door off-screen.
   useFocusEffect(
     useCallback(() => {
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       visibility.value = withTiming(hidden ? 0 : 1, {
         duration: motion.reduceMotion ? 0 : 180,
       });

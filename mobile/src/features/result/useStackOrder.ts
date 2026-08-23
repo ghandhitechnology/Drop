@@ -429,20 +429,19 @@ export function useStackOrder({
   const exiting = exitingIndex >= 0 && order.includes(exitingIndex) ? exitingIndex : -1;
 
   // The machine is the source of truth about what is still on the plate; the
-  // arrangement is ours. `reconcileOrder` returns the same array when nothing
-  // moved, so this settles in one pass.
-  useEffect(() => {
-    setOrder((current) => reconcileOrder(current, kept));
-  }, [kept]);
+  // arrangement is ours. Reconcile during render so children never receive a
+  // stale order for one frame after the machine changes the kept cards.
+  const reconciledOrder = reconcileOrder(order, kept);
+  if (reconciledOrder !== order) setOrder(reconciledOrder);
 
-  // The sheet that left takes the exit values home with it.
+  // Once the resolved card has left local state, take its animation values
+  // home. This effect synchronizes React state to Reanimated's external store.
   useEffect(() => {
-    if (exitingIndex < 0 || order.includes(exitingIndex)) return;
-    setExitingIndex(-1);
+    if (exitingIndex >= 0) return;
     exit.value = 0;
     lift.value = 0;
     swipeX.value = 0;
-  }, [exitingIndex, order, exit, lift, swipeX]);
+  }, [exitingIndex, exit, lift, swipeX]);
 
   // Every rearrangement — a dismissal closing the pile, a tap pulling a sheet
   // out of it — is the same move: each depth springs to its new place, all at
@@ -471,8 +470,10 @@ export function useStackOrder({
     () => expansion.value,
     (value) => {
       if (value < FOLD_POINT && fanned.value === 1) {
+        // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
         fanned.value = 0;
         for (let slot = 0; slot < depths.length; slot += 1) {
+          // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
           depths[slot].value = withTiming(0, { duration: REDUCED_MS });
         }
         return;
@@ -495,6 +496,7 @@ export function useStackOrder({
   const finishExit = useCallback(
     (index: number, intent: SwipeIntent, last: boolean) => {
       onResolved(index, intent, last);
+      setExitingIndex(-1);
     },
     [onResolved],
   );
@@ -508,7 +510,9 @@ export function useStackOrder({
       tapSelection();
       onExitStart?.(index, intent);
 
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       exitDirection.value = intent === 'queue' ? 1 : -1;
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       exit.value = 0;
       exit.value = withTiming(
         1,
@@ -523,9 +527,11 @@ export function useStackOrder({
 
   const settleBack = useCallback(() => {
     'worklet';
+    // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
     lift.value = reduceMotion
       ? withTiming(0, { duration: REDUCED_MS })
       : withSpring(0, spring.card);
+    // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
     swipeX.value = reduceMotion
       ? withTiming(0, { duration: REDUCED_MS })
       : withSpring(0, spring.card);
@@ -541,7 +547,9 @@ export function useStackOrder({
         .activeOffsetX([-12, 12])
         .failOffsetY([-24, 24])
         .onUpdate((event) => {
+          // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
           swipeX.value = event.translationX;
+          // eslint-disable-next-line react-hooks/immutability -- This callback is a Reanimated worklet mutating animation state.
           lift.value = Math.min(1, Math.abs(event.translationX) / SWIPE_TRAVEL);
         })
         .onEnd((event) => {

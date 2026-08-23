@@ -1,7 +1,7 @@
 import type { CameraView } from 'expo-camera';
 import { useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -71,10 +71,13 @@ export function CaptureHome() {
   const takePhoto = useTakePhoto(cameraRef, stage, beginShutter, resetShutter);
   const pickFromLibrary = useLibraryPick(stage);
 
-  // A retake starts a fresh framing run, including a fresh reticle.
-  useEffect(() => {
+  // A retake starts a fresh framing run, including a fresh reticle. Adjusting
+  // during the state transition avoids an extra effect-driven render.
+  const [previousStateName, setPreviousStateName] = useState(state.name);
+  if (previousStateName !== state.name) {
+    setPreviousStateName(state.name);
     if (state.name === 'framing') setShutterActive(false);
-  }, [state.name]);
+  }
 
   const handleStageSize = useCallback((size: StageSize) => {
     setStage((current) =>

@@ -116,18 +116,23 @@ export function DropCharacter({
   /* ------------------------------------------------------- pose selection */
 
   // The celebration peaks, then settles into a wave.
-  const [settled, setSettled] = useState(false);
+  const celebrating = state === 'celebrating';
+  const [celebration, setCelebration] = useState({ active: celebrating, settled: false });
+  if (celebration.active !== celebrating) {
+    setCelebration({ active: celebrating, settled: false });
+  }
   useEffect(() => {
-    if (state !== 'celebrating') {
-      setSettled(false);
-      return;
-    }
-    setSettled(false);
-    const timer = setTimeout(() => setSettled(true), CELEBRATION_PEAK_MS);
+    if (!celebrating) return;
+    const timer = setTimeout(
+      () => setCelebration((current) =>
+        current.active ? { ...current, settled: true } : current,
+      ),
+      CELEBRATION_PEAK_MS,
+    );
     return () => clearTimeout(timer);
-  }, [state]);
+  }, [celebrating]);
 
-  const pose = poseFor(state, seedNumber, settled);
+  const pose = poseFor(state, seedNumber, celebration.settled);
 
   // The outgoing pose is kept so the two can cross-fade. Adjusting during
   // render rather than in an effect means the pair is never a frame stale.

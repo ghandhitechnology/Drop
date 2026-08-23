@@ -60,6 +60,7 @@ export function HistoryTab() {
   // to the current visibility endpoint when that camera regains focus.
   useFocusEffect(
     useCallback(() => {
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       visibility.value = withTiming(hidden ? 0 : 1, {
         duration: motion.reduceMotion ? 0 : 180,
       });
