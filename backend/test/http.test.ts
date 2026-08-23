@@ -56,3 +56,30 @@ describe('malformed JSON body handling', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('health contract', () => {
+  it('reports every field required by production verification', async () => {
+    const res = await app.request('/v1/health');
+    expect(res.status).toBe(200);
+
+    const body = await res.json() as Record<string, unknown>;
+    expect(Object.keys(body).sort()).toEqual([
+      'catalog_version',
+      'factors_version',
+      'model',
+      'ok',
+      'usage_enforcement',
+      'usage_legacy_policy',
+      'usage_store',
+    ]);
+    expect(body).toMatchObject({
+      ok: true,
+      factors_version: '2026.08.2',
+      catalog_version: '2026.08.2',
+      model: 'openai/gpt-5.6-luna',
+    });
+    expect(['ready', 'unavailable']).toContain(body.usage_store);
+    expect(['on', 'off']).toContain(body.usage_enforcement);
+    expect(['allow', 'reject']).toContain(body.usage_legacy_policy);
+  });
+});

@@ -2,6 +2,40 @@
 
 Drop uses two production systems: Railway for the backend API and EAS Update for the mobile application.
 
+## Release verification
+
+The GitHub Actions **Release verification** workflow must pass for the exact
+commit being released. It uses clean installs and runs these same gates without
+deployment credentials:
+
+```bash
+# Engine and backend (repository root)
+npm ci
+npm test
+npm run typecheck --workspaces --if-present
+
+# Mobile (separate lockfile)
+cd mobile
+npm ci
+npm test
+npm run typecheck
+npm run lint
+npm run check-contrast
+npm run doctor
+cd ..
+
+# Factor pipeline (Python 3.11, exact pins in pipeline/requirements.txt)
+python3.11 -m venv pipeline/.venv
+pipeline/.venv/bin/pip install -r pipeline/requirements.txt
+pipeline/.venv/bin/pytest pipeline/tests -q
+```
+
+The backend suite includes golden estimate parity. The pipeline suite includes
+byte-for-byte parity between the generated runtime factor tables and the mobile
+seed. A release must not bypass either check. Lint and Expo Doctor are also hard
+gates; fix or stack the release commit on the relevant prerequisite fixes when
+the base branch is known to fail them.
+
 ## Backend production
 
 The backend runs on Railway:
@@ -31,8 +65,23 @@ npx @railway/cli up \
 Verify the deployment:
 
 ```bash
-curl -fsS https://drop-backend-production-375a.up.railway.app/v1/health
+EXPECTED_USAGE_LEGACY_POLICY=allow
+curl -fsS https://drop-backend-production-375a.up.railway.app/v1/health \
+  | jq -e --arg policy "$EXPECTED_USAGE_LEGACY_POLICY" '
+      .ok == true and
+      .factors_version == "2026.08.2" and
+      .catalog_version == .factors_version and
+      .model == "openai/gpt-5.6-luna" and
+      .usage_store == "ready" and
+      .usage_enforcement == "on" and
+      .usage_legacy_policy == $policy
+    '
 ```
+
+Set `EXPECTED_USAGE_LEGACY_POLICY` to the policy required for the rollout
+phase (`allow` during the compatibility window, then `reject`). `jq -e` exits
+non-zero if the response is missing a required field or carries an unexpected
+value; seeing HTTP 200 alone is not release verification.
 
 ### Daily camera usage storage
 
@@ -108,13 +157,8 @@ CI=1 npx eas-cli update \
   --non-interactive
 ```
 
-Before publishing:
-
-```bash
-npm run typecheck
-npm test
-npx expo-doctor
-```
+Before publishing, confirm the full release-verification workflow above passed
+for the commit being published. Do not substitute an earlier commit's result.
 
 ## When a new binary is required
 
