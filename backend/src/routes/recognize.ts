@@ -172,14 +172,13 @@ export function createRecognize(usage: UsageService) {
       return c.json({ error: "mode must be 'normal' or 'fast'" }, 400);
     }
     const mime = body.mime ?? 'image/jpeg';
-    const hash = createHash('sha256').update(body.image_base64).digest('hex');
     const requestFingerprint = createHash('sha256')
       .update(JSON.stringify([body.image_base64, mime, body.hint ?? '', mode]))
       .digest('hex');
     const authorization = await authorizeAnalysis(c, usage, 'recognize', requestFingerprint);
     if (authorization instanceof Response) return authorization;
-    if (cache.has(hash)) {
-      const response = cache.get(hash) as { items?: RecognizedItemOut[] };
+    if (cache.has(requestFingerprint)) {
+      const response = cache.get(requestFingerprint) as { items?: RecognizedItemOut[] };
       if (isPresentable(response.items ?? [])) {
         const failed = await consumeAnalysis(
           c,
@@ -217,7 +216,7 @@ export function createRecognize(usage: UsageService) {
         console.error('recognize model call failed', err);
         return c.json({ error: 'model unavailable' }, 502);
       }
-      const response = respond(hash, items);
+      const response = respond(requestFingerprint, items);
       if (isPresentable(items)) {
         const failed = await consumeAnalysis(
           c,
@@ -276,7 +275,7 @@ export function createRecognize(usage: UsageService) {
     }
 
     items = shapeItems(out, tables);
-    const response = respond(hash, items);
+    const response = respond(requestFingerprint, items);
     if (isPresentable(items)) {
       const failed = await consumeAnalysis(
         c,
