@@ -226,7 +226,49 @@ const RECOGNIZE_TIMEOUT_MS = 28_000;
  */
 export const REAL_TIMINGS = { analyzing: 620 } as const;
 
-const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+/** The two clock operations the run owns, injectable so tests never wait on wall time. */
+export type PipelineClock = {
+  setTimeout: (run: () => void, ms: number) => unknown;
+  clearTimeout: (timer: unknown) => void;
+};
+
+export type RealPipelineDependencies = {
+  clock: PipelineClock;
+  lookupBarcode: typeof lookupBarcode;
+  encodePhoto: typeof encodePhoto;
+  recognizePhoto: typeof recognizePhoto;
+  getTables: typeof getTables;
+  createAnalysisId: typeof createAnalysisId;
+  reserveAnalysis: typeof reserveAnalysis;
+  releaseAnalysis: typeof releaseAnalysis;
+  clearCandidates: typeof clearCandidates;
+  offerCandidates: typeof offerCandidates;
+  estimateFor: typeof estimateFor;
+  takeSearchPicks: typeof takeSearchPicks;
+};
+
+const systemClock: PipelineClock = {
+  setTimeout: (run, ms) => setTimeout(run, ms),
+  clearTimeout: (timer) => clearTimeout(timer as ReturnType<typeof setTimeout>),
+};
+
+const realDependencies: RealPipelineDependencies = {
+  clock: systemClock,
+  lookupBarcode,
+  encodePhoto,
+  recognizePhoto,
+  getTables,
+  createAnalysisId,
+  reserveAnalysis,
+  releaseAnalysis,
+  clearCandidates,
+  offerCandidates,
+  estimateFor,
+  takeSearchPicks,
+};
+
+const delay = (clock: PipelineClock, ms: number) =>
+  new Promise<void>((resolve) => clock.setTimeout(resolve, ms));
 
 type Resolution = {
   catalogId: string;
@@ -272,7 +314,11 @@ type Identified =
 /** A pile taller than this reads as clutter, whatever the model saw. */
 export const MAX_PLATE_ITEMS = 6;
 
-export const realPipeline: Pipeline = (input, handlers) => {
+function runRealPipeline(
+  input: PipelineInput,
+  handlers: PipelineHandlers,
+  dependencies: RealPipelineDependencies,
+): PipelineRun {
   let settled = false;
   let cancelled = false;
   const controller = new AbortController();
@@ -282,7 +328,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
   const releasePending = () => {
     if (!analysisId || !reservationPending) return;
     reservationPending = false;
-    releaseAnalysis(analysisId).catch(() => {});
+    dependencies.releaseAnalysis(analysisId).catch(() => {});
   };
 
   /** Exactly one ending, whoever gets there first. */
@@ -292,7 +338,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
     emit();
   };
 
-  const ceiling = setTimeout(() => {
+  const ceiling = dependencies.clock.setTimeout(() => {
     controller.abort();
     finish(handlers.onUnresolved);
   }, HARD_CEILING_MS);
@@ -300,17 +346,17 @@ export const realPipeline: Pipeline = (input, handlers) => {
   const alive = () => !cancelled && !settled;
 
   const holdAnalysisBeat = async () => {
-    if (input.mode !== 'fast') await delay(REAL_TIMINGS.analyzing);
+    if (input.mode !== 'fast') await delay(dependencies.clock, REAL_TIMINGS.analyzing);
     return alive();
   };
 
   /* ------------------------------------------------------ identification */
 
   async function identify(): Promise<Identified | null> {
-    const tables = getTables();
+    const tables = dependencies.getTables();
 
     // 1 — the catalogue sheet already decided.
-    const picks = takeSearchPicks();
+    const picks = dependencies.takeSearchPicks();
     if (picks.length > 1) {
       const plate = picks
         .slice(0, MAX_PLATE_ITEMS)
@@ -333,8 +379,10 @@ export const realPipeline: Pipeline = (input, handlers) => {
       };
     }
 
-    analysisId = createAnalysisId();
-    await reserveAnalysis(analysisId, { signal: controller.signal });
+    analysisId = dependencies.createAnalysisId();
+    await dependencies.reserveAnalysis(analysisId, {
+      signal: controller.signal,
+    });
     reservationPending = true;
 
     /**
@@ -351,9 +399,9 @@ export const realPipeline: Pipeline = (input, handlers) => {
     }
 
     const readPhoto = async () => {
-      const photo = await encodePhoto(input.photoUri);
+      const photo = await dependencies.encodePhoto(input.photoUri);
       console.log('[capture/pipeline] photo', photo.bytes, 'bytes');
-      return recognizePhoto(photo.base64, {
+      return dependencies.recognizePhoto(photo.base64, {
         mime: photo.mime,
         timeoutMs: RECOGNIZE_TIMEOUT_MS,
         signal: visionController?.signal ?? controller.signal,
@@ -377,7 +425,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
     // 2 — a code in frame. In fast mode the photo is already being read.
     if (input.barcode) {
       try {
-        const hit = await lookupBarcode(input.barcode.value, {
+        const hit = await dependencies.lookupBarcode(input.barcode.value, {
           timeoutMs: BARCODE_TIMEOUT_MS,
           signal: controller.signal,
           analysisId: analysisId!,
@@ -469,7 +517,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
    * A serving nobody moved is a serving, the same rule the single arm keeps.
    */
   function pickToPlateItem(pick: SearchPick): PlateItem | null {
-    const outcome = estimateFor({
+    const outcome = dependencies.estimateFor({
       catalogId: pick.catalogId,
       quantity: pick.quantity,
       source: pick.userEntered ? 'user_entered' : 'catalog_default',
@@ -485,13 +533,13 @@ export const realPipeline: Pipeline = (input, handlers) => {
    * against unreliable per-item quantities.
    */
   function toPlateItem(item: RecognizeItem): PlateItem {
-    const tables = getTables();
+    const tables = dependencies.getTables();
     const box = item.box ?? null;
     const known = item.candidates.filter((c) => tables.catalog.has(c.catalog_id));
     const top = known[0];
 
     if (top) {
-      const outcome = estimateFor({
+      const outcome = dependencies.estimateFor({
         catalogId: top.catalog_id,
         quantity: item.quantity,
         source:
@@ -509,11 +557,11 @@ export const realPipeline: Pipeline = (input, handlers) => {
   /* -------------------------------------------------------------- the run */
 
   async function run(): Promise<void> {
-    clearCandidates();
+    dependencies.clearCandidates();
 
     // One tick, so the first transition never lands inside the machine's own
     // `captured` update.
-    await delay(0);
+    await delay(dependencies.clock, 0);
     if (!alive()) return;
     handlers.onRecognizing();
 
@@ -567,7 +615,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
     // Normal mode lets the name land before its number; fast mode continues.
     if (!(await holdAnalysisBeat())) return;
 
-    const outcome = estimateFor({
+    const outcome = dependencies.estimateFor({
       catalogId: resolved.catalogId,
       quantity: resolved.quantity,
       source: quantitySource(resolved),
@@ -579,7 +627,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
     }
 
     if (resolved.shortlist.length > 1) {
-      offerCandidates(resolved.shortlist, resolved.quantity);
+      dependencies.offerCandidates(resolved.shortlist, resolved.quantity);
     }
 
     finish(() => handlers.onPresenting(outcome.estimate));
@@ -595,7 +643,7 @@ export const realPipeline: Pipeline = (input, handlers) => {
       }
     })
     .finally(() => {
-      clearTimeout(ceiling);
+      dependencies.clock.clearTimeout(ceiling);
       releasePending();
     });
 
@@ -603,12 +651,26 @@ export const realPipeline: Pipeline = (input, handlers) => {
     cancel: () => {
       cancelled = true;
       settled = true;
-      clearTimeout(ceiling);
+      dependencies.clock.clearTimeout(ceiling);
       controller.abort();
       releasePending();
     },
   };
-};
+}
+
+/**
+ * Build the shipped pipeline with selected effects replaced.
+ *
+ * Production uses the defaults below. Tests replace only the radio, usage,
+ * and clock edges while leaving catalogue lookup and estimation untouched.
+ */
+export function createRealPipeline(overrides: Partial<RealPipelineDependencies> = {}): Pipeline {
+  const dependencies: RealPipelineDependencies = { ...realDependencies, ...overrides };
+  return (input, handlers) => runRealPipeline(input, handlers, dependencies);
+}
+
+/** The production binding: the factory above with every shipped dependency. */
+export const realPipeline: Pipeline = createRealPipeline();
 
 /**
  * Where the amount came from, in the engine's own vocabulary. The engine caps
