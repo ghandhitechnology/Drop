@@ -68,10 +68,12 @@ export function Shutter({
 
   const handlePressIn = useCallback(() => {
     didLongPress.current = false;
+    // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
     press.value = withSpring(1, motion.springOf('card'));
   }, [press, motion]);
 
   const handlePressOut = useCallback(() => {
+    // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
     press.value = withSpring(0, motion.springOf('card'));
   }, [press, motion]);
 

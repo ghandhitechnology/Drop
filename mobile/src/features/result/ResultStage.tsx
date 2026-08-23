@@ -300,6 +300,20 @@ export function ResultStage({ stage }: ResultStageProps) {
   const [pillBox, setPillBox] = useState<Rect | null>(null);
   /** A pile has no `expanded` machine state; whether it is open lives here. */
   const [plateOpen, setPlateOpen] = useState(false);
+  const [previousStateName, setPreviousStateName] = useState(state.name);
+
+  // These flags belong to one capture run. Reset them as the machine changes
+  // runs so children never render once with stale interaction state.
+  if (previousStateName !== state.name) {
+    setPreviousStateName(state.name);
+    if (!live && !unresolved) {
+      setReceding(false);
+      setDetailOpen(false);
+      setPlateOpen(false);
+    } else if (state.name === 'presenting' || state.name === 'plating') {
+      setDetailOpen(false);
+    }
+  }
 
   /* --------------------------------------------------------- geometry */
 
@@ -420,6 +434,10 @@ export function ResultStage({ stage }: ResultStageProps) {
     ? `${formatLitres(savedHeadline.value_l)} ${copy.result.unitShort}`
     : null;
   const writing = useMemo(() => (carvedText ? carveTiming(carvedText) : null), [carvedText]);
+  const recedingForConfirmation =
+    (state.name === 'confirmed' || state.name === 'plateConfirmed') &&
+    Boolean(photoUri && writing);
+  const interactionReceding = receding || recedingForConfirmation;
 
   /** The date the shot was taken, worn from the moment the print lands. */
   const captureDate = printDate(new Date());
@@ -482,7 +500,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const { expansion, gesture } = useExpansion({
     open,
     enabled:
-      !receding &&
+      !interactionReceding &&
       (state.name === 'presenting' ||
         state.name === 'expanded' ||
         state.name === 'adjusting' ||
@@ -509,9 +527,6 @@ export function ResultStage({ stage }: ResultStageProps) {
       tick.value = 0;
       centering.value = 0;
       carve.value = 0;
-      setReceding(false);
-      setDetailOpen(false);
-      setPlateOpen(false);
       return;
     }
 
@@ -573,7 +588,6 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   useEffect(() => {
     if (state.name !== 'presenting' && state.name !== 'plating') return;
-    setDetailOpen(false);
     if (motion.reduceMotion) return;
     pop.value = withSequence(withTiming(1.14, { duration: 110 }), withSpring(1, spring.drop));
   }, [state.name, motion.reduceMotion, pop]);
@@ -642,13 +656,14 @@ export function ResultStage({ stage }: ResultStageProps) {
 
     if (photoUri && writing) {
       // Nothing under the ceremony takes a finger while it plays.
-      setReceding(true);
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       centering.value = reduced ? withTiming(1, { duration: 120 }) : withSpring(1, spring.card);
 
       // Linear across the whole line: each glyph's slice carries its own
       // attack, so an ease here would only starve the first and last strokes.
       const carveDelay = reduced ? 0 : beat.center;
       const carveMs = reduced ? 120 : writing.durationMs;
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       carve.value = withDelay(
         carveDelay,
         withTiming(1, { duration: carveMs, easing: Easing.linear }),
@@ -658,6 +673,7 @@ export function ResultStage({ stage }: ResultStageProps) {
       timers.push(setTimeout(exit, exitAt));
       timers.push(setTimeout(home, exitAt + recedeMs + 40));
     } else {
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       tick.value = withTiming(1, { duration: reduced ? 0 : beat.tick });
 
       const holdMs = reduced ? 0 : beat.hold;
@@ -712,7 +728,7 @@ export function ResultStage({ stage }: ResultStageProps) {
 
   const serving = useMemo(
     () => (estimate ? servingOf(estimate.catalog_id) : null),
-    [estimate?.catalog_id],
+    [estimate],
   );
 
   const handleQuantity = useCallback(
@@ -734,7 +750,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const handleRetake = useCallback(() => {
     setDetailOpen(false);
     retake();
-  }, [retake]);
+  }, [retake, setDetailOpen]);
 
   /**
    * An unsaved result folds into the shutter instead of implying it reached
@@ -742,11 +758,14 @@ export function ResultStage({ stage }: ResultStageProps) {
    * so closing is the one place the queue is thrown away, and it says so.
    */
   const handleDismiss = useCallback(() => {
-    if (receding) return;
+    if (interactionReceding) return;
     const discarding = queuedCount;
+    // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
     exitTargetX.value = layout.bubble.x;
+    // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
     exitTargetY.value = layout.bubble.y;
     setReceding(true);
+    // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
     dissolve.value = withTiming(1, {
       duration: motion.reduceMotion ? 120 : beat.recede,
     });
@@ -764,7 +783,7 @@ export function ResultStage({ stage }: ResultStageProps) {
       (motion.reduceMotion ? 120 : beat.recede) + 40,
     );
   }, [
-    receding,
+    interactionReceding,
     queuedCount,
     exitTargetX,
     exitTargetY,
@@ -773,6 +792,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     dissolve,
     motion.reduceMotion,
     retake,
+    setDetailOpen,
   ]);
 
   /* ------------------------------------------------------------ the pile */
@@ -790,6 +810,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     (_index: number, intent: SwipeIntent) => {
       if (motion.reduceMotion) return;
       const catcher = intent === 'queue' ? trayPulse : printPulse;
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
       catcher.value = withSequence(withTiming(1.05, { duration: 110 }), withSpring(1, spring.drop));
     },
     [motion.reduceMotion, printPulse, trayPulse],
@@ -900,7 +921,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     kept: onPile,
     seeds,
     expansion,
-    enabled: state.name === 'plating' && open && !receding,
+    enabled: state.name === 'plating' && open && !interactionReceding,
     onExitStart: handleExitStart,
     onResolved: handleResolved,
     reduceMotion: motion.reduceMotion,
@@ -984,6 +1005,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   const singleSwipeX = useSharedValue(0);
   const canConfirmSingle = Boolean(estimate?.headline);
 
+  /* eslint-disable react-hooks/immutability, react-hooks/refs -- Gesture callbacks are Reanimated worklets; they run after render and mutate SharedValues. */
   const singleSwipe = useMemo(() => {
     const release = () => {
       'worklet';
@@ -993,7 +1015,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     };
 
     return Gesture.Pan()
-      .enabled(!multi && open && !receding && Boolean(estimate))
+      .enabled(!multi && open && !interactionReceding && Boolean(estimate))
       .activeOffsetX([-12, 12])
       .failOffsetY([-24, 24])
       .onUpdate((event) => {
@@ -1022,7 +1044,7 @@ export function ResultStage({ stage }: ResultStageProps) {
   }, [
     multi,
     open,
-    receding,
+    interactionReceding,
     estimate,
     canConfirmSingle,
     handleConfirm,
@@ -1030,6 +1052,7 @@ export function ResultStage({ stage }: ResultStageProps) {
     motion.reduceMotion,
     singleSwipeX,
   ]);
+  /* eslint-enable react-hooks/immutability, react-hooks/refs */
 
   const singleSwipeStyle = useAnimatedStyle(() => ({
     transform: [
@@ -1471,7 +1494,7 @@ export function ResultStage({ stage }: ResultStageProps) {
                   },
                   contentStyle,
                 ]}
-                pointerEvents={open && !receding ? 'box-none' : 'none'}
+                pointerEvents={open && !interactionReceding ? 'box-none' : 'none'}
               >
                 <ResultStack
                   items={plateItems}
@@ -1513,7 +1536,7 @@ export function ResultStage({ stage }: ResultStageProps) {
                   },
                   contentStyle,
                 ]}
-                pointerEvents={open && !receding ? 'auto' : 'none'}
+                pointerEvents={open && !interactionReceding ? 'auto' : 'none'}
                 onLayout={(event) => {
                   const { height } = event.nativeEvent.layout;
                   setCardHeight((current) => (current === height ? current : height));
@@ -1555,7 +1578,7 @@ export function ResultStage({ stage }: ResultStageProps) {
             paper, so a card caught mid-throw wears its own decision out of
             frame. Nothing here takes a finger.
           */}
-          {!unresolved && open && !receding && (
+          {!unresolved && open && !interactionReceding && (
             <Animated.View style={[StyleSheet.absoluteFill, shapeStyle]} pointerEvents="none">
               <Canvas
                 style={StyleSheet.absoluteFill}

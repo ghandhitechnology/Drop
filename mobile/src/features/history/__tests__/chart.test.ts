@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import type { DailyTotal } from '../../../data/types';
+import type { DailyTotal, Entry } from '../../../data/types';
 import {
   MIN_BAR_HEIGHT,
   MIN_BAR_WIDTH,
@@ -17,7 +17,6 @@ import {
   ticksFor,
 } from '../chart';
 import { groupByDay } from '../store';
-import type { Entry } from '../../../data/types';
 
 function day(localDay: string, totalLitres: number, entryCount = 1): DailyTotal {
   return { localDay, totalLitres, entryCount, byCategory: {}, updatedAt: 0 };

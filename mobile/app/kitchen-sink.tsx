@@ -109,6 +109,7 @@ function DrawOnDemo() {
   );
 
   const replay = useCallback(() => {
+    // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValues are mutable animation state.
     progress.value = 0;
     progress.value = withTiming(1, {
       duration: motion.ms('draw') || 1,

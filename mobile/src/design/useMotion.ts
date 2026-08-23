@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
 import { duration, spring, type DurationName, type SpringName } from './motion';
@@ -54,14 +54,17 @@ export function useMotion(): Motion {
   const reduceMotion =
     preference === 'system' ? system : preference === 'reduced';
 
-  return {
-    reduceMotion,
-    ms: (name) => (reduceMotion ? 0 : duration[name]),
-    springOf: (name) =>
-      reduceMotion
-        ? { damping: 100, stiffness: 400, mass: 1 }
-        : spring[name],
-  };
+  return useMemo(
+    () => ({
+      reduceMotion,
+      ms: (name: DurationName) => (reduceMotion ? 0 : duration[name]),
+      springOf: (name: SpringName) =>
+        reduceMotion
+          ? { damping: 100, stiffness: 400, mass: 1 }
+          : spring[name],
+    }),
+    [reduceMotion],
+  );
 }
 
 /** Read and change the motion preference. */

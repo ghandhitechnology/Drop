@@ -1,6 +1,6 @@
 import { Canvas, Group, Skia } from '@shopify/react-native-skia';
 import { CameraView, type BarcodeScanningResult } from 'expo-camera';
-import { useCallback, useEffect, useMemo, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import {
   Extrapolation,
@@ -110,12 +110,14 @@ export function CameraStage({
   );
 
   const reticle = useMemo(() => anchorFor(stage, hint), [stage, hint]);
-  const heldReticle = useRef(reticle);
   const reticleKey = hint?.gtin14 ?? 'center';
-  const heldReticleKey = useRef(reticleKey);
-  if (framing && !shutterActive) {
-    heldReticle.current = reticle;
-    heldReticleKey.current = reticleKey;
+  const [heldReticle, setHeldReticle] = useState({ rect: reticle, key: reticleKey });
+  if (
+    framing &&
+    !shutterActive &&
+    (heldReticle.rect !== reticle || heldReticle.key !== reticleKey)
+  ) {
+    setHeldReticle({ rect: reticle, key: reticleKey });
   }
 
   useEffect(() => {
@@ -128,8 +130,8 @@ export function CameraStage({
     }
   }, [shutterActive, photoUri, fold, closeMs, landMs, unfoldMs]);
 
-  const foldingRect = shutterActive ? heldReticle.current : reticle;
-  const foldingKey = shutterActive ? heldReticleKey.current : reticleKey;
+  const foldingRect = shutterActive ? heldReticle.rect : reticle;
+  const foldingKey = shutterActive ? heldReticle.key : reticleKey;
   const showReticle = stage.width > 0 && (framing || Boolean(photoUri));
 
   // The corners travel to the same square the result stage puts the print in,
