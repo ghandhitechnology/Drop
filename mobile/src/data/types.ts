@@ -70,6 +70,13 @@ export interface WeekTotal {
   entryCount: number;
 }
 
+/** A quantity actually confirmed for one item, grouped by unit and provenance. */
+export interface WeekLeaderQuantity {
+  value: number;
+  unit: string;
+  source: QuantitySource;
+}
+
 /** The heaviest catalogue item in a week, grouped across its repeats. */
 export interface WeekLeader {
   itemId: string;
@@ -77,6 +84,8 @@ export interface WeekLeader {
   category: EntryCategory;
   litres: number;
   times: number;
+  /** Logged amounts used when pricing a genuinely comparable alternative. */
+  quantities: WeekLeaderQuantity[];
 }
 
 export interface CatalogItemRow {

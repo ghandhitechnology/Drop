@@ -1,19 +1,18 @@
 /**
  * The first run: three screens, then the camera.
  *
- * The first makes the promise. The second offers a weekly mark. The third asks
- * for the camera, in the character's own voice, as the character asking to
- * see — the OS dialog is a yes/no box about a permission, and this is the
- * sentence that makes the yes make sense. The ask stays last so that granting
- * it lands straight on the viewfinder.
+ * The first makes the promise. The second explains the personal weekly mark.
+ * The third asks for the camera, in the character's own voice, as the character
+ * asking to see — the OS dialog is a yes/no box about a permission, and this is
+ * the sentence that makes the yes make sense. The ask stays last so that
+ * granting it lands straight on the viewfinder.
  *
  * The mark screen is the one to be careful with, because on day one there is no
  * history to build a mark from and no defensible per-person water figure to
  * fall back on the way a calorie tracker falls back on maintenance calories.
- * So it offers two round numbers, says they are somewhere to start, keeps
- * "Decide later" beside them at equal weight, and promises a real one once
- * there are weeks to compute it from. It never sets a mark by default: a target
- * nobody chose is one nobody owns.
+ * So it offers no number. It says the mark will come from logged weeks, then
+ * moves on. The first mark can later be suggested from history or entered by
+ * the person in the goal editor.
  *
  * Three things the flow refuses to do. It never traps: the way out is on screen
  * from the first frame, the system Back gesture works, and every exit —
@@ -51,13 +50,11 @@ import { useMotion } from '../../design/useMotion';
 import { Grain } from '../../drawing/grain';
 import { HandPath } from '../../drawing/HandPath';
 import { seedFromString } from '../../drawing/seededRandom';
-import { copy, formatLitres } from '../../lib/copy';
+import { copy } from '../../lib/copy';
 import { tapSelection } from '../../lib/haptics';
 import { SketchButton } from '../../ui/SketchButton';
 import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
-import { litresSpoken } from '../history/format';
-import { OPENING_GOAL_LITRES, useGoalStore } from '../goal';
 import { useFirstRun } from './firstRun';
 import { RisingWater, Viewfinder, WeekMark } from './OnboardingScene';
 
@@ -67,18 +64,6 @@ const STEPS = 3;
 const PROMISE = 0;
 const MARK = 1;
 const CAMERA = 2;
-
-/**
- * The two round marks offered on day one.
- *
- * Round on purpose. Neither is derived from anything about this person, and
- * the copy beside them says so; a number carried to the last hundred would
- * claim a precision that does not exist yet.
- */
-const OPENING_MARKS = [
-  { key: 'steady', litres: OPENING_GOAL_LITRES },
-  { key: 'lighter', litres: 11_000 },
-] as const;
 
 /** How long the whole drawing takes, and how far behind it the words arrive. */
 const DRAW_MS = 980;
@@ -100,11 +85,8 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
   const { width, height } = useWindowDimensions();
   const [permission, requestPermission] = useCameraPermissions();
   const complete = useFirstRun((s) => s.complete);
-  const setGoal = useGoalStore((s) => s.setGoal);
 
   const [step, setStep] = useState(PROMISE);
-  /** Which opening mark is under the thumb. Nothing is chosen by default. */
-  const [chosen, setChosen] = useState<string | null>(null);
   const leaving = useRef(false);
 
   const scene = Math.min(
@@ -159,30 +141,6 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
     setStep((current) => Math.max(PROMISE, current - 1));
   }, []);
 
-  const pick = useCallback((key: string) => {
-    tapSelection();
-    // A second press on the chosen mark lets it go, so the thumb can get back
-    // to having chosen nothing without reaching for "Decide later".
-    setChosen((current) => (current === key ? null : key));
-  }, []);
-
-  /**
-   * Takes the mark and moves on, or just moves on.
-   *
-   * The write is awaited before the page turns so a person who force-quits on
-   * the camera ask still has the mark they picked. It is one small key.
-   */
-  const takeMark = useCallback(async () => {
-    const mark = OPENING_MARKS.find((option) => option.key === chosen);
-    if (mark) {
-      await setGoal(mark.litres);
-      AccessibilityInfo.announceForAccessibility(
-        copy.onboarding.announce.marked(litresSpoken(mark.litres)),
-      );
-    }
-    next();
-  }, [chosen, setGoal, next]);
-
   const askForCamera = useCallback(async () => {
     tapSelection();
     // The answer is not a gate. Granted, the camera is live when the person
@@ -225,14 +183,6 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
       : step === MARK
         ? copy.onboarding.mark
         : copy.onboarding.camera;
-
-  /* The primary reads "Decide later" until a mark is under the thumb, so the
-     screen is answerable in one press either way and the way past never hides
-     behind a choice. */
-  const markAction = chosen ? copy.onboarding.mark.action : copy.onboarding.mark.later;
-  const markHint = chosen
-    ? copy.onboarding.mark.actionHint
-    : copy.onboarding.mark.laterHint;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.bg }]}>
@@ -281,19 +231,6 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
             <Text variant="body" tone="inkSoft" style={styles.body}>
               {page.body}
             </Text>
-
-            {step === MARK && (
-              <View style={styles.marks}>
-                {OPENING_MARKS.map((option) => (
-                  <MarkChoice
-                    key={option.key}
-                    option={option}
-                    chosen={chosen === option.key}
-                    onPress={pick}
-                  />
-                ))}
-              </View>
-            )}
           </Animated.View>
         </View>
 
@@ -304,17 +241,17 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
             page turn would otherwise look like with the label swapped.
           */}
           <SketchButton
-            onPress={step === PROMISE ? next : step === MARK ? takeMark : askForCamera}
+            onPress={step === PROMISE || step === MARK ? next : askForCamera}
             seed={`onboarding/primary/${step}`}
             filled
             radius={radius.pill}
             style={styles.primary}
             contentStyle={styles.primaryContent}
-            accessibilityLabel={step === MARK ? markAction : page.action}
-            accessibilityHint={step === MARK ? markHint : page.actionHint}
+            accessibilityLabel={page.action}
+            accessibilityHint={page.actionHint}
           >
             <Text variant="label" tone="accent">
-              {step === MARK ? markAction : page.action}
+              {page.action}
             </Text>
           </SketchButton>
 
@@ -339,58 +276,6 @@ export function OnboardingFlow({ onDone }: OnboardingFlowProps) {
         </Animated.View>
       </SafeAreaView>
     </View>
-  );
-}
-
-/* ------------------------------------------------------------ one mark */
-
-/**
- * One of the two opening marks.
- *
- * The two sit side by side at equal weight, and neither is pre-selected. A
- * default here would be a target the person never chose, which is the fastest
- * way to a mark nobody feels any ownership of.
- */
-function MarkChoice({
-  option,
-  chosen,
-  onPress,
-}: {
-  option: (typeof OPENING_MARKS)[number];
-  chosen: boolean;
-  onPress: (key: string) => void;
-}) {
-  const name =
-    option.key === 'steady' ? copy.onboarding.mark.steady : copy.onboarding.mark.lighter;
-  const body =
-    option.key === 'steady'
-      ? copy.onboarding.mark.steadyBody
-      : copy.onboarding.mark.lighterBody;
-
-  return (
-    <SketchButton
-      onPress={() => onPress(option.key)}
-      seed={`onboarding/mark/${option.key}`}
-      tone={chosen ? 'accent' : 'quiet'}
-      filled={chosen}
-      radius={radius.md}
-      scale={chosen ? 0.9 : 0.68}
-      accessibilityLabel={copy.onboarding.mark.choice(name, litresSpoken(option.litres))}
-      accessibilityHint={body}
-      accessibilityState={{ selected: chosen }}
-      style={styles.mark}
-      contentStyle={styles.markContent}
-    >
-      <Text variant="count" tone={chosen ? 'accent' : 'ink'}>
-        {formatLitres(option.litres)}
-      </Text>
-      <Text variant="label" tone="ink">
-        {name}
-      </Text>
-      <Text variant="axis" tone="inkSoft" style={styles.markBody}>
-        {body}
-      </Text>
-    </SketchButton>
   );
 }
 
@@ -497,16 +382,6 @@ const styles = StyleSheet.create({
   title: { maxWidth: 420 },
   body: { maxWidth: 420 },
 
-  marks: { flexDirection: 'row', gap: space.sm, marginTop: space.sm },
-  mark: { flex: 1 },
-  markContent: {
-    minHeight: 96,
-    paddingHorizontal: space.md,
-    paddingVertical: space.md,
-    gap: 2,
-    justifyContent: 'center',
-  },
-  markBody: { maxWidth: 160 },
   note: { textAlign: 'center', paddingHorizontal: space.md },
 
   actions: {

@@ -123,13 +123,23 @@ export function suggestionsFrom(baseline: number | null): GoalSuggestion[] | nul
 }
 
 /**
- * The mark offered before there is any history to build one from.
+ * The first value shown in the editor.
  *
- * A person on day one has no average, and there is no defensible per-person
- * water figure to fall back on the way a calorie tracker falls back on
- * maintenance calories. So this is a round number to measure a first week
- * against, and the first-run copy says exactly that rather than dressing it up
- * as a recommendation. Once two weeks are logged, `suggestionsFrom` takes over
- * and the number becomes the person's own.
+ * An existing mark belongs to the person and stays put. Otherwise Drop may
+ * offer the gentlest history-derived suggestion. With no history, there is no
+ * value: the field starts blank so the first number can only come from the
+ * person entering it.
  */
-export const OPENING_GOAL_LITRES = 16_000;
+export function initialGoalValue(stored: number | null, baseline: number | null): number | null {
+  if (stored !== null) return clampGoal(stored);
+  return suggestionsFrom(baseline)?.[0]?.litres ?? null;
+}
+
+/** Reads an explicit litres-per-week entry, or leaves an empty/invalid field unset. */
+export function parseGoalInput(raw: string): number | null {
+  const value = raw.trim();
+  if (!/^\d+$/.test(value)) return null;
+  const litres = Number(value);
+  if (!Number.isFinite(litres) || litres <= 0) return null;
+  return clampGoal(litres);
+}

@@ -8,20 +8,21 @@
  *
  * So the marks offered come from the person's own logged weeks as soon as there
  * are two of them, and the number is theirs rather than ours. Before that the
- * screen offers a round number, says in as many words that it is a round number
- * to measure a first week against, and offers to wait instead.
+ * field is blank and accepts an explicit number from the person.
  *
- * The stepper is always there under the presets. A preset is a starting point,
- * and the thumb is the last word.
+ * The stepper stays beside the field and history-derived presets. The typed
+ * number or the thumb is always the last word.
  */
 
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { usePreferences } from '../../design/preferences';
 import { useTheme } from '../../design/theme';
 import { radius as radii, space } from '../../design/tokens';
+import { maxFontSizeMultiplier, variantStyle } from '../../design/typography';
 import { copy, formatLitres } from '../../lib/copy';
 import { tapSelection } from '../../lib/haptics';
 import { SketchButton } from '../../ui/SketchButton';
@@ -29,15 +30,14 @@ import { SketchLink } from '../../ui/SketchLink';
 import { Text } from '../../ui/Text';
 import { litresShort, litresSpoken } from '../history/format';
 import {
-  OPENING_GOAL_LITRES,
+  MIN_WEEKLY_LITRES,
   STEP_LITRES,
   clampGoal,
+  initialGoalValue,
+  parseGoalInput,
   suggestionsFrom,
 } from './goal';
 import { baselineOf, useGoalStore } from './store';
-
-/** The round marks offered before there is a logged week to build one from. */
-const OPENING_MARKS = [OPENING_GOAL_LITRES, 11_000] as const;
 
 export function GoalScreen() {
   const { colors } = useTheme();
@@ -51,9 +51,9 @@ export function GoalScreen() {
   const load = useGoalStore((s) => s.load);
 
   const suggestions = useMemo(() => suggestionsFrom(baseline), [baseline]);
-  const [litres, setLitres] = useState(
-    () => stored ?? suggestions?.[0]?.litres ?? OPENING_GOAL_LITRES,
-  );
+  const [editedDraft, setDraft] = useState<string | null>(null);
+  const draft = editedDraft ?? String(initialGoalValue(stored, baseline) ?? '');
+  const litres = useMemo(() => parseGoalInput(draft), [draft]);
 
   useEffect(() => {
     load();
@@ -61,18 +61,19 @@ export function GoalScreen() {
 
   const move = useCallback((by: number) => {
     tapSelection();
-    setLitres((current) => {
-      const next = clampGoal(current + by);
+    setDraft((current) => {
+      const entered = parseGoalInput(current ?? '');
+      const next = entered === null ? MIN_WEEKLY_LITRES : clampGoal(entered + by);
       AccessibilityInfo.announceForAccessibility(
         copy.goal.sheet.announce(litresSpoken(next)),
       );
-      return next;
+      return String(next);
     });
   }, []);
 
   const choose = useCallback((value: number) => {
     tapSelection();
-    setLitres(clampGoal(value));
+    setDraft(String(clampGoal(value)));
   }, []);
 
   /* Reached from the record almost always, and by a deep link occasionally.
@@ -83,6 +84,7 @@ export function GoalScreen() {
   }, [router]);
 
   const save = useCallback(async () => {
+    if (litres === null) return;
     await setGoal(litres);
     AccessibilityInfo.announceForAccessibility(copy.goal.sheet.saved);
     close();
@@ -127,15 +129,8 @@ export function GoalScreen() {
             seed="goal/less"
             onPress={() => move(-STEP_LITRES)}
           />
-          <View
-            style={styles.figure}
-            accessible
-            accessibilityRole="text"
-            accessibilityLabel={copy.goal.sheet.announce(litresSpoken(litres))}
-          >
-            <Text variant="hero" tone="ink" style={styles.number}>
-              {formatLitres(litres)}
-            </Text>
+          <View style={styles.figure}>
+            <GoalInput value={draft} onChange={setDraft} />
             <Text variant="heroUnit" tone="inkSoft">
               {copy.result.unit}
             </Text>
@@ -150,7 +145,9 @@ export function GoalScreen() {
         </View>
 
         <Text variant="axis" tone="inkSoft" style={styles.perDay}>
-          {copy.goal.sheet.perDay(litresShort(litres / 7))}
+          {litres === null
+            ? copy.goal.opening.enterHint
+            : copy.goal.sheet.perDay(litresShort(litres / 7))}
         </Text>
 
         <View style={styles.marks}>
@@ -185,29 +182,11 @@ export function GoalScreen() {
               />
             </>
           ) : (
-            <>
-              <Mark
-                seed="goal/mark/start"
-                title={copy.goal.opening.start}
-                body={copy.goal.opening.startBody}
-                value={OPENING_MARKS[0]}
-                chosen={litres === OPENING_MARKS[0]}
-                onPress={choose}
-              />
-              <Mark
-                seed="goal/mark/light"
-                title={copy.goal.opening.light}
-                body={copy.goal.opening.lightBody}
-                value={OPENING_MARKS[1]}
-                chosen={litres === OPENING_MARKS[1]}
-                onPress={choose}
-              />
-              <Text variant="axis" tone="inkSoft" style={styles.note}>
-                {loggedWeeks > 0
-                  ? copy.goal.opening.note
-                  : copy.goal.opening.laterBody}
-              </Text>
-            </>
+            <Text variant="axis" tone="inkSoft" style={styles.note}>
+              {loggedWeeks > 0
+                ? copy.goal.opening.note
+                : copy.goal.opening.laterBody}
+            </Text>
           )}
         </View>
 
@@ -218,6 +197,8 @@ export function GoalScreen() {
           filled
           radius={radii.pill}
           accessibilityLabel={copy.goal.sheet.save}
+          accessibilityState={{ disabled: litres === null }}
+          disabled={litres === null}
           style={styles.save}
           contentStyle={styles.saveContent}
         >
@@ -244,6 +225,32 @@ export function GoalScreen() {
 }
 
 /* ---------------------------------------------------------------- parts -- */
+
+function GoalInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const { colors } = useTheme();
+  const legible = usePreferences((s) => s.legibleText);
+
+  return (
+    <TextInput
+      value={value}
+      onChangeText={(next) => onChange(next.replace(/[^0-9]/g, '').slice(0, 6))}
+      onBlur={() => {
+        const parsed = parseGoalInput(value);
+        if (parsed !== null) onChange(String(parsed));
+      }}
+      keyboardType="number-pad"
+      inputMode="numeric"
+      placeholder={copy.goal.opening.placeholder}
+      placeholderTextColor={colors.inkFaint}
+      selectionColor={colors.accent}
+      accessibilityLabel={copy.goal.opening.enter}
+      accessibilityHint={copy.goal.opening.enterHint}
+      allowFontScaling
+      maxFontSizeMultiplier={maxFontSizeMultiplier.hero}
+      style={[variantStyle('hero', legible), styles.input, { color: colors.ink }]}
+    />
+  );
+}
 
 function Step({
   label,
@@ -340,7 +347,7 @@ const styles = StyleSheet.create({
     marginTop: space.lg,
   },
   figure: { alignItems: 'center' },
-  number: { fontVariant: ['tabular-nums'] },
+  input: { minWidth: 180, padding: 0, textAlign: 'center', fontVariant: ['tabular-nums'] },
   step: { minHeight: 52, minWidth: 52 },
   stepContent: { minHeight: 52, minWidth: 52, alignItems: 'center', justifyContent: 'center' },
   perDay: { textAlign: 'center' },

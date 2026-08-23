@@ -402,7 +402,8 @@ export async function weekLeaders(
   limit = 3,
 ): Promise<WeekLeader[]> {
   const db = await getDb();
-  return db.getAllAsync<WeekLeader>(
+  const [leaders, quantities] = await Promise.all([
+    db.getAllAsync<Omit<WeekLeader, 'quantities'>>(
     `SELECT item_id      AS itemId,
             item_label   AS label,
             category     AS category,
@@ -415,7 +416,31 @@ export async function weekLeaders(
       LIMIT ?`,
     week,
     limit,
-  );
+    ),
+    db.getAllAsync<{
+      itemId: string;
+      value: number;
+      unit: string;
+      source: WeekLeader['quantities'][number]['source'];
+    }>(
+      `SELECT item_id             AS itemId,
+              SUM(quantity_value) AS value,
+              quantity_unit       AS unit,
+              quantity_source     AS source
+         FROM entries
+        WHERE local_week = ? AND deleted_at IS NULL
+        GROUP BY item_id, quantity_unit, quantity_source
+        ORDER BY item_id, quantity_unit, quantity_source`,
+      week,
+    ),
+  ]);
+
+  return leaders.map((leader) => ({
+    ...leader,
+    quantities: quantities
+      .filter((quantity) => quantity.itemId === leader.itemId)
+      .map(({ value, unit, source }) => ({ value, unit, source })),
+  }));
 }
 
 /** Live and soft-deleted counts — the data lab's health readout. */

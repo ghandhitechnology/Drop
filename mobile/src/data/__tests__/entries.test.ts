@@ -6,7 +6,7 @@
  * below runs the code that ships.
  */
 import { estimate } from '@drop/water-engine';
-import type { Estimate, QuantityUnit } from '@drop/water-engine';
+import type { Estimate, QuantitySource, QuantityUnit } from '@drop/water-engine';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { seedCatalogItems } from '../catalog';
@@ -32,9 +32,14 @@ import { getTables } from '../tables';
 const TZ = 'Asia/Seoul';
 const tables = getTables();
 
-function sample(id: string, value: number, unit: QuantityUnit): Estimate {
+function sample(
+  id: string,
+  value: number,
+  unit: QuantityUnit,
+  source: QuantitySource = 'catalog_default',
+): Estimate {
   return estimate(
-    { catalog_id: id, quantity: { value, unit, source: 'catalog_default' } },
+    { catalog_id: id, quantity: { value, unit, source } },
     tables,
   );
 }
@@ -477,9 +482,9 @@ describe('week reads', () => {
     expect((await thisWeekTotal(new Date(MORNING), TZ)).totalLitres).toBe(0);
   });
 
-  it('groups the week leaders by item rather than by row', async () => {
-    for (const offset of [0, 1000, 2000]) {
-      await insertConfirmed(COFFEE(), {
+  it('groups the week leaders and keeps their custom quantities', async () => {
+    for (const [quantity, offset] of [[0.1, 0], [0.25, 1000], [0.4, 2000]] as const) {
+      await insertConfirmed(sample('coffee_standard', quantity, 'l', 'user_entered'), {
         inputMethod: 'sample',
         createdAt: MORNING + offset,
         timeZone: TZ,
@@ -495,6 +500,9 @@ describe('week reads', () => {
     const coffee = leaders.find((leader) => leader.itemId === 'coffee_standard');
 
     expect(coffee?.times).toBe(3);
+    expect(coffee?.quantities).toEqual([
+      { value: 0.75, unit: 'l', source: 'user_entered' },
+    ]);
     // Heaviest first, and three coffees outweigh one apple.
     expect(leaders[0]!.itemId).toBe('coffee_standard');
     expect(leaders[0]!.litres).toBeGreaterThan(leaders[1]!.litres);
