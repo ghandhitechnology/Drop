@@ -6,6 +6,8 @@ import {
   STEP_LITRES,
   baselineFrom,
   clampGoal,
+  initialGoalValue,
+  parseGoalInput,
   progressFor,
   suggestionsFrom,
 } from '../goal';
@@ -108,6 +110,31 @@ describe('suggestionsFrom', () => {
   it('offers nothing without a baseline to build on', () => {
     expect(suggestionsFrom(null)).toBeNull();
     expect(suggestionsFrom(0)).toBeNull();
+  });
+});
+
+describe('initialGoalValue', () => {
+  it('offers no opening number when onboarding has no personal history', () => {
+    expect(initialGoalValue(null, null)).toBeNull();
+  });
+
+  it('starts from personal history once a baseline exists', () => {
+    expect(initialGoalValue(null, 16_000)).toBe(14_500);
+  });
+
+  it('keeps a mark the person already entered', () => {
+    expect(initialGoalValue(13_500, 16_000)).toBe(13_500);
+  });
+});
+
+describe('parseGoalInput', () => {
+  it('accepts a mark the person enters and applies the editor step', () => {
+    expect(parseGoalInput('13750')).toBe(14_000);
+  });
+
+  it('keeps a blank or invalid entry unset', () => {
+    expect(parseGoalInput('')).toBeNull();
+    expect(parseGoalInput('weekly')).toBeNull();
   });
 });
 

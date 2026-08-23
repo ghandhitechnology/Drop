@@ -430,19 +430,12 @@ export const copy = {
       holdBody: 'Watch the shape before moving it',
     },
 
-    /**
-     * Day one has no average, and there is no per-person water figure that
-     * plays the part maintenance calories play in a calorie tracker. So the
-     * opening mark says what it is: a round number to measure a first week
-     * against, with a way to wait for a real one.
-     */
+    /** No offered number appears until personal history can support it. */
     opening: {
-      start: 'Start here',
-      startBody: 'A round number to measure your first week against',
-      light: 'Lighter',
-      lightBody: 'Mostly plants, short trips',
-      later: 'Decide later',
-      laterBody: 'Log a week and Drop will suggest a number from it',
+      enter: 'Weekly litres',
+      enterHint: 'Enter your own weekly mark in litres',
+      placeholder: 'Type',
+      laterBody: 'Enter your own mark, or log two weeks for suggestions from your history',
       note: 'Drop suggests a mark of your own once two weeks are logged',
     },
   },
@@ -469,31 +462,13 @@ export const copy = {
       actionHint: 'Goes to the next screen',
     },
 
-    /**
-     * The weekly mark, offered before there is a week to build one from.
-     *
-     * The copy owns that plainly — "somewhere to start" — because on day one
-     * the number really is a round one, and dressing it up as a recommendation
-     * would be the false precision the whole product exists to avoid. Both
-     * offered marks are round, the way out is beside them, and Drop says it
-     * will bring a real number once it has the weeks to make one from.
-     */
+    /** The weekly mark is introduced without offering an invented number. */
     mark: {
-      title: 'Give the week a mark.',
-      body: 'A weekly number to measure against. Pick somewhere to start — you can move it whenever you like.',
-      action: 'Use this mark',
-      actionHint: 'Saves this weekly mark and goes to the next screen',
-      later: 'Decide later',
-      laterHint: 'Goes to the next screen without a mark',
-      /** The two round marks, named so a choice is between words. */
-      steady: 'Steady',
-      steadyBody: 'An everyday week, meat a few times',
-      lighter: 'Lighter',
-      lighterBody: 'Mostly plants, short trips',
-      /** Sits under the choices. */
-      note: 'Drop brings you a mark of your own once two weeks are logged.',
-      /** Spoken for one choice. */
-      choice: (name = 'Steady', litres = '0 litres') => `${name}, ${litres} a week`,
+      title: 'Your weeks set the mark.',
+      body: 'Log two weeks and Drop can suggest a mark from your own history. You can enter one yourself whenever you like.',
+      action: 'Keep going',
+      actionHint: 'Goes to the camera step. Your mark stays open',
+      note: 'Your first mark waits for your history or your entry.',
     },
 
     camera: {
@@ -507,11 +482,9 @@ export const copy = {
 
     announce: {
       promise: 'Welcome to Drop. Every thing you use carries hidden water.',
-      mark: 'Choose a weekly mark, or decide later.',
+      mark: 'Weekly marks come from your logged weeks, or a number you enter.',
       camera: 'Drop is asking to look through your camera.',
       done: 'Camera ready.',
-      /** Spoken once a mark is taken. */
-      marked: (litres = '0 litres') => `Mark set to ${litres} a week.`,
     },
   },
 

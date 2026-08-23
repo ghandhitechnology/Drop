@@ -13,6 +13,7 @@
  * of a different category ("bread instead of a flight") is worse than silence.
  */
 
+import type { WireUnit } from '../../data/api';
 import { getTables } from '../../data/tables';
 import type { WeekLeader } from '../../data/types';
 import { estimateFor } from '../search/estimate';
@@ -26,7 +27,7 @@ const SCAN_LIMIT = 400;
 export type Swap = {
   catalogId: string;
   label: string;
-  /** Litres the same number of servings would have cost. */
+  /** Litres the alternative costs at the quantities that were logged. */
   litres: number;
   /** Litres freed across the week, against what was actually logged. */
   freed: number;
@@ -38,11 +39,44 @@ export type WeekDriver = {
   swap: Swap | null;
 };
 
-/** The litres one published serving of an item costs, or nothing when unsupported. */
-function servingLitres(catalogId: string): number | null {
-  const outcome = estimateFor({ catalogId, source: 'catalog_default' });
-  const headline = outcome?.estimate.headline;
-  return headline ? headline.value_l : null;
+type UnitDimension = 'mass' | 'volume' | 'distance' | 'currency';
+
+/** Item counts depend on each catalogue entry's serving, so they are not comparable. */
+function dimensionOf(unit: string): UnitDimension | null {
+  if (unit === 'kg' || unit === 'g') return 'mass';
+  if (unit === 'l' || unit === 'ml') return 'volume';
+  if (unit === 'km') return 'distance';
+  if (unit === 'usd') return 'currency';
+  return null;
+}
+
+/**
+ * Reprice every logged quantity for an alternative without allowing the
+ * estimate helper to fall back to its default serving.
+ */
+function comparableLitres(
+  catalogId: string,
+  defaultUnit: string,
+  quantities: WeekLeader['quantities'],
+): number | null {
+  const expected = dimensionOf(defaultUnit);
+  if (!expected || quantities.length === 0) return null;
+
+  let total = 0;
+  for (const quantity of quantities) {
+    if (dimensionOf(quantity.unit) !== expected) return null;
+    const outcome = estimateFor({
+      catalogId,
+      quantity: { value: quantity.value, unit: quantity.unit as WireUnit },
+      source: quantity.source,
+    });
+    const litres = outcome?.estimate.headline?.value_l ?? null;
+    if (outcome?.usedServing || litres === null || !Number.isFinite(litres) || litres <= 0) {
+      return null;
+    }
+    total += litres;
+  }
+  return total;
 }
 
 /**
@@ -56,9 +90,6 @@ export function findSwap(leader: WeekLeader): Swap | null {
   const tables = getTables();
   const source = tables.catalog.get(leader.itemId);
   if (!source) return null;
-
-  const leaderServing = servingLitres(leader.itemId);
-  if (leaderServing === null || leaderServing <= 0) return null;
 
   const typology = source.factor_links?.typology?.factor_id ?? null;
   let best: Swap | null = null;
@@ -74,18 +105,20 @@ export function findSwap(leader: WeekLeader): Swap | null {
     if (typology && entryTypology !== typology) continue;
     scanned += 1;
 
-    const litres = servingLitres(catalogId);
+    const litres = comparableLitres(
+      catalogId,
+      entry.default_quantity.unit,
+      leader.quantities,
+    );
     if (litres === null || litres <= 0) continue;
-    if (litres > leaderServing * (1 - WORTH_SAYING)) continue;
+    if (litres > leader.litres * (1 - WORTH_SAYING)) continue;
     if (best && litres >= best.litres) continue;
 
     best = {
       catalogId,
       label: entry.display_name,
       litres,
-      // The person logged `times` servings. The saving is what those servings
-      // would have cost as the lighter item instead.
-      freed: (leaderServing - litres) * leader.times,
+      freed: leader.litres - litres,
     };
   }
 
