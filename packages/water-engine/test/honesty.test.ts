@@ -276,6 +276,16 @@ describe('transport provenance', () => {
     expect(e.factor!.functional_unit).toBe('l_water_per_pkm');
     expect(e.factor!.geography).toBe('US');
     expect(e.factor!.system_boundary).toMatch(/well-to-pump/);
+    expect(e.factor).toMatchObject({
+      valid_from: '2009-12-31',
+      valid_until: '2009-12-31',
+    });
+  });
+
+  it('does not invent validity when a supported source omits it', () => {
+    const e = ask({ value: 1, unit: 'kg' }, 'apple');
+    expect(e.factor).not.toHaveProperty('valid_from');
+    expect(e.factor).not.toHaveProperty('valid_until');
   });
 
   it.each([
@@ -345,6 +355,18 @@ describe('transport provenance', () => {
 /* ------------------------------ E8 ------------------------------------- */
 
 describe('secondary metrics', () => {
+  it('preserves HESTIA observation-period bounds', () => {
+    const e = estimate({
+      catalog_id: 'banana',
+      quantity: { value: 1, unit: 'kg', source: 'user_entered' },
+    }, tables);
+    const hestia = e.secondary.find((s) => !s.proxy_metric);
+    expect(hestia?.factor).toMatchObject({
+      valid_from: '2010',
+      valid_until: '2025',
+    });
+  });
+
   it('falls back to the global line when the origin has no data of its own', () => {
     const e = estimate({
       catalog_id: 'banana',

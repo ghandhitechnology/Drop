@@ -29,6 +29,7 @@ import {
   formatRange,
   sourceRows,
   unsupportedLine,
+  validityPeriod,
 } from '../copy';
 
 /* ------------------------------------------------------------- fixtures */
@@ -380,6 +381,31 @@ describe('sourceRows', () => {
   it('still names the factor tables when there is no factor', () => {
     const rows = sourceRows(estimateFixture({ factor: null }));
     expect(rows).toEqual([{ label: 'Factor tables', value: '2026.08.1' }]);
+  });
+
+  it('renders a complete validity period between release and geography', () => {
+    const estimate = estimateFixture({
+      factor: {
+        ...estimateFixture().factor!,
+        valid_from: '2010',
+        valid_until: '2025',
+      },
+    });
+    expect(sourceRows(estimate)).toEqual([
+      { label: 'Dataset', value: 'su_eatable_life' },
+      { label: 'Release', value: 'SuEatableLife_Food_Footprint_database.xlsx' },
+      { label: 'Validity', value: '2010\u20132025' },
+      { label: 'Geography', value: 'GLO' },
+      { label: 'Boundary', value: 'cradle-to-distribution-centre' },
+      { label: 'Factor tables', value: '2026.08.1' },
+    ]);
+  });
+
+  it('handles one-sided, point, and absent validity without inventing a bound', () => {
+    expect(validityPeriod('2024-01-01', null)).toBe('From 2024-01-01');
+    expect(validityPeriod(null, '2024-12-31')).toBe('Through 2024-12-31');
+    expect(validityPeriod('2009-12-31', '2009-12-31')).toBe('2009-12-31');
+    expect(validityPeriod(undefined, undefined)).toBeNull();
   });
 });
 

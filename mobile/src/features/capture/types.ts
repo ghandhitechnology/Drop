@@ -41,6 +41,9 @@ export interface FactorRef {
   factor_id: string;
   dataset: string;
   dataset_release: string;
+  /** Optional so estimates frozen before validity provenance shipped still load. */
+  valid_from?: string | null;
+  valid_until?: string | null;
   geography: string;
   system_boundary: string | null;
   functional_unit: string;

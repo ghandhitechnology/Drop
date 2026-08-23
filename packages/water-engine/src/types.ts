@@ -43,6 +43,10 @@ export interface FactorRef {
   factor_id: string;
   dataset: string;
   dataset_release: string;
+  /** Source-stated validity bounds. A missing bound stays absent rather than
+   * being inferred from a release date, publication year, or factors version. */
+  valid_from?: string | null;
+  valid_until?: string | null;
   geography: string;
   system_boundary: string | null;
   functional_unit: string;
@@ -140,6 +144,9 @@ export interface HestiaFactor {
   factor_id: string;
   dataset: string;
   dataset_release: string;
+  /** HESTIA's own observation-period bounds. Optional for older bundles. */
+  start_year?: number | null;
+  end_year?: number | null;
   product_name: string;
   geography: string;
   metric_type: MetricType;

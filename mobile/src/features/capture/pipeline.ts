@@ -115,6 +115,8 @@ export const SAMPLE_ESTIMATE: Estimate = {
         factor_id: 'hestia:fw:bananaFruit-world-2010-2025-20250501',
         dataset: 'hestia',
         dataset_release: 'v1.0 (2025-05-01)',
+        valid_from: '2010',
+        valid_until: '2025',
         geography: 'GLO',
         system_boundary: 'cradle-to-farm-gate (HESTIA aggregated)',
         functional_unit: 'kg',

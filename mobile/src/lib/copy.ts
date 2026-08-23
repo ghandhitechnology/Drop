@@ -128,6 +128,7 @@ export const copy = {
     source: {
       dataset: 'Dataset',
       release: 'Release',
+      validity: 'Validity',
       geography: 'Geography',
       boundary: 'Boundary',
       tables: 'Factor tables',
@@ -877,7 +878,20 @@ export const UNSUPPORTED_LINES: string[] = [
 
 export type SourceRow = { label: string; value: string };
 
-/** Dataset, release, geography, boundary — the provenance, in reading order. */
+/** Turns independently optional bounds into one compact, honest display line. */
+export function validityPeriod(
+  validFrom?: string | null,
+  validUntil?: string | null,
+): string | null {
+  if (validFrom && validUntil) {
+    return validFrom === validUntil ? validFrom : `${validFrom}\u2013${validUntil}`;
+  }
+  if (validFrom) return `From ${validFrom}`;
+  if (validUntil) return `Through ${validUntil}`;
+  return null;
+}
+
+/** Dataset, release, validity, geography, boundary — in reading order. */
 export function sourceRows(estimate: Estimate): SourceRow[] {
   const factor = estimate.factor;
   const rows: SourceRow[] = [];
@@ -887,6 +901,10 @@ export function sourceRows(estimate: Estimate): SourceRow[] {
       label: copy.result.source.release,
       value: factor.dataset_release,
     });
+    const validity = validityPeriod(factor.valid_from, factor.valid_until);
+    if (validity) {
+      rows.push({ label: copy.result.source.validity, value: validity });
+    }
     rows.push({ label: copy.result.source.geography, value: factor.geography });
     if (factor.system_boundary) {
       rows.push({
