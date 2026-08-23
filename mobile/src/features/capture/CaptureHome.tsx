@@ -1,7 +1,7 @@
 import type { CameraView } from 'expo-camera';
 import { useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
